@@ -1,70 +1,150 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Defuse App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DEFUSE | Neutralize</title>
     <style>
-        body { background: #0f172a; color: #f1f5f9; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
-        .card { background: #1e293b; border-radius: 15px; padding: 20px; margin: 10px auto; max-width: 350px; border: 1px solid #2dd4bf; }
-        .btn { background: #2dd4bf; color: #0f172a; border: none; padding: 20px; border-radius: 10px; width: 100%; max-width: 300px; font-weight: bold; font-size: 1.1rem; margin: 10px 0; cursor: pointer; }
-        .sos { background: #f43f5e; color: white; }
-        .hidden { display: none; }
-        #timer { font-size: 4rem; color: #2dd4bf; }
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --teal: #2dd4bf;
+            --red: #f43f5e;
+            --text: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background-color: var(--bg) !important; 
+            color: var(--text); 
+            font-family: -apple-system, system-ui, sans-serif; 
+            margin: 0; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .screen { display: none; width: 100%; max-width: 400px; flex-direction: column; align-items: center; text-align: center; }
+        .active { display: flex; }
+
+        h1 { color: var(--teal); letter-spacing: 4px; font-weight: 900; margin-top: 40px; }
+        p { opacity: 0.7; line-height: 1.5; }
+
+        .btn { 
+            background: var(--card); 
+            border: 2px solid var(--teal); 
+            color: var(--teal); 
+            padding: 20px; 
+            border-radius: 12px; 
+            width: 100%; 
+            margin: 10px 0; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-sos { background: var(--red); border: none; color: white; font-size: 1.3rem; margin-bottom: 20px; }
+
+        #timer { font-size: 5rem; color: var(--teal); font-weight: 900; margin: 20px 0; }
+
+        /* SIMPLE PULSE FOR SOS */
+        .pulse {
+            width: 120px; height: 120px;
+            background: var(--teal);
+            border-radius: 50%;
+            margin: 40px auto;
+            opacity: 0.3;
+            animation: pulse-anim 8s infinite ease-in-out;
+        }
+        @keyframes pulse-anim {
+            0%, 100% { transform: scale(0.8); }
+            50% { transform: scale(1.3); }
+        }
+
+        nav { position: fixed; bottom: 20px; display: flex; gap: 20px; }
+        .nav-btn { background: none; border: none; color: var(--text); opacity: 0.5; font-size: 0.8rem; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="home">
-        <h1 style="color: #2dd4bf; letter-spacing: 3px;">DEFUSE</h1>
-        <p style="opacity: 0.7;">Select a neutralization protocol:</p>
-        
-        <button class="btn sos" onclick="showScreen('sos')">SOS: BREATHING</button>
-        <button class="btn" onclick="showScreen('ice')">ICE RESET ❄️</button>
-        <button class="btn" onclick="showScreen('ground')">SENSORY ANCHOR</button>
+    <div id="home" class="screen active">
+        <h1>DEFUSE</h1>
+        <p>Tactical Neutralization Protocol</p>
+        <div style="margin-top: 30px; width: 100%;">
+            <button class="btn btn-sos" onclick="nav('sos')">SOS: BREATHING</button>
+            <button class="btn" onclick="nav('ice')">BIOLOGICAL RESET ❄️</button>
+            <button class="btn" onclick="nav('ground')">SENSORY ANCHOR</button>
+        </div>
     </div>
 
-    <div id="sos" class="hidden">
-        <h2>Breathe with the pulse</h2>
-        <div style="width:100px; height:100px; background:#2dd4bf; border-radius:50%; margin: 40px auto; opacity:0.5;"></div>
-        <button class="btn" onclick="showScreen('home')">STABILIZED</button>
+    <div id="sos" class="screen">
+        <h1>BREATHE</h1>
+        <div class="pulse"></div>
+        <p id="b-text">Sync your breath with the circle.</p>
+        <button class="btn" onclick="nav('home')">STABILIZED</button>
     </div>
 
-    <div id="ice" class="hidden">
-        <h2>ICE DIVE</h2>
-        <p>Apply ice to face for 15 seconds.</p>
-        <h1 id="timer">15</h1>
-        <button class="btn" onclick="startTimer()">START TIMER</button>
-        <button class="btn" onclick="showScreen('home')" style="background:none; color:white;">CANCEL</button>
+    <div id="ice" class="screen">
+        <h1>RESET</h1>
+        <p>Hold ice to your face to force a heart rate drop.</p>
+        <div id="timer">15</div>
+        <button class="btn" id="t-start" onclick="runTimer()">START OVERRIDE</button>
+        <button class="btn" onclick="nav('home')" style="border:none; opacity:0.5;">CANCEL</button>
     </div>
 
-    <div id="ground" class="hidden">
-        <h2>5-4-3-2-1</h2>
-        <p>Identify 5 things you see.</p>
-        <button class="btn" onclick="showScreen('home')">DONE</button>
+    <div id="ground" class="screen">
+        <h1>ANCHOR</h1>
+        <p id="g-prompt">Identify 5 things you can SEE.</p>
+        <h1 id="g-count" style="font-size: 4rem;">5</h1>
+        <button class="btn" onclick="nextAnchor()">NEXT</button>
     </div>
+
+    <nav>
+        <button class="nav-btn" onclick="nav('home')">HOME</button>
+        <button class="nav-btn" onclick="alert('Defuse Pro: Log triggers to your Vault ($4.99/mo)')">VAULT 🔒</button>
+    </nav>
 
     <script>
-        function showScreen(id) {
-            document.getElementById('home').classList.add('hidden');
-            document.getElementById('sos').classList.add('hidden');
-            document.getElementById('ice').classList.add('hidden');
-            document.getElementById('ground').classList.add('hidden');
-            document.getElementById(id).classList.remove('hidden');
+        function nav(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'sos') startBreathing();
         }
 
-        function startTimer() {
+        // SOS LOGIC
+        function startBreathing() {
+            const txt = document.getElementById('b-text');
+            setInterval(() => {
+                let s = Math.floor(Date.now() / 1000) % 8;
+                if (s < 4) txt.innerText = "INHALING...";
+                else txt.innerText = "EXHALING...";
+            }, 1000);
+        }
+
+        // TIMER LOGIC
+        function runTimer() {
             let t = 15;
             const el = document.getElementById('timer');
-            const interval = setInterval(() => {
-                t--;
-                el.innerText = t;
-                if(t <= 0) {
-                    clearInterval(interval);
-                    alert("System Reset Complete.");
-                    showScreen('home');
-                }
+            const btn = document.getElementById('t-start');
+            btn.disabled = true;
+            const int = setInterval(() => {
+                t--; el.innerText = t;
+                if(t <= 0) { clearInterval(int); el.innerText = "DONE"; btn.disabled = false; }
             }, 1000);
+        }
+
+        // GROUNDING LOGIC
+        let step = 5;
+        const prompts = ["SEE", "TOUCH", "HEAR", "SMELL", "TASTE"];
+        function nextAnchor() {
+            step--;
+            if(step < 1) { step = 5; nav('home'); return; }
+            document.getElementById('g-prompt').innerText = "Identify " + step + " things you can " + prompts[5-step] + ".";
+            document.getElementById('g-count').innerText = step;
         }
     </script>
 </body>
