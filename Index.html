@@ -68,6 +68,40 @@
 
         nav { position: fixed; bottom: 20px; display: flex; gap: 20px; }
         .nav-btn { background: none; border: none; color: var(--text); opacity: 0.5; font-size: 0.8rem; cursor: pointer; }
+
+        #visual {
+            width: 100%;
+            height: 180px;
+            margin: 20px 0;
+            border-radius: 16px;
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            background: radial-gradient(circle at center, #064e3b 0%, #020617 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .anchor {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: rgba(45, 212, 191, 0.35);
+            box-shadow: 0 0 24px rgba(45, 212, 191, 0.35);
+            transition: background 250ms ease, box-shadow 250ms ease, transform 250ms ease;
+            animation: anchor-breathe 4s ease-in-out infinite;
+        }
+
+        .visual-active .anchor {
+            background: #5eead4;
+            box-shadow: 0 0 40px #2dd4bf;
+            transform: scale(1.08);
+        }
+
+        @keyframes anchor-breathe {
+            0%, 100% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -101,6 +135,9 @@
     <div id="ground" class="screen">
         <h1>ANCHOR</h1>
         <p id="g-prompt">Identify 5 things you can SEE.</p>
+        <div id="visual" aria-hidden="true">
+            <div class="anchor"></div>
+        </div>
         <h1 id="g-count" style="font-size: 4rem;">5</h1>
         <button class="btn" onclick="nextAnchor()">NEXT</button>
     </div>
@@ -126,20 +163,127 @@
     </nav>
 
     <script>
+        let breathingInterval = null;
+        let audioCtx = null;
+        let binauralGain = null;
+        let spiritNoise = null;
+        let spiritMotionInterval = null;
+
+        function ensureAudioGraph() {
+            if (audioCtx) return true;
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return false;
+            audioCtx = new AudioContextClass();
+            binauralGain = audioCtx.createGain();
+            binauralGain.gain.value = 0.22;
+            binauralGain.connect(audioCtx.destination);
+            return true;
+        }
+
+        function setPannerPosition(panner, x, y, z) {
+            if (panner.positionX && panner.positionY && panner.positionZ) {
+                panner.positionX.setValueAtTime(x, audioCtx.currentTime);
+                panner.positionY.setValueAtTime(y, audioCtx.currentTime);
+                panner.positionZ.setValueAtTime(z, audioCtx.currentTime);
+            } else {
+                panner.setPosition(x, y, z);
+            }
+        }
+
+        // Spirit Landscape Audio Assets (synthesized web audio for zero-load time)
+        function playSpiritLandscape(type = 'forest') {
+            if (!ensureAudioGraph()) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            stopSpiritLandscape();
+
+            const filter = audioCtx.createBiquadFilter();
+            const noise = audioCtx.createBufferSource();
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            // Create pink-ish noise base for a deep nature bed.
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            noise.buffer = buffer;
+            noise.loop = true;
+
+            // The "Spirit" filter profile.
+            filter.type = 'lowpass';
+            const typeFrequency = {
+                forest: 400,
+                cave: 320,
+                river: 520
+            };
+            filter.frequency.value = typeFrequency[type] || 400;
+
+            // Spatial panner (bilateral movement).
+            const panner = audioCtx.createPanner();
+            panner.panningModel = 'HRTF';
+            panner.distanceModel = 'inverse';
+            panner.refDistance = 1;
+            panner.maxDistance = 12;
+
+            noise.connect(filter);
+            filter.connect(panner);
+            panner.connect(binauralGain);
+
+            // Animate the sound moving in a 3D arc around the head.
+            let angle = 0;
+            spiritMotionInterval = setInterval(() => {
+                angle += 0.05;
+                setPannerPosition(panner, Math.sin(angle) * 5, 0, Math.cos(angle) * 2);
+            }, 50);
+
+            noise.start();
+            spiritNoise = noise;
+        }
+
+        function stopSpiritLandscape() {
+            if (spiritMotionInterval) {
+                clearInterval(spiritMotionInterval);
+                spiritMotionInterval = null;
+            }
+            if (spiritNoise) {
+                try {
+                    spiritNoise.stop();
+                } catch (e) {
+                    // Ignore stop errors when source is already ended.
+                }
+                spiritNoise.disconnect();
+                spiritNoise = null;
+            }
+        }
+
         function nav(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(id === 'sos') startBreathing();
-            if(id === 'activate') {
+            document.body.classList.toggle('visual-active', id === 'ground');
+
+            if (id === 'sos') startBreathing();
+            else if (breathingInterval) {
+                clearInterval(breathingInterval);
+                breathingInterval = null;
+            }
+
+            if (id === 'ground') playSpiritLandscape('forest');
+            else stopSpiritLandscape();
+
+            if (id === 'activate') {
                 nextActTask();
                 resetActScreen();
+            } else {
+                clearInterval(actInt);
             }
         }
 
         // SOS LOGIC
         function startBreathing() {
             const txt = document.getElementById('b-text');
-            setInterval(() => {
+            if (breathingInterval) clearInterval(breathingInterval);
+            breathingInterval = setInterval(() => {
                 let s = Math.floor(Date.now() / 1000) % 8;
                 if (s < 4) txt.innerText = "INHALING...";
                 else txt.innerText = "EXHALING...";
