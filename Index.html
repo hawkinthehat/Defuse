@@ -9,6 +9,7 @@
             --bg: #0f172a;
             --card: #1e293b;
             --teal: #2dd4bf;
+            --gold: #f59e0b;
             --red: #f43f5e;
             --text: #f1f5f9;
         }
@@ -112,6 +113,7 @@
             <button class="btn btn-sos" onclick="nav('sos')">SOS: BREATHING</button>
             <button class="btn" onclick="nav('ice')">BIOLOGICAL RESET ❄️</button>
             <button class="btn" onclick="nav('ground')">SENSORY ANCHOR</button>
+            <button class="btn" style="background: var(--gold); color: var(--bg); border-color: var(--gold);" onclick="nav('activate')">⚡ GET MOVING (MICRO-WIN)</button>
         </div>
     </div>
 
@@ -138,6 +140,21 @@
         </div>
         <h1 id="g-count" style="font-size: 4rem;">5</h1>
         <button class="btn" onclick="nextAnchor()">NEXT</button>
+    </div>
+
+    <div id="activate" class="screen">
+        <h2 style="color: var(--gold); letter-spacing: 2px;">MOMENTUM: ACTIVATE</h2>
+        <p style="opacity: 0.6; font-size: 0.8rem;">ONE TINY TASK. 60 SECONDS.</p>
+        <div id="task-display" style="background: var(--card); border: 2px solid var(--gold); padding: 30px; border-radius: 20px; width: 100%; font-size: 1.6rem; font-weight: 900; margin: 20px 0; color: var(--gold);">---</div>
+        <div id="act-timer" style="font-size: 4rem; font-weight: 900; margin-bottom: 20px;">60</div>
+        <button id="act-btn" class="btn" style="background: var(--gold); color: var(--bg); border-color: var(--gold);" onclick="startActTimer()">START SPRINT</button>
+        <button class="btn" style="border:none; opacity:0.5;" onclick="exitAll()">CANCEL</button>
+    </div>
+
+    <div id="success" class="screen">
+        <h1 style="color: var(--gold);">COMPLETE</h1>
+        <p>Micro-win secured. Momentum restored.</p>
+        <button class="btn" onclick="nav('home')">BACK HOME</button>
     </div>
 
     <nav>
@@ -253,6 +270,13 @@
 
             if (id === 'ground') playSpiritLandscape('forest');
             else stopSpiritLandscape();
+
+            if (id === 'activate') {
+                nextActTask();
+                resetActScreen();
+            } else {
+                clearInterval(actInt);
+            }
         }
 
         // SOS LOGIC
@@ -286,6 +310,57 @@
             if(step < 1) { step = 5; nav('home'); return; }
             document.getElementById('g-prompt').innerText = "Identify " + step + " things you can " + prompts[5-step] + ".";
             document.getElementById('g-count').innerText = step;
+        }
+
+        // ACTIVATE LOGIC
+        const activeTasks = [
+            "Straighten one item in this room.",
+            "Drink exactly 3 sips of water.",
+            "Stand up and reach for the ceiling.",
+            "Put one piece of trash in the bin.",
+            "Find a cold surface and touch it.",
+            "Adjust your posture right now.",
+            "Name 3 things you can see.",
+            "Roll your shoulders 3 times."
+        ];
+
+        let actInt;
+        function startActTimer() {
+            let t = 60;
+            const display = document.getElementById('act-timer');
+            const btn = document.getElementById('act-btn');
+            btn.style.display = 'none';
+
+            display.innerText = t;
+            clearInterval(actInt);
+            actInt = setInterval(() => {
+                t--;
+                display.innerText = t;
+                if(t <= 0) {
+                    clearInterval(actInt);
+                    triggerSuccess();
+                }
+            }, 1000);
+        }
+
+        function nextActTask() {
+            const task = activeTasks[Math.floor(Math.random() * activeTasks.length)];
+            document.getElementById('task-display').innerText = task;
+        }
+
+        function resetActScreen() {
+            clearInterval(actInt);
+            document.getElementById('act-timer').innerText = "60";
+            document.getElementById('act-btn').style.display = 'block';
+        }
+
+        function triggerSuccess() {
+            nav('success');
+        }
+
+        function exitAll() {
+            resetActScreen();
+            nav('home');
         }
     </script>
 </body>
