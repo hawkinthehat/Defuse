@@ -701,6 +701,8 @@
                     box.style.display = 'none';
                     box.value = '';
                     box.classList.remove('terminating');
+                    document.getElementById('orbit-stage').style.display = 'block';
+                    drawLoop();
                     triggerExplosionParticles();
                     startOrbitalEMDR();
                 }, 1200);
