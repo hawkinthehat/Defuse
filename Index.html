@@ -11,6 +11,8 @@
             --teal: #2dd4bf;
             --gold: #f59e0b;
             --red: #f43f5e;
+            --danger: #f43f5e;
+            --lead: #64748b;
             --text: #f1f5f9;
         }
 
@@ -102,6 +104,66 @@
             0%, 100% { transform: scale(0.9); opacity: 0.8; }
             50% { transform: scale(1.1); opacity: 1; }
         }
+
+        #spark-in {
+            font-size: 1.8rem;
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            width: 100%;
+            background: #020617;
+            border: 2px solid var(--danger);
+            color: var(--text);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            font-weight: 800;
+        }
+
+        .shatter-sequence {
+            animation: grow-and-snap 1.5s cubic-bezier(0.95, 0.05, 0.795, 0.035) forwards;
+        }
+
+        @keyframes grow-and-snap {
+            0% { transform: scale(1); filter: blur(0); }
+            50% { transform: scale(1.8); color: var(--danger); filter: blur(1px); }
+            90% { transform: scale(2.2); filter: blur(4px); opacity: 1; }
+            100% { transform: scale(4); filter: blur(20px); opacity: 0; }
+        }
+
+        .weave-wrap {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 16px;
+            margin: 12px 0 18px;
+            padding: 14px;
+        }
+
+        .weave-lead {
+            stroke: var(--lead);
+            stroke-dasharray: 8, 12;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        #orbit-thread {
+            fill: #5eead4;
+            filter: drop-shadow(0 0 6px rgba(45, 212, 191, 0.9));
+        }
+
+        #halt-in {
+            width: 100%;
+            background: #020617;
+            border: 2px solid rgba(45, 212, 191, 0.5);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -113,6 +175,7 @@
             <button class="btn btn-sos" onclick="nav('sos')">SOS: BREATHING</button>
             <button class="btn" onclick="nav('ice')">BIOLOGICAL RESET ❄️</button>
             <button class="btn" onclick="nav('ground')">SENSORY ANCHOR</button>
+            <button class="btn" style="border-color: var(--red); color: var(--red);" onclick="nav('terminate')">TERMINATE SPARK</button>
             <button class="btn" style="background: var(--gold); color: var(--bg); border-color: var(--gold);" onclick="nav('activate')">⚡ GET MOVING (MICRO-WIN)</button>
         </div>
     </div>
@@ -151,6 +214,31 @@
         <button class="btn" style="border:none; opacity:0.5;" onclick="exitAll()">CANCEL</button>
     </div>
 
+    <div id="terminate" class="screen">
+        <h1 style="color: var(--red);">TERMINATE</h1>
+        <p id="terminate-note">Type the trigger word and press ENTER to shatter it.</p>
+        <input id="spark-in" type="text" placeholder="SPARK WORD" onkeydown="handleSpark(event)" autocomplete="off">
+
+        <div class="weave-wrap" id="orbit-stage" style="display: none;">
+            <svg viewBox="0 0 160 160" width="100%" height="140" aria-label="EMDR orbit guide">
+                <circle class="weave-lead" cx="80" cy="80" r="46"></circle>
+                <g id="orbit-group" transform="translate(80 80)">
+                    <circle id="orbit-thread" cx="46" cy="0" r="5"></circle>
+                </g>
+            </svg>
+            <p style="margin: 0; opacity: 0.75; font-size: 0.85rem;">EMDR ORBIT ACTIVE</p>
+        </div>
+
+        <div id="halt-stage" style="display: none; width: 100%;">
+            <p style="margin: 10px 0 2px; opacity: 0.6;">HALT CHECK <span id="halt-progress">1/5</span></p>
+            <h2 id="halt-prompt" style="margin: 4px 0 0; letter-spacing: 1px;">COUNT: ● ● ● ● ● ● ●</h2>
+            <input id="halt-in" type="text" placeholder="ANSWER + ENTER" onkeydown="handleHaltKey(event)" autocomplete="off">
+            <button class="btn" style="margin-top: 10px;" onclick="checkHalt()">CONFIRM</button>
+        </div>
+
+        <button class="btn" style="border:none; opacity:0.5;" onclick="nav('home')">CANCEL</button>
+    </div>
+
     <div id="success" class="screen">
         <h1 style="color: var(--gold);">COMPLETE</h1>
         <p>Micro-win secured. Momentum restored.</p>
@@ -168,6 +256,15 @@
         let binauralGain = null;
         let spiritNoise = null;
         let spiritMotionInterval = null;
+        let orbitInterval = null;
+        let haltProgress = 0;
+        const haltPool = [
+            { i: "COUNT", q: "● ● ● ● ● ● ●", a: "7" },
+            { i: "SOLVE", q: "15 - 7", a: "8" },
+            { i: "REVERSE", q: "WOLF", a: "FLOW" },
+            { i: "COUNT", q: "● ● ●", a: "3" },
+            { i: "SOLVE", q: "9 + 13", a: "22" }
+        ];
 
         function ensureAudioGraph() {
             if (audioCtx) return true;
@@ -277,6 +374,9 @@
             } else {
                 clearInterval(actInt);
             }
+
+            if (id === 'terminate') resetTerminateScreen();
+            else stopOrbit();
         }
 
         // SOS LOGIC
@@ -361,6 +461,98 @@
         function exitAll() {
             resetActScreen();
             nav('home');
+        }
+
+        function resetTerminateScreen() {
+            haltProgress = 0;
+            stopOrbit();
+            const spark = document.getElementById('spark-in');
+            spark.style.display = 'block';
+            spark.value = '';
+            spark.classList.remove('shatter-sequence');
+            document.getElementById('orbit-stage').style.display = 'none';
+            document.getElementById('halt-stage').style.display = 'none';
+            document.getElementById('terminate-note').innerText = 'Type the trigger word and press ENTER to shatter it.';
+            document.getElementById('halt-in').value = '';
+            document.getElementById('halt-progress').innerText = '1/5';
+            document.getElementById('halt-prompt').innerText = 'COUNT: ● ● ● ● ● ● ●';
+        }
+
+        function updateHaltUI() {
+            const current = haltPool[haltProgress];
+            document.getElementById('halt-progress').innerText = `${haltProgress + 1}/${haltPool.length}`;
+            document.getElementById('halt-prompt').innerText = `${current.i}: ${current.q}`;
+            const input = document.getElementById('halt-in');
+            input.value = '';
+            input.focus();
+        }
+
+        function handleHaltKey(e) {
+            if (e.key === 'Enter') checkHalt();
+        }
+
+        function checkHalt() {
+            const val = document.getElementById('halt-in').value.trim().toUpperCase();
+            const expected = String(haltPool[haltProgress].a).toUpperCase();
+            if (val === expected) {
+                haltProgress++;
+                if (navigator.vibrate) navigator.vibrate(40);
+
+                if (haltProgress >= haltPool.length) {
+                    startVagalReset();
+                } else {
+                    updateHaltUI();
+                }
+            }
+        }
+
+        function stopOrbit() {
+            if (orbitInterval) {
+                clearInterval(orbitInterval);
+                orbitInterval = null;
+            }
+        }
+
+        function startOrbit() {
+            document.getElementById('orbit-stage').style.display = 'block';
+            document.getElementById('halt-stage').style.display = 'block';
+            haltProgress = 0;
+            updateHaltUI();
+
+            stopOrbit();
+            const group = document.getElementById('orbit-group');
+            let angle = 0;
+            orbitInterval = setInterval(() => {
+                angle = (angle + 8) % 360;
+                group.setAttribute('transform', `translate(80 80) rotate(${angle})`);
+            }, 30);
+        }
+
+        function startVagalReset() {
+            stopOrbit();
+            document.getElementById('terminate-note').innerText = 'Sequence complete. Shift to long exhales.';
+            nav('sos');
+            document.getElementById('b-text').innerText = 'Vagal reset: inhale 4s, exhale 6s.';
+        }
+
+        function handleSpark(e) {
+            if (e.key === 'Enter') {
+                const el = document.getElementById('spark-in');
+                if (el.value.trim() === "") return;
+
+                el.classList.add('shatter-sequence');
+
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 200, 50, 500]);
+                }
+
+                setTimeout(() => {
+                    el.style.display = 'none';
+                    el.value = "";
+                    el.classList.remove('shatter-sequence');
+                    startOrbit();
+                }, 1500);
+            }
         }
     </script>
 </body>
