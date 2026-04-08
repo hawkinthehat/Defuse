@@ -6,14 +6,17 @@
     <title>DEFUSE | Neutralize</title>
     <style>
         :root {
-            --bg: #0f172a;
+            --bg: #0f172a;        /* Deep Midnight Slate */
+            --bone: #f8fafc;      /* Clean White-Grey for text/action */
+            --accent: #38bdf8;    /* Professional Sky Blue */
+            --danger: #ef4444;    /* Crimson for halt/shatter */
+            --gold-dim: #94a3b8;  /* Muted slate for lead lines */
             --card: #1e293b;
-            --teal: #2dd4bf;
+            --teal: var(--accent);
             --gold: #f59e0b;
-            --red: #f43f5e;
-            --danger: #f43f5e;
-            --lead: #64748b;
-            --text: #f1f5f9;
+            --red: var(--danger);
+            --lead: var(--gold-dim);
+            --text: var(--bone);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -76,8 +79,8 @@
             height: 180px;
             margin: 20px 0;
             border-radius: 16px;
-            border: 1px solid rgba(94, 234, 212, 0.2);
-            background: radial-gradient(circle at center, #064e3b 0%, #020617 100%);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            background: radial-gradient(circle at center, #0b2840 0%, #020617 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -88,15 +91,15 @@
             width: 96px;
             height: 96px;
             border-radius: 50%;
-            background: rgba(45, 212, 191, 0.35);
-            box-shadow: 0 0 24px rgba(45, 212, 191, 0.35);
+            background: rgba(56, 189, 248, 0.35);
+            box-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
             transition: background 250ms ease, box-shadow 250ms ease, transform 250ms ease;
             animation: anchor-breathe 4s ease-in-out infinite;
         }
 
         .visual-active .anchor {
-            background: #5eead4;
-            box-shadow: 0 0 40px #2dd4bf;
+            background: #7dd3fc;
+            box-shadow: 0 0 40px #38bdf8;
             transform: scale(1.08);
         }
 
@@ -106,29 +109,29 @@
         }
 
         #spark-in {
-            font-size: 1.8rem;
-            transition: all 0.1s ease;
+            font-size: 2rem;
+            background: transparent;
+            border: none;
+            color: var(--bone);
+            text-align: center;
+            transition: transform 0.1s ease;
             text-transform: uppercase;
             letter-spacing: 2px;
             width: 100%;
-            background: #020617;
-            border: 2px solid var(--danger);
-            color: var(--text);
             border-radius: 12px;
             padding: 14px;
-            text-align: center;
             font-weight: 800;
         }
 
-        .shatter-sequence {
-            animation: grow-and-snap 1.5s cubic-bezier(0.95, 0.05, 0.795, 0.035) forwards;
+        .terminating {
+            animation: pressure-hold 1.2s forwards;
         }
 
-        @keyframes grow-and-snap {
-            0% { transform: scale(1); filter: blur(0); }
-            50% { transform: scale(1.8); color: var(--danger); filter: blur(1px); }
-            90% { transform: scale(2.2); filter: blur(4px); opacity: 1; }
-            100% { transform: scale(4); filter: blur(20px); opacity: 0; }
+        @keyframes pressure-hold {
+            0% { transform: scale(1); opacity: 1; filter: blur(0); }
+            80% { transform: scale(1.5); opacity: 1; filter: blur(2px); color: var(--danger); }
+            99% { transform: scale(1.6); opacity: 0.1; }
+            100% { display: none; } /* The "snap" moment */
         }
 
         .weave-wrap {
@@ -148,14 +151,29 @@
         }
 
         #orbit-thread {
-            fill: #5eead4;
-            filter: drop-shadow(0 0 6px rgba(45, 212, 191, 0.9));
+            fill: #38bdf8;
+            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.9));
+        }
+
+        #cvs {
+            width: 100%;
+            height: 140px;
+            display: block;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            margin-bottom: 10px;
+        }
+
+        #weave-instr {
+            color: var(--accent);
+            font-weight: 900;
+            margin: 0 0 8px;
         }
 
         #halt-in {
             width: 100%;
             background: #020617;
-            border: 2px solid rgba(45, 212, 191, 0.5);
+            border: 2px solid rgba(56, 189, 248, 0.5);
             color: var(--text);
             border-radius: 10px;
             padding: 12px;
@@ -217,9 +235,11 @@
     <div id="terminate" class="screen">
         <h1 style="color: var(--red);">TERMINATE</h1>
         <p id="terminate-note">Type the trigger word and press ENTER to shatter it.</p>
-        <input id="spark-in" type="text" placeholder="SPARK WORD" onkeydown="handleSpark(event)" autocomplete="off">
+        <input id="spark-in" type="text" placeholder="SPARK WORD" onkeydown="doSpark(event)" autocomplete="off">
 
         <div class="weave-wrap" id="orbit-stage" style="display: none;">
+            <p id="weave-instr">THE RAVEN'S EYE: return to hub before each spoke.</p>
+            <canvas id="cvs" width="320" height="140" aria-label="Complex weave guide"></canvas>
             <svg viewBox="0 0 160 160" width="100%" height="140" aria-label="EMDR orbit guide">
                 <circle class="weave-lead" cx="80" cy="80" r="46"></circle>
                 <g id="orbit-group" transform="translate(80 80)">
@@ -258,12 +278,25 @@
         let spiritMotionInterval = null;
         let orbitInterval = null;
         let haltProgress = 0;
+        let weaveProgress = 1;
+        let explosionFrame = null;
         const haltPool = [
             { i: "COUNT", q: "● ● ● ● ● ● ●", a: "7" },
             { i: "SOLVE", q: "15 - 7", a: "8" },
             { i: "REVERSE", q: "WOLF", a: "FLOW" },
             { i: "COUNT", q: "● ● ●", a: "3" },
             { i: "SOLVE", q: "9 + 13", a: "22" }
+        ];
+        const complexLevels = [
+            {
+                n: "THE RAVEN'S EYE",
+                pts: [
+                    { x: 0.5, y: 0.5, type: 'hub' }, // Center
+                    { x: 0.2, y: 0.2 }, { x: 0.5, y: 0.5, type: 'hub' }, // Back to center
+                    { x: 0.8, y: 0.2 }, { x: 0.5, y: 0.5, type: 'hub' },
+                    { x: 0.5, y: 0.8 }
+                ]
+            }
         ];
 
         function ensureAudioGraph() {
@@ -465,23 +498,28 @@
 
         function resetTerminateScreen() {
             haltProgress = 0;
+            weaveProgress = 1;
             stopOrbit();
             const spark = document.getElementById('spark-in');
             spark.style.display = 'block';
             spark.value = '';
-            spark.classList.remove('shatter-sequence');
+            spark.classList.remove('terminating');
             document.getElementById('orbit-stage').style.display = 'none';
             document.getElementById('halt-stage').style.display = 'none';
             document.getElementById('terminate-note').innerText = 'Type the trigger word and press ENTER to shatter it.';
             document.getElementById('halt-in').value = '';
             document.getElementById('halt-progress').innerText = '1/5';
             document.getElementById('halt-prompt').innerText = 'COUNT: ● ● ● ● ● ● ●';
+            document.getElementById('weave-instr').innerText = "THE RAVEN'S EYE: return to hub before each spoke.";
+            drawLoop();
         }
 
         function updateHaltUI() {
             const current = haltPool[haltProgress];
             document.getElementById('halt-progress').innerText = `${haltProgress + 1}/${haltPool.length}`;
             document.getElementById('halt-prompt').innerText = `${current.i}: ${current.q}`;
+            weaveProgress = Math.min(haltProgress + 1, complexLevels[0].pts.length);
+            drawLoop();
             const input = document.getElementById('halt-in');
             input.value = '';
             input.focus();
@@ -511,12 +549,19 @@
                 clearInterval(orbitInterval);
                 orbitInterval = null;
             }
+            if (explosionFrame) {
+                cancelAnimationFrame(explosionFrame);
+                explosionFrame = null;
+            }
         }
 
         function startOrbit() {
             document.getElementById('orbit-stage').style.display = 'block';
             document.getElementById('halt-stage').style.display = 'block';
             haltProgress = 0;
+             weaveProgress = 1;
+            document.getElementById('weave-instr').innerText = `${complexLevels[0].n}: return to hub before each spoke.`;
+            drawLoop();
             updateHaltUI();
 
             stopOrbit();
@@ -528,6 +573,115 @@
             }, 30);
         }
 
+        function syncCanvasSize() {
+            const cvs = document.getElementById('cvs');
+            if (!cvs) return null;
+            const rect = cvs.getBoundingClientRect();
+            if (!rect.width || !rect.height) return null;
+            const dpr = window.devicePixelRatio || 1;
+            const displayWidth = Math.floor(rect.width * dpr);
+            const displayHeight = Math.floor(rect.height * dpr);
+            if (cvs.width !== displayWidth || cvs.height !== displayHeight) {
+                cvs.width = displayWidth;
+                cvs.height = displayHeight;
+            }
+            const ctx = cvs.getContext('2d');
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            return { ctx, width: rect.width, height: rect.height };
+        }
+
+        function drawLoop() {
+            const canvasData = syncCanvasSize();
+            if (!canvasData) return;
+            const { ctx, width, height } = canvasData;
+            const level = complexLevels[0];
+            const pts = level.pts.map((pt) => ({ x: pt.x * width, y: pt.y * height, type: pt.type }));
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.setLineDash([5, 15]);
+            ctx.strokeStyle = 'rgba(248, 250, 252, 0.15)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            pts.forEach((pt, idx) => {
+                if (idx === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.stroke();
+
+            const activeCount = Math.max(1, Math.min(weaveProgress, pts.length));
+            ctx.setLineDash([]);
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 4;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#38bdf8';
+            ctx.beginPath();
+            pts.slice(0, activeCount).forEach((pt, idx) => {
+                if (idx === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            pts.forEach((pt, idx) => {
+                const isActive = idx < activeCount;
+                ctx.beginPath();
+                ctx.fillStyle = pt.type === 'hub'
+                    ? (isActive ? '#ef4444' : 'rgba(239, 68, 68, 0.35)')
+                    : (isActive ? '#38bdf8' : 'rgba(148, 163, 184, 0.45)');
+                ctx.arc(pt.x, pt.y, pt.type === 'hub' ? 5.5 : 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function triggerExplosionParticles() {
+            const canvasData = syncCanvasSize();
+            if (!canvasData) return;
+            const { ctx, width, height } = canvasData;
+            const particles = Array.from({ length: 28 }, () => {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 28 + Math.random() * 50;
+                return {
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: 2 + Math.random() * 3
+                };
+            });
+
+            const startAt = performance.now();
+            const duration = 460;
+            const centerX = width * 0.5;
+            const centerY = height * 0.5;
+
+            const burst = (now) => {
+                const t = Math.min(1, (now - startAt) / duration);
+                const ease = 1 - Math.pow(1 - t, 2);
+                drawLoop();
+                particles.forEach((p) => {
+                    const x = centerX + p.vx * ease;
+                    const y = centerY + p.vy * ease;
+                    ctx.globalAlpha = 1 - t;
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.fillRect(x, y, p.size, p.size);
+                });
+                ctx.globalAlpha = 1;
+                if (t < 1) {
+                    explosionFrame = requestAnimationFrame(burst);
+                } else {
+                    explosionFrame = null;
+                    drawLoop();
+                }
+            };
+
+            if (explosionFrame) cancelAnimationFrame(explosionFrame);
+            explosionFrame = requestAnimationFrame(burst);
+        }
+
+        function startOrbitalEMDR() {
+            startOrbit();
+        }
+
         function startVagalReset() {
             stopOrbit();
             document.getElementById('terminate-note').innerText = 'Sequence complete. Shift to long exhales.';
@@ -535,25 +689,29 @@
             document.getElementById('b-text').innerText = 'Vagal reset: inhale 4s, exhale 6s.';
         }
 
-        function handleSpark(e) {
+        function doSpark(e) {
             if (e.key === 'Enter') {
-                const el = document.getElementById('spark-in');
-                if (el.value.trim() === "") return;
+                const box = document.getElementById('spark-in');
+                if (box.value.trim() === "") return;
 
-                el.classList.add('shatter-sequence');
-
-                if (navigator.vibrate) {
-                    navigator.vibrate([100, 50, 200, 50, 500]);
-                }
+                box.classList.add('terminating');
+                if (navigator.vibrate) navigator.vibrate([10, 200, 10, 400]);
 
                 setTimeout(() => {
-                    el.style.display = 'none';
-                    el.value = "";
-                    el.classList.remove('shatter-sequence');
-                    startOrbit();
-                }, 1500);
+                    box.style.display = 'none';
+                    box.value = '';
+                    box.classList.remove('terminating');
+                    document.getElementById('orbit-stage').style.display = 'block';
+                    drawLoop();
+                    triggerExplosionParticles();
+                    startOrbitalEMDR();
+                }, 1200);
             }
         }
+
+        window.addEventListener('resize', () => {
+            if (document.getElementById('terminate').classList.contains('active')) drawLoop();
+        });
     </script>
 </body>
 </html>
