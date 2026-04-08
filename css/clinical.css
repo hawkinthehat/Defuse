@@ -223,6 +223,23 @@ input:focus-visible {
     overflow: hidden;
 }
 
+.spark-hud {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 160ms linear;
+}
+
+.spark-stage.hud-visible .spark-hud {
+    opacity: 1;
+}
+
+.spark-stage.spark-burst-ready {
+    border-color: #3d5f7f;
+}
+
 .spark-word {
     position: absolute;
     left: 50%;
@@ -261,6 +278,33 @@ input:focus-visible {
     left: 50%;
     top: 50%;
     transform: translate3d(0, 0, 0);
+    z-index: 3;
+}
+
+.spark-word.terminating {
+    animation: pressure-hold 1.2s forwards;
+    z-index: 2;
+}
+
+@keyframes pressure-hold {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+        filter: blur(0);
+    }
+    80% {
+        transform: translate(-50%, -50%) scale(1.55);
+        opacity: 1;
+        filter: blur(2px);
+        color: #ef4444;
+    }
+    99% {
+        transform: translate(-50%, -50%) scale(1.75);
+        opacity: 0.1;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 
 .canvas-shell {
@@ -276,6 +320,29 @@ input:focus-visible {
     height: 100%;
     display: block;
     touch-action: none;
+}
+
+.weave-hud {
+    margin-top: 0.7rem;
+    border: 1px solid #2d4861;
+    background: #050d18;
+    padding: 0.55rem;
+}
+
+.weave-hud-label {
+    margin: 0 0 0.45rem;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.03rem;
+}
+
+#weaveHudCanvas {
+    width: 100%;
+    height: 140px;
+    display: block;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: #09111d;
 }
 
 .actions {

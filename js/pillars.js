@@ -10,7 +10,8 @@
         spark: {
             orbitId: null,
             mode: "idle",
-            startTime: 0
+            startTime: 0,
+            timeoutIds: []
         },
         weave: {
             dpr: Math.max(1, Math.min(2, window.devicePixelRatio || 1)),
@@ -19,7 +20,17 @@
             activePointId: null,
             rafId: null,
             dirty: true,
-            assetsFound: true
+            assetsFound: true,
+            hudProgress: 1,
+            hudPath: [
+                { x: 0.5, y: 0.5, type: "hub" },
+                { x: 0.2, y: 0.2, type: "node" },
+                { x: 0.5, y: 0.5, type: "hub" },
+                { x: 0.8, y: 0.2, type: "node" },
+                { x: 0.5, y: 0.5, type: "hub" },
+                { x: 0.5, y: 0.8, type: "node" }
+            ],
+            particleFrameId: null
         },
         halt: {
             cues: [
@@ -50,6 +61,11 @@
         const previous = state.current;
         if (previous === "spark" && id !== "spark") {
             stopSparkOrbit();
+            clearSparkTimeouts();
+            byId("sparkStage").classList.remove("hud-visible", "spark-burst-ready");
+            byId("sparkFeather").hidden = false;
+            resetWeaveHud();
+            drawWeaveHud();
             byId("sparkMode").textContent = "Mode: idle";
         }
         if (previous === "halt" && id !== "halt") {
@@ -65,6 +81,7 @@
         state.current = id;
         if (id === "weave") {
             queueWeaveRender();
+            drawWeaveHud();
         }
     }
 
@@ -231,31 +248,61 @@
         }
     }
 
+    function clearSparkTimeouts() {
+        state.spark.timeoutIds.forEach((id) => clearTimeout(id));
+        state.spark.timeoutIds = [];
+    }
+
+    function startSparkTerminationAnimation(word) {
+        const wordEl = byId("sparkWord");
+        const distancing = byId("sparkDistancing");
+        const stage = byId("sparkStage");
+        const feather = byId("sparkFeather");
+        const mode = byId("sparkMode");
+
+        clearSparkTimeouts();
+        stopSparkOrbit();
+        stopHudParticles();
+        resetWeaveHud();
+
+        mode.textContent = "Mode: pressure-hold";
+        stage.classList.add("spark-burst-ready");
+        feather.hidden = true;
+        wordEl.textContent = word.toUpperCase();
+        wordEl.classList.remove("explode");
+        wordEl.classList.add("active");
+        // Force keyframe restart in repeated submissions.
+        void wordEl.offsetWidth;
+        wordEl.classList.add("terminating");
+        distancing.textContent = `Distancing: "${word}" is a thought, not a command.`;
+
+        const revealId = setTimeout(() => {
+            wordEl.textContent = splitWord(word.toUpperCase());
+            wordEl.classList.remove("terminating");
+            stage.classList.add("hud-visible");
+            drawWeaveHud();
+        }, 450);
+
+        const blastId = setTimeout(() => {
+            triggerHudParticles();
+            feather.hidden = false;
+            startSparkOrbit("circular");
+            mode.textContent = "Mode: circular";
+        }, 1200);
+
+        const fallingId = setTimeout(() => {
+            startSparkOrbit("falling");
+        }, 4200);
+
+        state.spark.timeoutIds.push(revealId, blastId, fallingId);
+    }
+
     function handleSparkSubmit(event) {
         event.preventDefault();
         const input = byId("sparkInput");
         const word = input.value.trim();
         if (!word) return;
-
-        const wordEl = byId("sparkWord");
-        const distancing = byId("sparkDistancing");
-        wordEl.textContent = word.toUpperCase();
-        wordEl.classList.remove("explode");
-        wordEl.classList.add("active");
-        // Force restart when users submit multiple words quickly.
-        void wordEl.offsetWidth;
-        wordEl.classList.add("explode");
-        distancing.textContent = `Distancing: "${word}" is a thought, not a command.`;
-
-        setTimeout(() => {
-            wordEl.textContent = splitWord(word.toUpperCase());
-            wordEl.classList.remove("explode");
-            startSparkOrbit("circular");
-        }, 280);
-
-        setTimeout(() => {
-            startSparkOrbit("falling");
-        }, 4200);
+        startSparkTerminationAnimation(word);
         input.value = "";
     }
 
@@ -383,6 +430,130 @@
         state.weave.rafId = requestAnimationFrame(renderFrame);
     }
 
+    function getHudCanvasFrame() {
+        const canvas = byId("weaveHudCanvas");
+        if (!canvas) return null;
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return null;
+        const dpr = state.weave.dpr;
+        const displayWidth = Math.floor(rect.width * dpr);
+        const displayHeight = Math.floor(rect.height * dpr);
+        if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+            canvas.width = displayWidth;
+            canvas.height = displayHeight;
+        }
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return null;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { ctx, width: rect.width, height: rect.height };
+    }
+
+    function resetWeaveHud() {
+        state.weave.hudProgress = 1;
+        const guide = byId("weaveGuide");
+        if (guide) {
+            guide.textContent = "Guide: The Raven's Eye - return to center before each spoke.";
+        }
+    }
+
+    function drawWeaveHud() {
+        const frame = getHudCanvasFrame();
+        if (!frame) return;
+        const { ctx, width, height } = frame;
+        const path = state.weave.hudPath.map((node) => ({
+            x: node.x * width,
+            y: node.y * height,
+            type: node.type
+        }));
+
+        ctx.fillStyle = "#0f172a";
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.setLineDash([5, 15]);
+        ctx.strokeStyle = "rgba(248, 250, 252, 0.15)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        path.forEach((point, index) => {
+            if (index === 0) ctx.moveTo(point.x, point.y);
+            else ctx.lineTo(point.x, point.y);
+        });
+        ctx.stroke();
+
+        const activeCount = Math.max(1, Math.min(state.weave.hudProgress, path.length));
+        ctx.setLineDash([]);
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 4;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#38bdf8";
+        ctx.beginPath();
+        path.slice(0, activeCount).forEach((point, index) => {
+            if (index === 0) ctx.moveTo(point.x, point.y);
+            else ctx.lineTo(point.x, point.y);
+        });
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        path.forEach((point, index) => {
+            const active = index < activeCount;
+            ctx.beginPath();
+            ctx.fillStyle = point.type === "hub"
+                ? (active ? "#ef4444" : "rgba(239, 68, 68, 0.35)")
+                : (active ? "#38bdf8" : "rgba(148, 163, 184, 0.45)");
+            ctx.arc(point.x, point.y, point.type === "hub" ? 5.5 : 4, 0, Math.PI * 2);
+            ctx.fill();
+        });
+    }
+
+    function stopHudParticles() {
+        if (state.weave.particleFrameId) {
+            cancelAnimationFrame(state.weave.particleFrameId);
+            state.weave.particleFrameId = null;
+        }
+    }
+
+    function triggerHudParticles() {
+        const frame = getHudCanvasFrame();
+        if (!frame) return;
+        const { ctx, width, height } = frame;
+        const particles = Array.from({ length: 28 }, () => {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 28 + Math.random() * 50;
+            return {
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                size: 2 + Math.random() * 3
+            };
+        });
+
+        const startAt = performance.now();
+        const duration = 460;
+        const centerX = width * 0.5;
+        const centerY = height * 0.5;
+
+        stopHudParticles();
+        const animate = (now) => {
+            const t = Math.min(1, (now - startAt) / duration);
+            const ease = 1 - Math.pow(1 - t, 2);
+            drawWeaveHud();
+            particles.forEach((particle) => {
+                const x = centerX + particle.vx * ease;
+                const y = centerY + particle.vy * ease;
+                ctx.globalAlpha = 1 - t;
+                ctx.fillStyle = "#38bdf8";
+                ctx.fillRect(x, y, particle.size, particle.size);
+            });
+            ctx.globalAlpha = 1;
+            if (t < 1) {
+                state.weave.particleFrameId = requestAnimationFrame(animate);
+            } else {
+                state.weave.particleFrameId = null;
+                drawWeaveHud();
+            }
+        };
+
+        state.weave.particleFrameId = requestAnimationFrame(animate);
+    }
+
     function attemptLink(point) {
         const hint = byId("weaveHint");
         if (!state.weave.activePointId) {
@@ -458,6 +629,12 @@
     function updateHaltCue() {
         const cue = state.halt.cues[state.halt.cueIndex] || "Complete.";
         byId("haltCue").textContent = cue;
+        state.weave.hudProgress = Math.min(state.halt.cueIndex + 1, state.weave.hudPath.length);
+        const guide = byId("weaveGuide");
+        if (guide) {
+            guide.textContent = `Guide progress: ${state.weave.hudProgress}/${state.weave.hudPath.length}`;
+        }
+        drawWeaveHud();
     }
 
     function stopHaltTimer() {
@@ -506,6 +683,8 @@
         document.addEventListener("visibilitychange", () => {
             if (document.hidden) {
                 stopSparkOrbit();
+                stopHudParticles();
+                clearSparkTimeouts();
             }
         });
     }
