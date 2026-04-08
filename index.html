@@ -109,12 +109,12 @@
         }
 
         #spark-in {
-            font-size: 2rem;
+            font-size: 1.8rem;
             background: transparent;
             border: none;
             color: var(--bone);
             text-align: center;
-            transition: transform 0.1s ease;
+            transition: all 0.1s ease;
             text-transform: uppercase;
             letter-spacing: 2px;
             width: 100%;
@@ -123,15 +123,15 @@
             font-weight: 800;
         }
 
-        .terminating {
-            animation: pressure-hold 1.2s forwards;
+        .shatter-sequence {
+            animation: grow-and-snap 1.5s cubic-bezier(0.95, 0.05, 0.795, 0.035) forwards;
         }
 
-        @keyframes pressure-hold {
-            0% { transform: scale(1); opacity: 1; filter: blur(0); }
-            80% { transform: scale(1.5); opacity: 1; filter: blur(2px); color: var(--danger); }
-            99% { transform: scale(1.6); opacity: 0.1; }
-            100% { display: none; } /* The "snap" moment */
+        @keyframes grow-and-snap {
+            0% { transform: scale(1); filter: blur(0); }
+            50% { transform: scale(1.8); color: var(--danger); filter: blur(1px); }
+            90% { transform: scale(2.2); filter: blur(4px); opacity: 1; }
+            100% { transform: scale(4); filter: blur(20px); opacity: 0; }
         }
 
         .weave-wrap {
@@ -235,7 +235,7 @@
     <div id="terminate" class="screen">
         <h1 style="color: var(--red);">TERMINATE</h1>
         <p id="terminate-note">Type the trigger word and press ENTER to shatter it.</p>
-        <input id="spark-in" type="text" placeholder="SPARK WORD" onkeydown="doSpark(event)" autocomplete="off">
+        <input id="spark-in" type="text" placeholder="SPARK WORD" onkeydown="handleSpark(event)" autocomplete="off">
 
         <div class="weave-wrap" id="orbit-stage" style="display: none;">
             <p id="weave-instr">THE RAVEN'S EYE: return to hub before each spoke.</p>
@@ -503,7 +503,7 @@
             const spark = document.getElementById('spark-in');
             spark.style.display = 'block';
             spark.value = '';
-            spark.classList.remove('terminating');
+            spark.classList.remove('shatter-sequence');
             document.getElementById('orbit-stage').style.display = 'none';
             document.getElementById('halt-stage').style.display = 'none';
             document.getElementById('terminate-note').innerText = 'Type the trigger word and press ENTER to shatter it.';
@@ -530,9 +530,8 @@
         }
 
         function checkHalt() {
-            const val = document.getElementById('halt-in').value.trim().toUpperCase();
-            const expected = String(haltPool[haltProgress].a).toUpperCase();
-            if (val === expected) {
+            const val = document.getElementById('halt-in').value.toUpperCase();
+            if (val === haltPool[haltProgress].a) {
                 haltProgress++;
                 if (navigator.vibrate) navigator.vibrate(40);
 
@@ -678,10 +677,6 @@
             explosionFrame = requestAnimationFrame(burst);
         }
 
-        function startOrbitalEMDR() {
-            startOrbit();
-        }
-
         function startVagalReset() {
             stopOrbit();
             document.getElementById('terminate-note').innerText = 'Sequence complete. Shift to long exhales.';
@@ -689,23 +684,22 @@
             document.getElementById('b-text').innerText = 'Vagal reset: inhale 4s, exhale 6s.';
         }
 
-        function doSpark(e) {
+        function handleSpark(e) {
             if (e.key === 'Enter') {
-                const box = document.getElementById('spark-in');
-                if (box.value.trim() === "") return;
+                const el = document.getElementById('spark-in');
+                if (el.value.trim() === "") return;
 
-                box.classList.add('terminating');
-                if (navigator.vibrate) navigator.vibrate([10, 200, 10, 400]);
+                el.classList.add('shatter-sequence');
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 200, 50, 500]);
+                }
 
                 setTimeout(() => {
-                    box.style.display = 'none';
-                    box.value = '';
-                    box.classList.remove('terminating');
-                    document.getElementById('orbit-stage').style.display = 'block';
-                    drawLoop();
-                    triggerExplosionParticles();
-                    startOrbitalEMDR();
-                }, 1200);
+                    el.style.display = 'none';
+                    el.value = '';
+                    el.classList.remove('shatter-sequence');
+                    startOrbit();
+                }, 1500);
             }
         }
 
