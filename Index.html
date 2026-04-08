@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DEFUSE | Neutralize</title>
+    <style>
+        :root {
+            --bg: #0f172a;        /* Deep Midnight Slate */
+            --bone: #f8fafc;      /* Clean White-Grey for text/action */
+            --accent: #38bdf8;    /* Professional Sky Blue */
+            --danger: #ef4444;    /* Crimson for halt/shatter */
+            --gold-dim: #94a3b8;  /* Muted slate for lead lines */
+            --card: #1e293b;
+            --teal: var(--accent);
+            --gold: #f59e0b;
+            --red: var(--danger);
+            --lead: var(--gold-dim);
+            --text: var(--bone);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background-color: var(--bg) !important; 
+            color: var(--text); 
+            font-family: -apple-system, system-ui, sans-serif; 
+            margin: 0; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .screen { display: none; width: 100%; max-width: 400px; flex-direction: column; align-items: center; text-align: center; }
+        .active { display: flex; }
+
+        h1 { color: var(--teal); letter-spacing: 4px; font-weight: 900; margin-top: 40px; }
+        p { opacity: 0.7; line-height: 1.5; }
+
+        .btn { 
+            background: var(--card); 
+            border: 2px solid var(--teal); 
+            color: var(--teal); 
+            padding: 20px; 
+            border-radius: 12px; 
+            width: 100%; 
+            margin: 10px 0; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-sos { background: var(--red); border: none; color: white; font-size: 1.3rem; margin-bottom: 20px; }
+
+        #timer { font-size: 5rem; color: var(--teal); font-weight: 900; margin: 20px 0; }
+
+        /* SIMPLE PULSE FOR SOS */
+        .pulse {
+            width: 120px; height: 120px;
+            background: var(--teal);
+            border-radius: 50%;
+            margin: 40px auto;
+            opacity: 0.3;
+            animation: pulse-anim 8s infinite ease-in-out;
+        }
+        @keyframes pulse-anim {
+            0%, 100% { transform: scale(0.8); }
+            50% { transform: scale(1.3); }
+        }
+
+        nav { position: fixed; bottom: 20px; display: flex; gap: 20px; }
+        .nav-btn { background: none; border: none; color: var(--text); opacity: 0.5; font-size: 0.8rem; cursor: pointer; }
+
+        #visual {
+            width: 100%;
+            height: 180px;
+            margin: 20px 0;
+            border-radius: 16px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            background: radial-gradient(circle at center, #0b2840 0%, #020617 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .anchor {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: rgba(56, 189, 248, 0.35);
+            box-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
+            transition: background 250ms ease, box-shadow 250ms ease, transform 250ms ease;
+            animation: anchor-breathe 4s ease-in-out infinite;
+        }
+
+        .visual-active .anchor {
+            background: #7dd3fc;
+            box-shadow: 0 0 40px #38bdf8;
+            transform: scale(1.08);
+        }
+
+        @keyframes anchor-breathe {
+            0%, 100% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        #spark-in {
+            font-size: 2rem;
+            background: transparent;
+            border: none;
+            color: var(--bone);
+            text-align: center;
+            transition: transform 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            width: 100%;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 800;
+        }
+
+        .terminating {
+            animation: pressure-hold 1.2s forwards;
+        }
+
+        @keyframes pressure-hold {
+            0% { transform: scale(1); opacity: 1; filter: blur(0); }
+            80% { transform: scale(1.5); opacity: 1; filter: blur(2px); color: var(--danger); }
+            99% { transform: scale(1.6); opacity: 0.1; }
+            100% { display: none; } /* The "snap" moment */
+        }
+
+        .weave-wrap {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 16px;
+            margin: 12px 0 18px;
+            padding: 14px;
+        }
+
+        .weave-lead {
+            stroke: var(--lead);
+            stroke-dasharray: 8, 12;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        #orbit-thread {
+            fill: #38bdf8;
+            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.9));
+        }
+
+        #cvs {
+            width: 100%;
+            height: 140px;
+            display: block;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            margin-bottom: 10px;
+        }
+
+        #weave-instr {
+            color: var(--accent);
+            font-weight: 900;
+            margin: 0 0 8px;
+        }
+
+        #halt-in {
+            width: 100%;
+            background: #020617;
+            border: 2px solid rgba(56, 189, 248, 0.5);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="home" class="screen active">
+        <h1>DEFUSE</h1>
+        <p>Tactical Neutralization Protocol</p>
+        <div style="margin-top: 30px; width: 100%;">
+            <button class="btn btn-sos" onclick="nav('sos')">SOS: BREATHING</button>
+            <button class="btn" onclick="nav('ice')">BIOLOGICAL RESET ❄️</button>
+            <button class="btn" onclick="nav('ground')">SENSORY ANCHOR</button>
+            <button class="btn" style="border-color: var(--red); color: var(--red);" onclick="nav('terminate')">TERMINATE SPARK</button>
+            <button class="btn" style="background: var(--gold); color: var(--bg); border-color: var(--gold);" onclick="nav('activate')">⚡ GET MOVING (MICRO-WIN)</button>
+        </div>
+    </div>
+
+    <div id="sos" class="screen">
+        <h1>BREATHE</h1>
+        <div class="pulse"></div>
+        <p id="b-text">Sync your breath with the circle.</p>
+        <button class="btn" onclick="nav('home')">STABILIZED</button>
+    </div>
+
+    <div id="ice" class="screen">
+        <h1>RESET</h1>
+        <p>Hold ice to your face to force a heart rate drop.</p>
+        <div id="timer">15</div>
+        <button class="btn" id="t-start" onclick="runTimer()">START OVERRIDE</button>
+        <button class="btn" onclick="nav('home')" style="border:none; opacity:0.5;">CANCEL</button>
+    </div>
+
+    <div id="ground" class="screen">
+        <h1>ANCHOR</h1>
+        <p id="g-prompt">Identify 5 things you can SEE.</p>
+        <div id="visual" aria-hidden="true">
+            <div class="anchor"></div>
+        </div>
+        <h1 id="g-count" style="font-size: 4rem;">5</h1>
+        <button class="btn" onclick="nextAnchor()">NEXT</button>
+    </div>
+
+    <div id="activate" class="screen">
+        <h2 style="color: var(--gold); letter-spacing: 2px;">MOMENTUM: ACTIVATE</h2>
+        <p style="opacity: 0.6; font-size: 0.8rem;">ONE TINY TASK. 60 SECONDS.</p>
+        <div id="task-display" style="background: var(--card); border: 2px solid var(--gold); padding: 30px; border-radius: 20px; width: 100%; font-size: 1.6rem; font-weight: 900; margin: 20px 0; color: var(--gold);">---</div>
+        <div id="act-timer" style="font-size: 4rem; font-weight: 900; margin-bottom: 20px;">60</div>
+        <button id="act-btn" class="btn" style="background: var(--gold); color: var(--bg); border-color: var(--gold);" onclick="startActTimer()">START SPRINT</button>
+        <button class="btn" style="border:none; opacity:0.5;" onclick="exitAll()">CANCEL</button>
+    </div>
+
+    <div id="terminate" class="screen">
+        <h1 style="color: var(--red);">TERMINATE</h1>
+        <p id="terminate-note">Type the trigger word and press ENTER to shatter it.</p>
+        <input id="spark-in" type="text" placeholder="SPARK WORD" onkeydown="doSpark(event)" autocomplete="off">
+
+        <div class="weave-wrap" id="orbit-stage" style="display: none;">
+            <p id="weave-instr">THE RAVEN'S EYE: return to hub before each spoke.</p>
+            <canvas id="cvs" width="320" height="140" aria-label="Complex weave guide"></canvas>
+            <svg viewBox="0 0 160 160" width="100%" height="140" aria-label="EMDR orbit guide">
+                <circle class="weave-lead" cx="80" cy="80" r="46"></circle>
+                <g id="orbit-group" transform="translate(80 80)">
+                    <circle id="orbit-thread" cx="46" cy="0" r="5"></circle>
+                </g>
+            </svg>
+            <p style="margin: 0; opacity: 0.75; font-size: 0.85rem;">EMDR ORBIT ACTIVE</p>
+        </div>
+
+        <div id="halt-stage" style="display: none; width: 100%;">
+            <p style="margin: 10px 0 2px; opacity: 0.6;">HALT CHECK <span id="halt-progress">1/5</span></p>
+            <h2 id="halt-prompt" style="margin: 4px 0 0; letter-spacing: 1px;">COUNT: ● ● ● ● ● ● ●</h2>
+            <input id="halt-in" type="text" placeholder="ANSWER + ENTER" onkeydown="handleHaltKey(event)" autocomplete="off">
+            <button class="btn" style="margin-top: 10px;" onclick="checkHalt()">CONFIRM</button>
+        </div>
+
+        <button class="btn" style="border:none; opacity:0.5;" onclick="nav('home')">CANCEL</button>
+    </div>
+
+    <div id="success" class="screen">
+        <h1 style="color: var(--gold);">COMPLETE</h1>
+        <p>Micro-win secured. Momentum restored.</p>
+        <button class="btn" onclick="nav('home')">BACK HOME</button>
+    </div>
+
+    <nav>
+        <button class="nav-btn" onclick="nav('home')">HOME</button>
+        <button class="nav-btn" onclick="alert('Defuse Pro: Log triggers to your Vault ($4.99/mo)')">VAULT 🔒</button>
+    </nav>
+
+    <script>
+        let breathingInterval = null;
+        let audioCtx = null;
+        let binauralGain = null;
+        let spiritNoise = null;
+        let spiritMotionInterval = null;
+        let orbitInterval = null;
+        let haltProgress = 0;
+        let weaveProgress = 1;
+        let explosionFrame = null;
+        const haltPool = [
+            { i: "COUNT", q: "● ● ● ● ● ● ●", a: "7" },
+            { i: "SOLVE", q: "15 - 7", a: "8" },
+            { i: "REVERSE", q: "WOLF", a: "FLOW" },
+            { i: "COUNT", q: "● ● ●", a: "3" },
+            { i: "SOLVE", q: "9 + 13", a: "22" }
+        ];
+        const complexLevels = [
+            {
+                n: "THE RAVEN'S EYE",
+                pts: [
+                    { x: 0.5, y: 0.5, type: 'hub' }, // Center
+                    { x: 0.2, y: 0.2 }, { x: 0.5, y: 0.5, type: 'hub' }, // Back to center
+                    { x: 0.8, y: 0.2 }, { x: 0.5, y: 0.5, type: 'hub' },
+                    { x: 0.5, y: 0.8 }
+                ]
+            }
+        ];
+
+        function ensureAudioGraph() {
+            if (audioCtx) return true;
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return false;
+            audioCtx = new AudioContextClass();
+            binauralGain = audioCtx.createGain();
+            binauralGain.gain.value = 0.22;
+            binauralGain.connect(audioCtx.destination);
+            return true;
+        }
+
+        function setPannerPosition(panner, x, y, z) {
+            if (panner.positionX && panner.positionY && panner.positionZ) {
+                panner.positionX.setValueAtTime(x, audioCtx.currentTime);
+                panner.positionY.setValueAtTime(y, audioCtx.currentTime);
+                panner.positionZ.setValueAtTime(z, audioCtx.currentTime);
+            } else {
+                panner.setPosition(x, y, z);
+            }
+        }
+
+        // Spirit Landscape Audio Assets (synthesized web audio for zero-load time)
+        function playSpiritLandscape(type = 'forest') {
+            if (!ensureAudioGraph()) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            stopSpiritLandscape();
+
+            const filter = audioCtx.createBiquadFilter();
+            const noise = audioCtx.createBufferSource();
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            // Create pink-ish noise base for a deep nature bed.
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            noise.buffer = buffer;
+            noise.loop = true;
+
+            // The "Spirit" filter profile.
+            filter.type = 'lowpass';
+            const typeFrequency = {
+                forest: 400,
+                cave: 320,
+                river: 520
+            };
+            filter.frequency.value = typeFrequency[type] || 400;
+
+            // Spatial panner (bilateral movement).
+            const panner = audioCtx.createPanner();
+            panner.panningModel = 'HRTF';
+            panner.distanceModel = 'inverse';
+            panner.refDistance = 1;
+            panner.maxDistance = 12;
+
+            noise.connect(filter);
+            filter.connect(panner);
+            panner.connect(binauralGain);
+
+            // Animate the sound moving in a 3D arc around the head.
+            let angle = 0;
+            spiritMotionInterval = setInterval(() => {
+                angle += 0.05;
+                setPannerPosition(panner, Math.sin(angle) * 5, 0, Math.cos(angle) * 2);
+            }, 50);
+
+            noise.start();
+            spiritNoise = noise;
+        }
+
+        function stopSpiritLandscape() {
+            if (spiritMotionInterval) {
+                clearInterval(spiritMotionInterval);
+                spiritMotionInterval = null;
+            }
+            if (spiritNoise) {
+                try {
+                    spiritNoise.stop();
+                } catch (e) {
+                    // Ignore stop errors when source is already ended.
+                }
+                spiritNoise.disconnect();
+                spiritNoise = null;
+            }
+        }
+
+        function nav(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.body.classList.toggle('visual-active', id === 'ground');
+
+            if (id === 'sos') startBreathing();
+            else if (breathingInterval) {
+                clearInterval(breathingInterval);
+                breathingInterval = null;
+            }
+
+            if (id === 'ground') playSpiritLandscape('forest');
+            else stopSpiritLandscape();
+
+            if (id === 'activate') {
+                nextActTask();
+                resetActScreen();
+            } else {
+                clearInterval(actInt);
+            }
+
+            if (id === 'terminate') resetTerminateScreen();
+            else stopOrbit();
+        }
+
+        // SOS LOGIC
+        function startBreathing() {
+            const txt = document.getElementById('b-text');
+            if (breathingInterval) clearInterval(breathingInterval);
+            breathingInterval = setInterval(() => {
+                let s = Math.floor(Date.now() / 1000) % 8;
+                if (s < 4) txt.innerText = "INHALING...";
+                else txt.innerText = "EXHALING...";
+            }, 1000);
+        }
+
+        // TIMER LOGIC
+        function runTimer() {
+            let t = 15;
+            const el = document.getElementById('timer');
+            const btn = document.getElementById('t-start');
+            btn.disabled = true;
+            const int = setInterval(() => {
+                t--; el.innerText = t;
+                if(t <= 0) { clearInterval(int); el.innerText = "DONE"; btn.disabled = false; }
+            }, 1000);
+        }
+
+        // GROUNDING LOGIC
+        let step = 5;
+        const prompts = ["SEE", "TOUCH", "HEAR", "SMELL", "TASTE"];
+        function nextAnchor() {
+            step--;
+            if(step < 1) { step = 5; nav('home'); return; }
+            document.getElementById('g-prompt').innerText = "Identify " + step + " things you can " + prompts[5-step] + ".";
+            document.getElementById('g-count').innerText = step;
+        }
+
+        // ACTIVATE LOGIC
+        const activeTasks = [
+            "Straighten one item in this room.",
+            "Drink exactly 3 sips of water.",
+            "Stand up and reach for the ceiling.",
+            "Put one piece of trash in the bin.",
+            "Find a cold surface and touch it.",
+            "Adjust your posture right now.",
+            "Name 3 things you can see.",
+            "Roll your shoulders 3 times."
+        ];
+
+        let actInt;
+        function startActTimer() {
+            let t = 60;
+            const display = document.getElementById('act-timer');
+            const btn = document.getElementById('act-btn');
+            btn.style.display = 'none';
+
+            display.innerText = t;
+            clearInterval(actInt);
+            actInt = setInterval(() => {
+                t--;
+                display.innerText = t;
+                if(t <= 0) {
+                    clearInterval(actInt);
+                    triggerSuccess();
+                }
+            }, 1000);
+        }
+
+        function nextActTask() {
+            const task = activeTasks[Math.floor(Math.random() * activeTasks.length)];
+            document.getElementById('task-display').innerText = task;
+        }
+
+        function resetActScreen() {
+            clearInterval(actInt);
+            document.getElementById('act-timer').innerText = "60";
+            document.getElementById('act-btn').style.display = 'block';
+        }
+
+        function triggerSuccess() {
+            nav('success');
+        }
+
+        function exitAll() {
+            resetActScreen();
+            nav('home');
+        }
+
+        function resetTerminateScreen() {
+            haltProgress = 0;
+            weaveProgress = 1;
+            stopOrbit();
+            const spark = document.getElementById('spark-in');
+            spark.style.display = 'block';
+            spark.value = '';
+            spark.classList.remove('terminating');
+            document.getElementById('orbit-stage').style.display = 'none';
+            document.getElementById('halt-stage').style.display = 'none';
+            document.getElementById('terminate-note').innerText = 'Type the trigger word and press ENTER to shatter it.';
+            document.getElementById('halt-in').value = '';
+            document.getElementById('halt-progress').innerText = '1/5';
+            document.getElementById('halt-prompt').innerText = 'COUNT: ● ● ● ● ● ● ●';
+            document.getElementById('weave-instr').innerText = "THE RAVEN'S EYE: return to hub before each spoke.";
+            drawLoop();
+        }
+
+        function updateHaltUI() {
+            const current = haltPool[haltProgress];
+            document.getElementById('halt-progress').innerText = `${haltProgress + 1}/${haltPool.length}`;
+            document.getElementById('halt-prompt').innerText = `${current.i}: ${current.q}`;
+            weaveProgress = Math.min(haltProgress + 1, complexLevels[0].pts.length);
+            drawLoop();
+            const input = document.getElementById('halt-in');
+            input.value = '';
+            input.focus();
+        }
+
+        function handleHaltKey(e) {
+            if (e.key === 'Enter') checkHalt();
+        }
+
+        function checkHalt() {
+            const val = document.getElementById('halt-in').value.trim().toUpperCase();
+            const expected = String(haltPool[haltProgress].a).toUpperCase();
+            if (val === expected) {
+                haltProgress++;
+                if (navigator.vibrate) navigator.vibrate(40);
+
+                if (haltProgress >= haltPool.length) {
+                    startVagalReset();
+                } else {
+                    updateHaltUI();
+                }
+            }
+        }
+
+        function stopOrbit() {
+            if (orbitInterval) {
+                clearInterval(orbitInterval);
+                orbitInterval = null;
+            }
+            if (explosionFrame) {
+                cancelAnimationFrame(explosionFrame);
+                explosionFrame = null;
+            }
+        }
+
+        function startOrbit() {
+            document.getElementById('orbit-stage').style.display = 'block';
+            document.getElementById('halt-stage').style.display = 'block';
+            haltProgress = 0;
+             weaveProgress = 1;
+            document.getElementById('weave-instr').innerText = `${complexLevels[0].n}: return to hub before each spoke.`;
+            drawLoop();
+            updateHaltUI();
+
+            stopOrbit();
+            const group = document.getElementById('orbit-group');
+            let angle = 0;
+            orbitInterval = setInterval(() => {
+                angle = (angle + 8) % 360;
+                group.setAttribute('transform', `translate(80 80) rotate(${angle})`);
+            }, 30);
+        }
+
+        function syncCanvasSize() {
+            const cvs = document.getElementById('cvs');
+            if (!cvs) return null;
+            const rect = cvs.getBoundingClientRect();
+            if (!rect.width || !rect.height) return null;
+            const dpr = window.devicePixelRatio || 1;
+            const displayWidth = Math.floor(rect.width * dpr);
+            const displayHeight = Math.floor(rect.height * dpr);
+            if (cvs.width !== displayWidth || cvs.height !== displayHeight) {
+                cvs.width = displayWidth;
+                cvs.height = displayHeight;
+            }
+            const ctx = cvs.getContext('2d');
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            return { ctx, width: rect.width, height: rect.height };
+        }
+
+        function drawLoop() {
+            const canvasData = syncCanvasSize();
+            if (!canvasData) return;
+            const { ctx, width, height } = canvasData;
+            const level = complexLevels[0];
+            const pts = level.pts.map((pt) => ({ x: pt.x * width, y: pt.y * height, type: pt.type }));
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.setLineDash([5, 15]);
+            ctx.strokeStyle = 'rgba(248, 250, 252, 0.15)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            pts.forEach((pt, idx) => {
+                if (idx === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.stroke();
+
+            const activeCount = Math.max(1, Math.min(weaveProgress, pts.length));
+            ctx.setLineDash([]);
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 4;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#38bdf8';
+            ctx.beginPath();
+            pts.slice(0, activeCount).forEach((pt, idx) => {
+                if (idx === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            pts.forEach((pt, idx) => {
+                const isActive = idx < activeCount;
+                ctx.beginPath();
+                ctx.fillStyle = pt.type === 'hub'
+                    ? (isActive ? '#ef4444' : 'rgba(239, 68, 68, 0.35)')
+                    : (isActive ? '#38bdf8' : 'rgba(148, 163, 184, 0.45)');
+                ctx.arc(pt.x, pt.y, pt.type === 'hub' ? 5.5 : 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function triggerExplosionParticles() {
+            const canvasData = syncCanvasSize();
+            if (!canvasData) return;
+            const { ctx, width, height } = canvasData;
+            const particles = Array.from({ length: 28 }, () => {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 28 + Math.random() * 50;
+                return {
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: 2 + Math.random() * 3
+                };
+            });
+
+            const startAt = performance.now();
+            const duration = 460;
+            const centerX = width * 0.5;
+            const centerY = height * 0.5;
+
+            const burst = (now) => {
+                const t = Math.min(1, (now - startAt) / duration);
+                const ease = 1 - Math.pow(1 - t, 2);
+                drawLoop();
+                particles.forEach((p) => {
+                    const x = centerX + p.vx * ease;
+                    const y = centerY + p.vy * ease;
+                    ctx.globalAlpha = 1 - t;
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.fillRect(x, y, p.size, p.size);
+                });
+                ctx.globalAlpha = 1;
+                if (t < 1) {
+                    explosionFrame = requestAnimationFrame(burst);
+                } else {
+                    explosionFrame = null;
+                    drawLoop();
+                }
+            };
+
+            if (explosionFrame) cancelAnimationFrame(explosionFrame);
+            explosionFrame = requestAnimationFrame(burst);
+        }
+
+        function startOrbitalEMDR() {
+            startOrbit();
+        }
+
+        function startVagalReset() {
+            stopOrbit();
+            document.getElementById('terminate-note').innerText = 'Sequence complete. Shift to long exhales.';
+            nav('sos');
+            document.getElementById('b-text').innerText = 'Vagal reset: inhale 4s, exhale 6s.';
+        }
+
+        function doSpark(e) {
+            if (e.key === 'Enter') {
+                const box = document.getElementById('spark-in');
+                if (box.value.trim() === "") return;
+
+                box.classList.add('terminating');
+                if (navigator.vibrate) navigator.vibrate([10, 200, 10, 400]);
+
+                setTimeout(() => {
+                    box.style.display = 'none';
+                    box.value = '';
+                    box.classList.remove('terminating');
+                    document.getElementById('orbit-stage').style.display = 'block';
+                    drawLoop();
+                    triggerExplosionParticles();
+                    startOrbitalEMDR();
+                }, 1200);
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (document.getElementById('terminate').classList.contains('active')) drawLoop();
+        });
+    </script>
+</body>
+</html>
