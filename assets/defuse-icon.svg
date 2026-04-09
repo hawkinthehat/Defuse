@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">DeFuse app icon</title>
+  <desc id="desc">DeFuse icon with cyan lightning bolt over concentric rings.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#27364a"/>
+      <stop offset="70%" stop-color="#172236"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </radialGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <g fill="none" stroke="#90a2bf" stroke-width="8" opacity="0.45">
+    <circle cx="256" cy="220" r="148"/>
+    <circle cx="256" cy="220" r="124"/>
+    <circle cx="256" cy="220" r="100"/>
+  </g>
+
+  <path d="M56 239 214 226 257 181 239 242 456 237 281 252 231 309 247 254 56 239z" fill="#6ee7ff" filter="url(#glow)"/>
+  <path d="M264 182 344 124 373 145 296 213zM152 328 230 255 261 255 188 354z" fill="#f8fafc"/>
+</svg>
