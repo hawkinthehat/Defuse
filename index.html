@@ -468,21 +468,10 @@
             position: fixed;
             inset: 0;
             z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(2, 6, 23, 0.82);
-            padding: 20px;
-        }
-
-        .technician-readout {
-            width: min(520px, 100%);
-            background: #1e293b;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px 16px;
-            text-align: left;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+            display: block;
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.97));
+            padding: 0;
+            overflow: hidden;
         }
 
         .warn-text {
@@ -494,11 +483,12 @@
 
         /* SXT'EKW Technical Tracker */
         .saccadic-track {
-            width: 100%;
-            height: 56px;
-            position: relative;
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            inset: 0;
             overflow: hidden;
-            margin: 2rem 0;
+            margin: 0;
         }
 
         .saccadic-track::before {
@@ -507,16 +497,16 @@
             left: 0;
             right: 0;
             top: 50%;
-            height: 4px;
+            height: 6px;
             transform: translateY(-50%);
             background: linear-gradient(90deg, rgba(20, 184, 166, 0.3), rgba(20, 184, 166, 0.65), rgba(20, 184, 166, 0.3));
         }
 
         .saccadic-point {
-            width: 44px;
-            height: 28px;
+            width: clamp(120px, 18vw, 220px);
+            height: clamp(60px, 9vw, 110px);
             position: absolute;
-            left: 6%;
+            left: -12%;
             top: 50%;
             transform: translate(-50%, -50%);
             animation: saccadic-sweep 1.8s infinite alternate steps(12, end);
@@ -526,17 +516,17 @@
             width: 100%;
             height: 100%;
             display: block;
-            filter: drop-shadow(0 0 8px rgba(20, 184, 166, 0.95));
+            filter: drop-shadow(0 0 16px rgba(20, 184, 166, 0.98));
         }
 
         .saccadic-anchor {
             position: absolute;
             left: 50%;
-            top: -34px;
+            top: -46px;
             transform: translateX(-50%);
             min-width: 22px;
             text-align: center;
-            font-size: 1.15rem;
+            font-size: clamp(1.1rem, 2.2vw, 1.8rem);
             font-weight: 900;
             color: #99f6e4;
             opacity: 0;
@@ -545,13 +535,37 @@
             pointer-events: none;
         }
 
+        .saccadic-alert {
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(900px, calc(100vw - 30px));
+            text-align: center;
+            margin: 0;
+        }
+
+        .saccadic-instruction {
+            position: absolute;
+            top: 56px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(900px, calc(100vw - 30px));
+            text-align: center;
+            margin: 0;
+            color: var(--text);
+            opacity: 0.92;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
         .saccadic-anchor.active {
             opacity: 1;
         }
 
         @keyframes saccadic-sweep {
-            from { left: 6%; }
-            to { left: 94%; }
+            from { left: -12%; }
+            to { left: 112%; }
         }
     </style>
 </head>
@@ -1292,18 +1306,16 @@
             overlay.className = 'clinical-overlay';
 
             overlay.innerHTML = `
-                <div class="technician-readout">
-                    <p class="warn-text">SYSTEM ALERT: HIGH-FREQUENCY AMYGDALA FIRING DETECTED</p>
-                    <p>Initiating Saccadic Sweep. Keep cranium stationary. Track the teal feather.</p>
-                    <div class="saccadic-track">
-                        <div class="saccadic-point" aria-label="Teal feather target">
-                            <span class="saccadic-anchor" aria-hidden="true"></span>
-                            <svg class="saccadic-feather" viewBox="0 0 64 32" role="img" aria-label="Teal feather">
-                                <path fill="#14b8a6" d="M6 26C18 11 31 6 58 5C44 19 29 27 10 29C9 29 7 28 6 26Z"></path>
-                                <path fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linecap="round" d="M11 25C25 16 39 12 54 10"></path>
-                                <path fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round" d="M20 22L18 28M28 19L26 25M36 16L34 22M44 13L42 19"></path>
-                            </svg>
-                        </div>
+                <p class="warn-text saccadic-alert">SYSTEM ALERT: HIGH-FREQUENCY AMYGDALA FIRING DETECTED</p>
+                <p class="saccadic-instruction">Initiating Saccadic Sweep. Keep cranium stationary. Track the teal feather.</p>
+                <div class="saccadic-track">
+                    <div class="saccadic-point" aria-label="Teal feather target">
+                        <span class="saccadic-anchor" aria-hidden="true"></span>
+                        <svg class="saccadic-feather" viewBox="0 0 64 32" role="img" aria-label="Teal feather">
+                            <path fill="#14b8a6" d="M6 26C18 11 31 6 58 5C44 19 29 27 10 29C9 29 7 28 6 26Z"></path>
+                            <path fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linecap="round" d="M11 25C25 16 39 12 54 10"></path>
+                            <path fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round" d="M20 22L18 28M28 19L26 25M36 16L34 22M44 13L42 19"></path>
+                        </svg>
                     </div>
                 </div>
             `;
