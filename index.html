@@ -152,13 +152,14 @@
             position: fixed;
             inset: 0;
             z-index: 1200;
-            background: radial-gradient(circle at center, rgba(239, 68, 68, 0.42), rgba(127, 29, 29, 0.92));
+            /* Full-coverage backdrop prevents previous screen flash-through. */
+            background: radial-gradient(circle at center, #ef4444 0%, #991b1b 100%);
             display: none;
             align-items: center;
             justify-content: center;
             flex-direction: column;
             gap: 20px;
-            pointer-events: none;
+            pointer-events: auto;
             text-align: center;
             padding: 24px;
         }
@@ -170,7 +171,7 @@
         .circuit-breaker-flash {
             position: absolute;
             inset: 0;
-            background: #ef4444;
+            background: #f87171;
             opacity: 0;
             animation: breaker-flash 1.25s steps(1, end) infinite;
         }
@@ -601,7 +602,6 @@
             <button class="btn" style="margin-top: 10px;" onclick="checkHalt()">CONFIRM</button>
         </div>
 
-        <button class="btn btn-circuit-breaker" onclick="triggerCircuitBreaker()" title="Emergency circuit breaker: pulse border and strobe warning.">CIRCUIT BREAKER</button>
         <button class="btn" style="border:none; opacity:0.5;" onclick="nav('home')">CANCEL</button>
     </div>
 
@@ -834,6 +834,7 @@
         }
 
         function openCircuitBreakerSection() {
+            if (!document.getElementById('home').classList.contains('active')) return;
             nav('terminate');
             triggerCircuitBreaker();
         }
@@ -1066,7 +1067,6 @@
 
             exitBtn.onclick = clearEmergency;
             document.body.append(strobe, anchor, exitBtn);
-            emergencyTimeout = setTimeout(clearEmergency, 20000);
         }
 
         function syncCanvasSize() {
@@ -1305,7 +1305,7 @@
             sparkWord.textContent = '';
             document.getElementById('orbit-stage').style.display = 'none';
             document.getElementById('halt-stage').style.display = 'none';
-            document.getElementById('terminate-note').innerText = 'CIRCUIT BREAKER ACTIVE: HALT, hold still, exhale longer than inhale.';
+            document.getElementById('terminate-note').innerText = 'CIRCUIT BREAKER ACTIVE: hold steady. Auto-transition to WEAVE in 30 seconds.';
             document.body.classList.add('circuit-breaker-active', 'breaker-lock');
             breakerOverlay.classList.add('active');
             breakerOverlay.setAttribute('aria-hidden', 'false');
@@ -1316,8 +1316,8 @@
             emergencyPhaseTimer = setTimeout(() => {
                 emergencyPhaseTimer = null;
                 clearEmergencyMode();
-                startVagalReset();
-            }, 20000);
+                openWeaveSection();
+            }, 30000);
         }
 
         function handleSpark(e) {
