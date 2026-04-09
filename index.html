@@ -305,6 +305,31 @@
             color: #ffffff;
         }
 
+        /* Universal Phase Exit */
+        .protocol-exit {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 12000; /* Above all phase elements */
+            background: rgba(47, 53, 66, 0.4); /* Muted Slate */
+            color: var(--text-main, var(--text));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .protocol-exit:hover {
+            background: #ff4757; /* Warning Red on Hover */
+            border-color: #ff4757;
+            color: white;
+            opacity: 1;
+        }
+
         .spark-stage {
             position: relative;
             width: 100%;
@@ -611,7 +636,7 @@
         <p>A momentum system</p>
         <div style="margin-top: 30px; width: 100%;">
             <button class="btn" onclick="openHaltSection()">HALT</button>
-            <button class="btn" onclick="nav('sweep')">STILL</button>
+            <button class="btn" onclick="openSweepSection()">STILL</button>
             <button class="btn" onclick="openSparkSection()">SPARK</button>
             <button class="btn" onclick="openWeaveSection()">AXIAL STABILIZE</button>
             <button class="btn btn-circuit-breaker" onclick="openCircuitBreakerSection()">CIRCUIT BREAKER</button>
@@ -736,6 +761,14 @@
         let currentPhase = phases.SPARK;
         let sparkShatterCleanup = null;
         let weavePatternTimer = null;
+        let protocolExitButton = null;
+        const phaseExitConfig = {
+            [phases.HALT]: { display: 'TRIAGE', route: 'dashboard' },
+            [phases.STILL]: { display: 'OCULAR SWEEP', route: 'dashboard' },
+            [phases.SPARK]: { display: 'SPARK', route: 'axial' },
+            [phases.WEAVE]: { display: 'AXIAL STABILIZE', route: 'dashboard' },
+            [phases.EMERGENCY]: { display: 'CIRCUIT BREAKER', route: 'axial' }
+        };
         const haltPool = [
             { i: "COUNT", q: "● ● ● ● ● ● ●", a: "7" },
             { i: "SOLVE", q: "15 - 7", a: "8" },
@@ -855,6 +888,73 @@
             }
         }
 
+        function removeExitButton() {
+            if (protocolExitButton) {
+                protocolExitButton.remove();
+                protocolExitButton = null;
+            }
+        }
+
+        function clearAllProtocolIntervals() {
+            clearSaccadicSweep();
+            clearEmergencyMode();
+            stopOrbit();
+            stopSpiritLandscape();
+            clearInterval(actInt);
+
+            if (breathingInterval) {
+                clearInterval(breathingInterval);
+                breathingInterval = null;
+            }
+
+            if (sparkShatterCleanup) {
+                clearTimeout(sparkShatterCleanup);
+                sparkShatterCleanup = null;
+            }
+
+            if (explosionFrame) {
+                cancelAnimationFrame(explosionFrame);
+                explosionFrame = null;
+            }
+
+            const sparkInput = document.getElementById('spark-in');
+            if (sparkInput) {
+                sparkInput.disabled = false;
+            }
+            clearSparkShatterLayer();
+        }
+
+        function startAxialStabilize() {
+            openWeaveSection();
+        }
+
+        function createExitButton(phaseName) {
+            const exitMeta = phaseExitConfig[phaseName];
+            if (!exitMeta) {
+                removeExitButton();
+                return;
+            }
+
+            if (!protocolExitButton) {
+                protocolExitButton = document.createElement('button');
+                protocolExitButton.className = 'protocol-exit';
+            }
+
+            protocolExitButton.innerText = `TERMINATE ${exitMeta.display}`;
+            protocolExitButton.onclick = () => {
+                clearAllProtocolIntervals();
+                if (exitMeta.route === 'axial') {
+                    startAxialStabilize();
+                } else {
+                    nav('home');
+                }
+            };
+
+            if (!protocolExitButton.isConnected) {
+                document.body.appendChild(protocolExitButton);
+            }
+        }
+
         function nav(id) {
             clearSaccadicSweep();
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -882,6 +982,15 @@
                 clearEmergencyMode();
                 stopOrbit();
             }
+
+            if (id === 'sweep') createExitButton(phases.STILL);
+            else if (id !== 'terminate') removeExitButton();
+        }
+
+        function openSweepSection() {
+            currentPhase = phases.STILL;
+            nav('sweep');
+            createExitButton(phases.STILL);
         }
 
         function openHaltSection() {
@@ -895,12 +1004,15 @@
             document.getElementById('orbit-stage').style.display = 'none';
             document.getElementById('halt-stage').style.display = 'block';
             document.getElementById('terminate-note').innerText = 'HALT: answer each prompt and press ENTER.';
+            createExitButton(currentPhase);
             updateHaltUI();
         }
 
         function openSparkSection() {
             nav('terminate');
+            currentPhase = phases.SPARK;
             document.getElementById('terminate-note').innerText = 'SPARK: type the trigger word and press ENTER to shatter it.';
+            createExitButton(currentPhase);
         }
 
         function openWeaveSection() {
@@ -922,6 +1034,7 @@
                 angle = (angle + 8) % 360;
                 group.setAttribute('transform', `translate(80 80) rotate(${angle})`);
             }, 30);
+            createExitButton(currentPhase);
         }
 
         function openCircuitBreakerSection() {
@@ -1142,6 +1255,7 @@
             haltProgress = 0;
             weaveProgress = 1;
             currentPhase = phases.WEAVE;
+            createExitButton(currentPhase);
             document.getElementById('weave-instr').innerText = `${complexLevels[0].n}: return to hub before each spoke.`;
             drawLoop();
             updateHaltUI();
@@ -1162,27 +1276,10 @@
             document.querySelectorAll('.strobe-active, .vagal-anchor, .panic-exit').forEach((el) => el.remove());
             const strobe = document.createElement('div');
             const anchor = document.createElement('div');
-            const exitBtn = document.createElement('button');
 
             strobe.className = 'strobe-active';
             anchor.className = 'vagal-anchor';
-            exitBtn.className = 'panic-exit';
-            exitBtn.innerText = 'EXIT EMERGENCY MODE';
-
-            const clearEmergency = () => {
-                strobe.remove();
-                anchor.remove();
-                exitBtn.remove();
-                if (emergencyTimeout) {
-                    clearTimeout(emergencyTimeout);
-                    emergencyTimeout = null;
-                }
-                clearEmergencyMode();
-                console.log('Emergency Aborted via Panic Exit.');
-            };
-
-            exitBtn.onclick = clearEmergency;
-            document.body.append(strobe, anchor, exitBtn);
+            document.body.append(strobe, anchor);
         }
 
         function syncCanvasSize() {
@@ -1334,6 +1431,7 @@
         // Protocol Phase: Neural Disruption
         function initiateSaccadicSweep() {
             currentPhase = phases.STILL;
+            createExitButton(currentPhase);
             clearSaccadicSweep();
             const overlay = document.createElement('div');
             overlay.className = 'clinical-overlay';
@@ -1456,6 +1554,7 @@
             }
 
             currentPhase = phases.EMERGENCY;
+            createExitButton(currentPhase);
             sparkInput.disabled = true;
             sparkStage.style.display = 'none';
             sparkWord.classList.remove('expand');
