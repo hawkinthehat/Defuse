@@ -468,37 +468,38 @@
             position: fixed;
             inset: 0;
             z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             background: rgba(2, 6, 23, 0.82);
-            padding: 20px;
+            overflow: hidden;
         }
 
-        .technician-readout {
-            width: min(520px, 100%);
-            background: #1e293b;
-            border: 1px solid var(--border);
+        .saccadic-instructions {
+            position: absolute;
+            left: 50%;
+            top: 16px;
+            transform: translateX(-50%);
+            width: min(760px, calc(100% - 24px));
+            background: rgba(15, 23, 42, 0.86);
+            border: 1px solid rgba(148, 163, 184, 0.45);
             border-radius: 12px;
-            padding: 20px 16px;
-            text-align: left;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+            padding: 14px 16px;
+            text-align: center;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+            z-index: 2;
         }
 
         .warn-text {
             color: var(--danger);
             font-weight: 900;
             letter-spacing: 0.5px;
-            margin: 0 0 12px;
+            margin: 0 0 8px;
         }
 
         /* SXT'EKW Technical Tracker */
         .saccadic-track {
-            width: 100%;
-            height: 56px;
-            position: relative;
+            position: absolute;
+            inset: 0;
             overflow: hidden;
-            margin: 2rem 0;
+            margin: 0;
         }
 
         .saccadic-track::before {
@@ -550,8 +551,8 @@
         }
 
         @keyframes saccadic-sweep {
-            from { left: 6%; }
-            to { left: 94%; }
+            from { left: 4%; }
+            to { left: 96%; }
         }
     </style>
 </head>
@@ -1292,18 +1293,18 @@
             overlay.className = 'clinical-overlay';
 
             overlay.innerHTML = `
-                <div class="technician-readout">
+                <div class="saccadic-instructions">
                     <p class="warn-text">SYSTEM ALERT: HIGH-FREQUENCY AMYGDALA FIRING DETECTED</p>
-                    <p>Initiating Saccadic Sweep. Keep cranium stationary. Track the teal feather.</p>
-                    <div class="saccadic-track">
-                        <div class="saccadic-point" aria-label="Teal feather target">
-                            <span class="saccadic-anchor" aria-hidden="true"></span>
-                            <svg class="saccadic-feather" viewBox="0 0 64 32" role="img" aria-label="Teal feather">
-                                <path fill="#14b8a6" d="M6 26C18 11 31 6 58 5C44 19 29 27 10 29C9 29 7 28 6 26Z"></path>
-                                <path fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linecap="round" d="M11 25C25 16 39 12 54 10"></path>
-                                <path fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round" d="M20 22L18 28M28 19L26 25M36 16L34 22M44 13L42 19"></path>
-                            </svg>
-                        </div>
+                    <p>Keep your head still. Track the teal feather across the full-screen sweep.</p>
+                </div>
+                <div class="saccadic-track">
+                    <div class="saccadic-point" aria-label="Teal feather target">
+                        <span class="saccadic-anchor" aria-hidden="true"></span>
+                        <svg class="saccadic-feather" viewBox="0 0 64 32" role="img" aria-label="Teal feather">
+                            <path fill="#14b8a6" d="M6 26C18 11 31 6 58 5C44 19 29 27 10 29C9 29 7 28 6 26Z"></path>
+                            <path fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linecap="round" d="M11 25C25 16 39 12 54 10"></path>
+                            <path fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round" d="M20 22L18 28M28 19L26 25M36 16L34 22M44 13L42 19"></path>
+                        </svg>
                     </div>
                 </div>
             `;
