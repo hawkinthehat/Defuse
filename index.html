@@ -125,6 +125,42 @@
             font-weight: 800;
         }
 
+        #terminate {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vagus-border {
+            position: absolute;
+            inset: 0;
+            border: 15px solid var(--btn-active);
+            animation: vagus-pulse 10s infinite ease-in-out;
+            z-index: 100;
+            pointer-events: none;
+            border-radius: 16px;
+        }
+
+        @keyframes vagus-pulse {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            40% { opacity: 1; transform: scale(0.98); }
+        }
+
+        .extreme-strobe {
+            animation: red-white-strobe 0.08s infinite;
+        }
+
+        @keyframes red-white-strobe {
+            0% { background-color: #ff0000; }
+            50% { background-color: #ffffff; }
+            100% { background-color: #ff0000; }
+        }
+
+        .btn-circuit-breaker {
+            background-color: #ff4757;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+        }
+
         .spark-stage {
             position: relative;
             width: 100%;
@@ -385,6 +421,7 @@
     <div id="terminate" class="screen">
         <h1 style="color: var(--red);">TERMINATE</h1>
         <p id="terminate-note">Type the trigger word and press ENTER to shatter it.</p>
+        <div id="vagus-border" class="vagus-border" aria-hidden="true" style="display: none;"></div>
         <input id="spark-in" type="text" placeholder="SPARK WORD" onkeydown="handleSpark(event)" autocomplete="off">
 
         <div class="spark-stage" id="spark-stage" style="display: none;">
@@ -414,6 +451,7 @@
             <button class="btn" style="margin-top: 10px;" onclick="checkHalt()">CONFIRM</button>
         </div>
 
+        <button class="btn btn-circuit-breaker" onclick="triggerCircuitBreaker()" title="Emergency circuit breaker: pulse border and strobe warning.">CIRCUIT BREAKER</button>
         <button class="btn" style="border:none; opacity:0.5;" onclick="nav('home')">CANCEL</button>
     </div>
 
@@ -441,11 +479,13 @@
         let saccadicTimeout = null;
         let saccadicOverlay = null;
         let correctCount = 0;
+        let emergencyPhaseTimer = null;
         const phases = {
-            HALT: "Triage_LogicGate",
-            STILL: "Saccadic_Feather",
-            SPARK: "Word_Explosion",
-            WEAVE: "Complex_Convergence"
+            HALT: "Triage",
+            STILL: "Saccadic",
+            SPARK: "Dispersal",
+            WEAVE: "Convergence",
+            EMERGENCY: "Circuit_Breaker"
         };
         const weaveLibrary = [
             'concentric-circles',
@@ -598,7 +638,10 @@
             }
 
             if (id === 'terminate') resetTerminateScreen();
-            else stopOrbit();
+            else {
+                clearEmergencyMode();
+                stopOrbit();
+            }
         }
 
         // SOS LOGIC
@@ -678,6 +721,7 @@
             haltProgress = 0;
             weaveProgress = 1;
             stopOrbit();
+            clearEmergencyMode();
             currentPhase = phases.SPARK;
             const sparkInput = document.getElementById('spark-in');
             const sparkStage = document.getElementById('spark-stage');
@@ -704,6 +748,17 @@
             document.getElementById('halt-prompt').innerText = 'COUNT: ● ● ● ● ● ● ●';
             document.getElementById('weave-instr').innerText = "THE RAVEN'S EYE: return to hub before each spoke.";
             drawLoop();
+        }
+
+        function clearEmergencyMode() {
+            if (emergencyPhaseTimer) {
+                clearTimeout(emergencyPhaseTimer);
+                emergencyPhaseTimer = null;
+            }
+            const terminate = document.getElementById('terminate');
+            const vagusBorder = document.getElementById('vagus-border');
+            if (terminate) terminate.classList.remove('extreme-strobe');
+            if (vagusBorder) vagusBorder.style.display = 'none';
         }
 
         function updateHaltUI() {
@@ -893,6 +948,8 @@
 
         function startVagalReset() {
             stopOrbit();
+            clearEmergencyMode();
+            currentPhase = phases.STILL;
             document.getElementById('terminate-note').innerText = 'Sequence complete. Shift to long exhales.';
             nav('sos');
             document.getElementById('b-text').innerText = 'Sweep complete: inhale 4s, exhale 6s.';
@@ -997,6 +1054,42 @@
             };
 
             sparkWord.addEventListener('transitionend', onTransitionEnd);
+        }
+
+        function triggerCircuitBreaker() {
+            const terminate = document.getElementById('terminate');
+            const vagusBorder = document.getElementById('vagus-border');
+            const sparkInput = document.getElementById('spark-in');
+            const sparkStage = document.getElementById('spark-stage');
+            const sparkWord = document.getElementById('spark-word');
+
+            stopOrbit();
+            clearSaccadicSweep();
+            clearSparkShatterLayer();
+            if (sparkShatterCleanup) {
+                clearTimeout(sparkShatterCleanup);
+                sparkShatterCleanup = null;
+            }
+
+            currentPhase = phases.EMERGENCY;
+            sparkInput.disabled = true;
+            sparkStage.style.display = 'none';
+            sparkWord.classList.remove('expand');
+            sparkWord.textContent = '';
+            document.getElementById('orbit-stage').style.display = 'none';
+            document.getElementById('halt-stage').style.display = 'none';
+            document.getElementById('terminate-note').innerText = 'CIRCUIT BREAKER ACTIVE: follow the border pulse and exhale slowly.';
+
+            terminate.classList.add('extreme-strobe');
+            vagusBorder.style.display = 'block';
+            if (navigator.vibrate) navigator.vibrate([200, 60, 200, 60, 400]);
+
+            if (emergencyPhaseTimer) clearTimeout(emergencyPhaseTimer);
+            emergencyPhaseTimer = setTimeout(() => {
+                emergencyPhaseTimer = null;
+                clearEmergencyMode();
+                startVagalReset();
+            }, 10000);
         }
 
         function handleSpark(e) {
