@@ -509,7 +509,7 @@
             left: -12%;
             top: 50%;
             transform: translate(-50%, -50%);
-            animation: saccadic-sweep 1.8s infinite alternate steps(12, end);
+            animation: saccadic-figure-eight-sweep 2s infinite alternate steps(20, end);
         }
 
         .saccadic-feather {
@@ -563,9 +563,42 @@
             opacity: 1;
         }
 
-        @keyframes saccadic-sweep {
-            from { left: -12%; }
-            to { left: 112%; }
+        @keyframes saccadic-figure-eight-sweep {
+            0% {
+                left: -12%;
+                top: 50%;
+                transform: translate(-50%, -50%) rotate(-14deg);
+            }
+            20% {
+                left: 14%;
+                top: 44%;
+                transform: translate(-50%, -50%) rotate(-7deg);
+            }
+            40% {
+                left: 36%;
+                top: 56%;
+                transform: translate(-50%, -50%) rotate(-2deg);
+            }
+            50% {
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            60% {
+                left: 64%;
+                top: 44%;
+                transform: translate(-50%, -50%) rotate(2deg);
+            }
+            80% {
+                left: 86%;
+                top: 56%;
+                transform: translate(-50%, -50%) rotate(7deg);
+            }
+            100% {
+                left: 112%;
+                top: 50%;
+                transform: translate(-50%, -50%) rotate(14deg);
+            }
         }
     </style>
 </head>
