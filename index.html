@@ -8,14 +8,14 @@
         :root {
             --bg: #1f2937;       /* Slate Grey */
             --panel: #334155;    /* Mid Slate */
-            --text: #bfdbfe;     /* Light Blue Text */
-            --accent: #60a5fa;   /* Primary Blue Accent */
-            --btn-active: #3b82f6;
-            --warn: #1d4ed8;     /* Deep Blue for alerts */
+            --text: #dbeafe;     /* Light Blue Text */
+            --accent: #38bdf8;   /* Primary Blue Accent */
+            --btn-active: #0ea5e9;
+            --warn: #2563eb;     /* Deep Blue for alerts */
             --bone: var(--text);
             --danger: var(--warn);
-            --gold-dim: #93c5fd;
-            --border: rgba(147, 197, 253, 0.35);
+            --gold-dim: #7dd3fc;
+            --border: rgba(56, 189, 248, 0.45);
             --card: var(--panel);
             --teal: var(--accent);
             --gold: var(--accent);
@@ -93,15 +93,15 @@
             width: 96px;
             height: 96px;
             border-radius: 50%;
-            background: rgba(96, 165, 250, 0.35);
-            box-shadow: 0 0 24px rgba(96, 165, 250, 0.45);
+            background: rgba(56, 189, 248, 0.45);
+            box-shadow: 0 0 24px rgba(56, 189, 248, 0.6);
             transition: background 250ms ease, box-shadow 250ms ease, transform 250ms ease;
             animation: anchor-breathe 4s ease-in-out infinite;
         }
 
         .visual-active .anchor {
-            background: #bfdbfe;
-            box-shadow: 0 0 40px #60a5fa;
+            background: #dbeafe;
+            box-shadow: 0 0 40px #38bdf8;
             transform: scale(1.08);
         }
 
@@ -150,15 +150,15 @@
         }
 
         @keyframes red-white-strobe {
-            0% { background-color: #1d4ed8; }
-            50% { background-color: #bfdbfe; }
-            100% { background-color: #1d4ed8; }
+            0% { background-color: #2563eb; }
+            50% { background-color: #dbeafe; }
+            100% { background-color: #2563eb; }
         }
 
         .btn-circuit-breaker {
-            background-color: #1d4ed8;
-            color: #bfdbfe;
-            border: 2px solid #93c5fd;
+            background-color: #2563eb;
+            color: #dbeafe;
+            border: 2px solid #7dd3fc;
         }
 
         .spark-stage {
@@ -181,7 +181,7 @@
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 0.5rem;
-            filter: drop-shadow(0 0 10px rgba(147, 197, 253, 0.8));
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.9));
             transition: all 3s ease-in;
             text-align: center;
             word-break: break-word;
@@ -233,8 +233,8 @@
         }
 
         #orbit-thread {
-            fill: #60a5fa;
-            filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.9));
+            fill: #38bdf8;
+            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.95));
         }
 
         #cvs {
@@ -266,13 +266,13 @@
 
         .concentric-circles .weave-pattern {
             background:
-                repeating-radial-gradient(circle, rgba(96, 165, 250, 0.45) 0 2px, transparent 2px 22px);
+                repeating-radial-gradient(circle, rgba(56, 189, 248, 0.55) 0 2px, transparent 2px 22px);
         }
 
         .converging-grids .weave-pattern {
             background:
-                repeating-linear-gradient(90deg, rgba(191, 219, 254, 0.25) 0 2px, transparent 2px 26px),
-                repeating-linear-gradient(0deg, rgba(96, 165, 250, 0.2) 0 2px, transparent 2px 26px);
+                repeating-linear-gradient(90deg, rgba(219, 234, 254, 0.28) 0 2px, transparent 2px 26px),
+                repeating-linear-gradient(0deg, rgba(56, 189, 248, 0.28) 0 2px, transparent 2px 26px);
         }
 
         .inward-tessellation .weave-pattern {
@@ -282,8 +282,8 @@
 
         .vortex-moire .weave-pattern {
             background:
-                repeating-radial-gradient(circle at 35% 50%, rgba(96, 165, 250, 0.35) 0 3px, transparent 3px 14px),
-                repeating-radial-gradient(circle at 65% 50%, rgba(191, 219, 254, 0.3) 0 3px, transparent 3px 16px);
+                repeating-radial-gradient(circle at 35% 50%, rgba(56, 189, 248, 0.45) 0 3px, transparent 3px 14px),
+                repeating-radial-gradient(circle at 65% 50%, rgba(219, 234, 254, 0.35) 0 3px, transparent 3px 16px);
             mix-blend-mode: screen;
         }
 
@@ -306,7 +306,7 @@
         #halt-in {
             width: 100%;
             background: #1e293b;
-            border: 2px solid rgba(96, 165, 250, 0.7);
+            border: 2px solid rgba(56, 189, 248, 0.85);
             color: var(--text);
             border-radius: 10px;
             padding: 12px;
@@ -913,7 +913,7 @@
             ctx.fillRect(0, 0, width, height);
 
             ctx.setLineDash([5, 15]);
-            ctx.strokeStyle = 'rgba(191, 219, 254, 0.2)';
+            ctx.strokeStyle = 'rgba(219, 234, 254, 0.25)';
             ctx.lineWidth = 1.5;
             ctx.beginPath();
             pts.forEach((pt, idx) => {
@@ -924,10 +924,10 @@
 
             const activeCount = Math.max(1, Math.min(weaveProgress, pts.length));
             ctx.setLineDash([]);
-            ctx.strokeStyle = '#60a5fa';
+            ctx.strokeStyle = '#38bdf8';
             ctx.lineWidth = 4;
             ctx.shadowBlur = 10;
-            ctx.shadowColor = '#60a5fa';
+            ctx.shadowColor = '#38bdf8';
             ctx.beginPath();
             pts.slice(0, activeCount).forEach((pt, idx) => {
                 if (idx === 0) ctx.moveTo(pt.x, pt.y);
@@ -940,8 +940,8 @@
                 const isActive = idx < activeCount;
                 ctx.beginPath();
                 ctx.fillStyle = pt.type === 'hub'
-                    ? (isActive ? '#93c5fd' : 'rgba(147, 197, 253, 0.35)')
-                    : (isActive ? '#60a5fa' : 'rgba(148, 163, 184, 0.45)');
+                    ? (isActive ? '#dbeafe' : 'rgba(219, 234, 254, 0.35)')
+                    : (isActive ? '#38bdf8' : 'rgba(148, 163, 184, 0.45)');
                 ctx.arc(pt.x, pt.y, pt.type === 'hub' ? 5.5 : 4, 0, Math.PI * 2);
                 ctx.fill();
             });
@@ -974,7 +974,7 @@
                     const x = centerX + p.vx * ease;
                     const y = centerY + p.vy * ease;
                     ctx.globalAlpha = 1 - t;
-                    ctx.fillStyle = '#60a5fa';
+                    ctx.fillStyle = '#38bdf8';
                     ctx.fillRect(x, y, p.size, p.size);
                 });
                 ctx.globalAlpha = 1;
