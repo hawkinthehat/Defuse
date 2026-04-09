@@ -251,6 +251,76 @@
             border: 2px solid #fca5a5;
         }
 
+        .circuit-breaker-warning {
+            margin-top: -2px;
+            margin-bottom: 12px;
+            color: #fecaca;
+            opacity: 0.9;
+            font-size: 0.75rem;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+
+        .safety-gate {
+            position: fixed;
+            inset: 0;
+            background: #1a1a1a;
+            color: #ffffff;
+            z-index: 15000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            border: 4px solid #ff4757;
+            text-align: center;
+        }
+
+        .safety-gate h3 {
+            color: #ff4757;
+            letter-spacing: 4px;
+            margin: 0 0 1rem;
+            text-transform: uppercase;
+        }
+
+        .safety-gate p {
+            max-width: 600px;
+            line-height: 1.6;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .safety-gate-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .clinical-btn {
+            background: #2f3542;
+            color: #ffffff;
+            border: 2px solid #f8d7da;
+            border-radius: 10px;
+            padding: 12px 22px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            min-width: 130px;
+        }
+
+        .clinical-btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .clinical-btn-proceed {
+            background: #ff4757;
+            border-color: #ff9ca7;
+        }
+
         .strobe-active {
             position: fixed;
             inset: 0;
@@ -670,6 +740,7 @@
             <button class="btn" onclick="openSparkSection()">SPARK</button>
             <button class="btn" onclick="openWeaveSection()">AXIAL STABILIZE</button>
             <button class="btn btn-circuit-breaker" onclick="openCircuitBreakerSection()">CIRCUIT BREAKER</button>
+            <p class="circuit-breaker-warning">Kinetic Override warning: high-intensity strobe. Confirm safety before activation.</p>
         </div>
     </div>
 
@@ -1070,8 +1141,40 @@
 
         function openCircuitBreakerSection() {
             if (!document.getElementById('home').classList.contains('active')) return;
-            nav('terminate');
-            triggerCircuitBreaker();
+            launchCircuitBreaker();
+        }
+
+        function launchCircuitBreaker() {
+            if (document.querySelector('.safety-gate')) return;
+            const gate = document.createElement('div');
+            gate.className = 'safety-gate';
+            gate.setAttribute('role', 'dialog');
+            gate.setAttribute('aria-modal', 'true');
+            gate.innerHTML = `
+                <h3>System Warning: Kinetic Override</h3>
+                <p>HIGH-INTENSITY STROBE ENABLED.<br>KINETIC OVERRIDE MAY CAUSE SENSORY OVERLOAD. PROCEED ONLY IF YOU ARE SAFE TO CONTINUE.</p>
+                <div class="safety-gate-actions">
+                    <button class="clinical-btn" data-action="abort">ABORT</button>
+                    <button class="clinical-btn clinical-btn-proceed" data-action="proceed">PROCEED</button>
+                </div>
+            `;
+
+            gate.addEventListener('click', (event) => {
+                const trigger = event.target.closest('button[data-action]');
+                if (!trigger) return;
+
+                const action = trigger.dataset.action;
+                if (action === 'proceed') {
+                    gate.remove();
+                    nav('terminate');
+                    triggerCircuitBreaker();
+                    return;
+                }
+
+                gate.remove();
+            });
+
+            document.body.appendChild(gate);
         }
 
         // SOS LOGIC
