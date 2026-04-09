@@ -527,7 +527,7 @@
             <button class="btn" onclick="openHaltSection()">HALT</button>
             <button class="btn" onclick="nav('sweep')">STILL</button>
             <button class="btn" onclick="openSparkSection()">SPARK</button>
-            <button class="btn" onclick="openWeaveSection()">WEAVE</button>
+            <button class="btn" onclick="openWeaveSection()">AXIAL STABILIZE</button>
             <button class="btn btn-circuit-breaker" onclick="openCircuitBreakerSection()">CIRCUIT BREAKER</button>
         </div>
     </div>
@@ -631,12 +631,14 @@
         let correctCount = 0;
         let emergencyPhaseTimer = null;
         let emergencyTimeout = null;
+        let weaveFlowVarianceTimer = null;
+        const baseCentripetalDuration = 15;
         const phases = {
-            HALT: "Halt",
-            STILL: "Still",
-            SPARK: "Spark",
-            WEAVE: "Weave",
-            CIRCUIT_BREAKER: "Circuit_Breaker"
+            HALT: "Triage",
+            STILL: "Ocular_Sweep",
+            SPARK: "Dispersal",
+            WEAVE: "Axial_Stabilize",
+            EMERGENCY: "Circuit_Breaker"
         };
         const weaveLibrary = [
             'tessellation-hex',
@@ -824,6 +826,7 @@
             document.getElementById('weave-instr').innerText = `${complexLevels[0].n}: return to hub before each spoke.`;
             drawLoop();
             injectNewPattern();
+            startWeaveFlowVariance();
             weavePatternTimer = setInterval(injectNewPattern, 9000);
             const group = document.getElementById('orbit-group');
             let angle = 0;
@@ -999,6 +1002,10 @@
                 clearInterval(orbitInterval);
                 orbitInterval = null;
             }
+            if (weaveFlowVarianceTimer) {
+                clearInterval(weaveFlowVarianceTimer);
+                weaveFlowVarianceTimer = null;
+            }
             if (weavePatternTimer) {
                 clearInterval(weavePatternTimer);
                 weavePatternTimer = null;
@@ -1007,6 +1014,26 @@
                 cancelAnimationFrame(explosionFrame);
                 explosionFrame = null;
             }
+            setCentripetalFlowDuration(baseCentripetalDuration);
+        }
+
+        function setCentripetalFlowDuration(seconds) {
+            const layer = document.querySelector('#weave-viewport .pattern-layer');
+            if (!layer) return;
+            layer.style.animationDuration = `${seconds.toFixed(2)}s`;
+        }
+
+        function randomizeCentripetalFlowDuration() {
+            // Slight tempo variability reduces rhythmic habituation.
+            const variance = (Math.random() * 0.16) - 0.08; // ±8%
+            const nextDuration = baseCentripetalDuration * (1 + variance);
+            setCentripetalFlowDuration(nextDuration);
+        }
+
+        function startWeaveFlowVariance() {
+            randomizeCentripetalFlowDuration();
+            if (weaveFlowVarianceTimer) clearInterval(weaveFlowVarianceTimer);
+            weaveFlowVarianceTimer = setInterval(randomizeCentripetalFlowDuration, 10000);
         }
 
         function injectNewPattern() {
@@ -1033,6 +1060,7 @@
 
             stopOrbit();
             injectNewPattern();
+            startWeaveFlowVariance();
             weavePatternTimer = setInterval(injectNewPattern, 9000);
             const group = document.getElementById('orbit-group');
             let angle = 0;
@@ -1298,14 +1326,14 @@
                 sparkShatterCleanup = null;
             }
 
-            currentPhase = phases.CIRCUIT_BREAKER;
+            currentPhase = phases.EMERGENCY;
             sparkInput.disabled = true;
             sparkStage.style.display = 'none';
             sparkWord.classList.remove('expand');
             sparkWord.textContent = '';
             document.getElementById('orbit-stage').style.display = 'none';
             document.getElementById('halt-stage').style.display = 'none';
-            document.getElementById('terminate-note').innerText = 'CIRCUIT BREAKER ACTIVE: hold steady. Auto-transition to WEAVE in 30 seconds.';
+            document.getElementById('terminate-note').innerText = 'CIRCUIT BREAKER ACTIVE: hold steady. Auto-transition to AXIAL STABILIZE in 30 seconds.';
             document.body.classList.add('circuit-breaker-active', 'breaker-lock');
             breakerOverlay.classList.add('active');
             breakerOverlay.setAttribute('aria-hidden', 'false');
