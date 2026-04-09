@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DEFUSE | Neutralize</title>
+    <meta name="theme-color" content="#111827">
+    <link rel="icon" type="image/svg+xml" href="assets/defuse-icon.svg">
+    <link rel="apple-touch-icon" href="assets/defuse-icon.svg">
+    <link rel="manifest" href="manifest.webmanifest">
     <style>
         :root {
             --bg: #1f2937;       /* Slate Grey */
@@ -42,6 +46,19 @@
 
         h1 { color: var(--teal); letter-spacing: 4px; font-weight: 900; margin-top: 40px; }
         p { opacity: 0.7; line-height: 1.5; }
+
+        .brand-wrap {
+            width: min(310px, 90vw);
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .brand-logo {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 12px 18px rgba(2, 6, 23, 0.5));
+        }
 
         .btn { 
             background: var(--card); 
@@ -130,35 +147,101 @@
             overflow: hidden;
         }
 
-        .vagus-border {
+        .circuit-breaker-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1200;
+            background: radial-gradient(circle at center, rgba(239, 68, 68, 0.42), rgba(127, 29, 29, 0.92));
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            pointer-events: none;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .circuit-breaker-overlay.active {
+            display: flex;
+        }
+
+        .circuit-breaker-flash {
             position: absolute;
             inset: 0;
-            border: 15px solid var(--btn-active);
-            animation: vagus-pulse 10s infinite ease-in-out;
-            z-index: 100;
+            background: #ef4444;
+            opacity: 0;
+            animation: breaker-flash 1.25s steps(1, end) infinite;
+        }
+
+        @keyframes breaker-flash {
+            0%, 58%, 100% { opacity: 0; }
+            5%, 8% { opacity: 0.95; }
+            22%, 25% { opacity: 0.65; }
+            40%, 42% { opacity: 0.85; }
+        }
+
+        .halt-circle {
+            position: relative;
+            z-index: 1;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            border: 12px solid #fecaca;
+            background: rgba(127, 29, 29, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.25), 0 0 36px rgba(248, 113, 113, 0.8);
+            animation: halt-ring-pulse 1.5s ease-in-out infinite;
+        }
+
+        .halt-circle span {
+            font-size: 3.1rem;
+            font-weight: 900;
+            color: #fff1f2;
+            letter-spacing: 6px;
+            text-shadow: 0 0 16px rgba(255, 255, 255, 0.7);
+        }
+
+        @keyframes halt-ring-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.25), 0 0 36px rgba(248, 113, 113, 0.8); }
+            50% { transform: scale(1.06); box-shadow: 0 0 0 16px rgba(239, 68, 68, 0.15), 0 0 52px rgba(248, 113, 113, 0.95); }
+        }
+
+        .halt-caption {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #fee2e2;
+            opacity: 1;
+            font-weight: 700;
+        }
+
+        .circuit-breaker-active {
+            animation: body-red-pulse 1.25s steps(1, end) infinite;
+        }
+
+        @keyframes body-red-pulse {
+            0%, 58%, 100% { background-color: var(--bg); }
+            5%, 8% { background-color: #ef4444; }
+            22%, 25% { background-color: #b91c1c; }
+            40%, 42% { background-color: #ef4444; }
+        }
+
+        .breaker-lock .screen,
+        .breaker-lock nav {
             pointer-events: none;
-            border-radius: 16px;
-        }
-
-        @keyframes vagus-pulse {
-            0%, 100% { opacity: 0.2; transform: scale(1); }
-            40% { opacity: 1; transform: scale(0.98); }
-        }
-
-        .extreme-strobe {
-            animation: red-white-strobe 0.08s infinite;
-        }
-
-        @keyframes red-white-strobe {
-            0% { background-color: #2563eb; }
-            50% { background-color: #dbeafe; }
-            100% { background-color: #2563eb; }
+            user-select: none;
         }
 
         .btn-circuit-breaker {
-            background-color: #2563eb;
-            color: #dbeafe;
-            border: 2px solid #7dd3fc;
+            background-color: #b91c1c;
+            color: #fee2e2;
+            border: 2px solid #fca5a5;
         }
 
         .spark-stage {
@@ -374,8 +457,10 @@
 <body>
 
     <div id="home" class="screen active">
-        <h1>DEFUSE</h1>
-        <p>Tactical Neutralization Protocol</p>
+        <div class="brand-wrap">
+            <img class="brand-logo" src="assets/defuse-logo.svg" alt="DeFuse logo">
+        </div>
+        <p>A momentum system</p>
         <div style="margin-top: 30px; width: 100%;">
             <button class="btn" onclick="openHaltSection()">HALT</button>
             <button class="btn" onclick="nav('sweep')">STILL</button>
@@ -421,7 +506,11 @@
     <div id="terminate" class="screen">
         <h1 style="color: var(--red);">TERMINATE</h1>
         <p id="terminate-note">Type the trigger word and press ENTER to shatter it.</p>
-        <div id="vagus-border" class="vagus-border" aria-hidden="true" style="display: none;"></div>
+        <div id="circuit-breaker-overlay" class="circuit-breaker-overlay" aria-hidden="true">
+            <div class="circuit-breaker-flash" aria-hidden="true"></div>
+            <div class="halt-circle"><span>HALT</span></div>
+            <p class="halt-caption">Circuit breaker active</p>
+        </div>
         <input id="spark-in" type="text" placeholder="SPARK WORD" onkeydown="handleSpark(event)" autocomplete="off">
 
         <div class="spark-stage" id="spark-stage" style="display: none;">
@@ -799,10 +888,12 @@
                 clearTimeout(emergencyPhaseTimer);
                 emergencyPhaseTimer = null;
             }
-            const terminate = document.getElementById('terminate');
-            const vagusBorder = document.getElementById('vagus-border');
-            if (terminate) terminate.classList.remove('extreme-strobe');
-            if (vagusBorder) vagusBorder.style.display = 'none';
+            document.body.classList.remove('circuit-breaker-active', 'breaker-lock');
+            const breakerOverlay = document.getElementById('circuit-breaker-overlay');
+            if (breakerOverlay) {
+                breakerOverlay.classList.remove('active');
+                breakerOverlay.setAttribute('aria-hidden', 'true');
+            }
         }
 
         function updateHaltUI() {
@@ -1101,8 +1192,7 @@
         }
 
         function triggerCircuitBreaker() {
-            const terminate = document.getElementById('terminate');
-            const vagusBorder = document.getElementById('vagus-border');
+            const breakerOverlay = document.getElementById('circuit-breaker-overlay');
             const sparkInput = document.getElementById('spark-in');
             const sparkStage = document.getElementById('spark-stage');
             const sparkWord = document.getElementById('spark-word');
@@ -1122,10 +1212,10 @@
             sparkWord.textContent = '';
             document.getElementById('orbit-stage').style.display = 'none';
             document.getElementById('halt-stage').style.display = 'none';
-            document.getElementById('terminate-note').innerText = 'CIRCUIT BREAKER ACTIVE: follow the border pulse and exhale slowly.';
-
-            terminate.classList.add('extreme-strobe');
-            vagusBorder.style.display = 'block';
+            document.getElementById('terminate-note').innerText = 'CIRCUIT BREAKER ACTIVE: HALT, hold still, exhale longer than inhale.';
+            document.body.classList.add('circuit-breaker-active', 'breaker-lock');
+            breakerOverlay.classList.add('active');
+            breakerOverlay.setAttribute('aria-hidden', 'false');
             if (navigator.vibrate) navigator.vibrate([200, 60, 200, 60, 400]);
 
             if (emergencyPhaseTimer) clearTimeout(emergencyPhaseTimer);
