@@ -11,6 +11,7 @@
             --accent: #38bdf8;    /* Professional Sky Blue */
             --danger: #ef4444;    /* Crimson for halt/shatter */
             --gold-dim: #94a3b8;  /* Muted slate for lead lines */
+            --border: rgba(148, 163, 184, 0.35);
             --card: #1e293b;
             --teal: var(--accent);
             --gold: #f59e0b;
@@ -182,6 +183,60 @@
             text-transform: uppercase;
             margin-top: 10px;
         }
+
+        .clinical-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(2, 6, 23, 0.82);
+            padding: 20px;
+        }
+
+        .technician-readout {
+            width: min(520px, 100%);
+            background: #020617;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 16px;
+            text-align: left;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        .warn-text {
+            color: var(--danger);
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            margin: 0 0 12px;
+        }
+
+        /* SXT'EKW Technical Tracker */
+        .saccadic-track {
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+            position: relative;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .saccadic-point {
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            position: absolute;
+            top: -4px;
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--accent);
+            animation: sweep 1.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes sweep {
+            from { left: 5%; }
+            to { left: 95%; }
+        }
     </style>
 </head>
 <body>
@@ -280,6 +335,8 @@
         let haltProgress = 0;
         let weaveProgress = 1;
         let explosionFrame = null;
+        let saccadicTimeout = null;
+        let saccadicOverlay = null;
         const haltPool = [
             { i: "COUNT", q: "● ● ● ● ● ● ●", a: "7" },
             { i: "SOLVE", q: "15 - 7", a: "8" },
@@ -388,6 +445,7 @@
         }
 
         function nav(id) {
+            clearSaccadicSweep();
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.body.classList.toggle('visual-active', id === 'ground');
@@ -497,6 +555,7 @@
         }
 
         function resetTerminateScreen() {
+            clearSaccadicSweep();
             haltProgress = 0;
             weaveProgress = 1;
             stopOrbit();
@@ -536,7 +595,7 @@
                 if (navigator.vibrate) navigator.vibrate(40);
 
                 if (haltProgress >= haltPool.length) {
-                    startVagalReset();
+                    initiateSaccadicSweep();
                 } else {
                     updateHaltUI();
                 }
@@ -682,6 +741,44 @@
             document.getElementById('terminate-note').innerText = 'Sequence complete. Shift to long exhales.';
             nav('sos');
             document.getElementById('b-text').innerText = 'Vagal reset: inhale 4s, exhale 6s.';
+        }
+
+        function clearSaccadicSweep() {
+            if (saccadicTimeout) {
+                clearTimeout(saccadicTimeout);
+                saccadicTimeout = null;
+            }
+            if (saccadicOverlay) {
+                saccadicOverlay.remove();
+                saccadicOverlay = null;
+            }
+        }
+
+        // Protocol Phase: Neural Disruption
+        function initiateSaccadicSweep() {
+            clearSaccadicSweep();
+            const overlay = document.createElement('div');
+            overlay.className = 'clinical-overlay';
+
+            overlay.innerHTML = `
+                <div class="technician-readout">
+                    <p class="warn-text">SYSTEM ALERT: HIGH-FREQUENCY AMYGDALA FIRING DETECTED</p>
+                    <p>Initiating Saccadic Sweep. Keep cranium stationary. Track the accent point.</p>
+                    <div class="saccadic-track">
+                        <div class="saccadic-point"></div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            saccadicOverlay = overlay;
+
+            // Auto-terminate after 30 seconds and move to next clinical pillar.
+            saccadicTimeout = setTimeout(() => {
+                clearSaccadicSweep();
+                console.log('Sweep complete: Baseline stabilized. Proceeding to Analysis.');
+                startVagalReset();
+            }, 30000);
         }
 
         function handleSpark(e) {
