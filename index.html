@@ -6,16 +6,16 @@
     <title>DEFUSE | Neutralize</title>
     <style>
         :root {
-            --bg: #334155;       /* Slate Grey */
-            --panel: #475569;    /* Mid Slate */
-            --text: #93c5fd;     /* Blue Text */
+            --bg: #1f2937;       /* Slate Grey */
+            --panel: #334155;    /* Mid Slate */
+            --text: #bfdbfe;     /* Light Blue Text */
             --accent: #60a5fa;   /* Primary Blue Accent */
             --btn-active: #3b82f6;
-            --warn: #1e3a8a;     /* Deep Blue for alerts */
+            --warn: #1d4ed8;     /* Deep Blue for alerts */
             --bone: var(--text);
             --danger: var(--warn);
-            --gold-dim: #8a8a8a;
-            --border: rgba(224, 224, 224, 0.25);
+            --gold-dim: #93c5fd;
+            --border: rgba(147, 197, 253, 0.35);
             --card: var(--panel);
             --teal: var(--accent);
             --gold: var(--accent);
@@ -81,8 +81,8 @@
             height: 180px;
             margin: 20px 0;
             border-radius: 16px;
-            border: 1px solid rgba(56, 189, 248, 0.25);
-            background: radial-gradient(circle at center, #0b2840 0%, #020617 100%);
+            border: 1px solid var(--border);
+            background: radial-gradient(circle at center, #334155 0%, #1f2937 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -93,15 +93,15 @@
             width: 96px;
             height: 96px;
             border-radius: 50%;
-            background: rgba(56, 189, 248, 0.35);
-            box-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
+            background: rgba(96, 165, 250, 0.35);
+            box-shadow: 0 0 24px rgba(96, 165, 250, 0.45);
             transition: background 250ms ease, box-shadow 250ms ease, transform 250ms ease;
             animation: anchor-breathe 4s ease-in-out infinite;
         }
 
         .visual-active .anchor {
-            background: #7dd3fc;
-            box-shadow: 0 0 40px #38bdf8;
+            background: #bfdbfe;
+            box-shadow: 0 0 40px #60a5fa;
             transform: scale(1.08);
         }
 
@@ -150,9 +150,9 @@
         }
 
         @keyframes red-white-strobe {
-            0% { background-color: #ff0000; }
-            50% { background-color: #ffffff; }
-            100% { background-color: #ff0000; }
+            0% { background-color: #1d4ed8; }
+            50% { background-color: #bfdbfe; }
+            100% { background-color: #1d4ed8; }
         }
 
         .btn-circuit-breaker {
@@ -171,8 +171,8 @@
             align-items: center;
             justify-content: center;
             border-radius: 12px;
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+            border: 1px solid var(--border);
+            background: radial-gradient(circle at center, rgba(51, 65, 85, 0.9), rgba(30, 41, 59, 1));
         }
 
         .spark-word {
@@ -218,8 +218,8 @@
 
         .weave-wrap {
             width: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(148, 163, 184, 0.25);
+            background: rgba(51, 65, 85, 0.6);
+            border: 1px solid var(--border);
             border-radius: 16px;
             margin: 12px 0 18px;
             padding: 14px;
@@ -233,8 +233,8 @@
         }
 
         #orbit-thread {
-            fill: #38bdf8;
-            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.9));
+            fill: #60a5fa;
+            filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.9));
         }
 
         #cvs {
@@ -242,7 +242,7 @@
             height: 140px;
             display: block;
             border-radius: 12px;
-            border: 1px solid rgba(148, 163, 184, 0.25);
+            border: 1px solid var(--border);
             margin-bottom: 10px;
         }
 
@@ -251,10 +251,10 @@
             width: 100%;
             height: 120px;
             border-radius: 12px;
-            border: 1px solid rgba(148, 163, 184, 0.25);
+            border: 1px solid var(--border);
             margin-bottom: 10px;
             overflow: hidden;
-            background: #020617;
+            background: #1e293b;
         }
 
         .weave-pattern {
@@ -266,13 +266,13 @@
 
         .concentric-circles .weave-pattern {
             background:
-                repeating-radial-gradient(circle, rgba(56, 189, 248, 0.45) 0 2px, transparent 2px 22px);
+                repeating-radial-gradient(circle, rgba(96, 165, 250, 0.45) 0 2px, transparent 2px 22px);
         }
 
         .converging-grids .weave-pattern {
             background:
-                repeating-linear-gradient(90deg, rgba(248, 250, 252, 0.2) 0 2px, transparent 2px 26px),
-                repeating-linear-gradient(0deg, rgba(56, 189, 248, 0.2) 0 2px, transparent 2px 26px);
+                repeating-linear-gradient(90deg, rgba(191, 219, 254, 0.25) 0 2px, transparent 2px 26px),
+                repeating-linear-gradient(0deg, rgba(96, 165, 250, 0.2) 0 2px, transparent 2px 26px);
         }
 
         .inward-tessellation .weave-pattern {
@@ -282,8 +282,8 @@
 
         .vortex-moire .weave-pattern {
             background:
-                repeating-radial-gradient(circle at 35% 50%, rgba(56, 189, 248, 0.35) 0 3px, transparent 3px 14px),
-                repeating-radial-gradient(circle at 65% 50%, rgba(248, 250, 252, 0.3) 0 3px, transparent 3px 16px);
+                repeating-radial-gradient(circle at 35% 50%, rgba(96, 165, 250, 0.35) 0 3px, transparent 3px 14px),
+                repeating-radial-gradient(circle at 65% 50%, rgba(191, 219, 254, 0.3) 0 3px, transparent 3px 16px);
             mix-blend-mode: screen;
         }
 
@@ -305,8 +305,8 @@
 
         #halt-in {
             width: 100%;
-            background: #020617;
-            border: 2px solid rgba(56, 189, 248, 0.5);
+            background: #1e293b;
+            border: 2px solid rgba(96, 165, 250, 0.7);
             color: var(--text);
             border-radius: 10px;
             padding: 12px;
@@ -329,7 +329,7 @@
 
         .technician-readout {
             width: min(520px, 100%);
-            background: #020617;
+            background: #1e293b;
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 20px 16px;
@@ -414,7 +414,7 @@
         <p style="opacity: 0.6; font-size: 0.8rem;">ONE TINY TASK. 60 SECONDS.</p>
         <div id="task-display" style="background: var(--card); border: 2px solid var(--gold); padding: 30px; border-radius: 20px; width: 100%; font-size: 1.6rem; font-weight: 900; margin: 20px 0; color: var(--gold);">---</div>
         <div id="act-timer" style="font-size: 4rem; font-weight: 900; margin-bottom: 20px;">60</div>
-        <button id="act-btn" class="btn" style="background: var(--gold); color: var(--bg); border-color: var(--gold);" onclick="startActTimer()">START SPRINT</button>
+        <button id="act-btn" class="btn" style="background: var(--panel); color: var(--text); border-color: var(--gold);" onclick="startActTimer()">START SPRINT</button>
         <button class="btn" style="border:none; opacity:0.5;" onclick="exitAll()">CANCEL</button>
     </div>
 
@@ -909,11 +909,11 @@
             const level = complexLevels[0];
             const pts = level.pts.map((pt) => ({ x: pt.x * width, y: pt.y * height, type: pt.type }));
 
-            ctx.fillStyle = '#0f172a';
+            ctx.fillStyle = '#1e293b';
             ctx.fillRect(0, 0, width, height);
 
             ctx.setLineDash([5, 15]);
-            ctx.strokeStyle = 'rgba(248, 250, 252, 0.15)';
+            ctx.strokeStyle = 'rgba(191, 219, 254, 0.2)';
             ctx.lineWidth = 1.5;
             ctx.beginPath();
             pts.forEach((pt, idx) => {
@@ -924,10 +924,10 @@
 
             const activeCount = Math.max(1, Math.min(weaveProgress, pts.length));
             ctx.setLineDash([]);
-            ctx.strokeStyle = '#38bdf8';
+            ctx.strokeStyle = '#60a5fa';
             ctx.lineWidth = 4;
             ctx.shadowBlur = 10;
-            ctx.shadowColor = '#38bdf8';
+            ctx.shadowColor = '#60a5fa';
             ctx.beginPath();
             pts.slice(0, activeCount).forEach((pt, idx) => {
                 if (idx === 0) ctx.moveTo(pt.x, pt.y);
@@ -940,8 +940,8 @@
                 const isActive = idx < activeCount;
                 ctx.beginPath();
                 ctx.fillStyle = pt.type === 'hub'
-                    ? (isActive ? '#ef4444' : 'rgba(239, 68, 68, 0.35)')
-                    : (isActive ? '#38bdf8' : 'rgba(148, 163, 184, 0.45)');
+                    ? (isActive ? '#93c5fd' : 'rgba(147, 197, 253, 0.35)')
+                    : (isActive ? '#60a5fa' : 'rgba(148, 163, 184, 0.45)');
                 ctx.arc(pt.x, pt.y, pt.type === 'hub' ? 5.5 : 4, 0, Math.PI * 2);
                 ctx.fill();
             });
@@ -974,7 +974,7 @@
                     const x = centerX + p.vx * ease;
                     const y = centerY + p.vy * ease;
                     ctx.globalAlpha = 1 - t;
-                    ctx.fillStyle = '#38bdf8';
+                    ctx.fillStyle = '#60a5fa';
                     ctx.fillRect(x, y, p.size, p.size);
                 });
                 ctx.globalAlpha = 1;
