@@ -445,6 +445,7 @@
         }
 
         function nav(id) {
+            clearSaccadicSweep();
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.body.classList.toggle('visual-active', id === 'ground');
@@ -554,6 +555,7 @@
         }
 
         function resetTerminateScreen() {
+            clearSaccadicSweep();
             haltProgress = 0;
             weaveProgress = 1;
             stopOrbit();
