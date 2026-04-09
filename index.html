@@ -6,12 +6,12 @@
     <title>DEFUSE | Neutralize</title>
     <style>
         :root {
-            --bg: #2b2b2b;       /* Dark Grey */
-            --panel: #3d3d3d;    /* Mid Grey */
-            --text: #e0e0e0;     /* Light Grey Text */
-            --accent: #ffffff;   /* Stark White for Explosions */
-            --btn-active: #38bdf8;
-            --warn: #666666;     /* Muted Grey for alerts */
+            --bg: #334155;       /* Slate Grey */
+            --panel: #475569;    /* Mid Slate */
+            --text: #93c5fd;     /* Blue Text */
+            --accent: #60a5fa;   /* Primary Blue Accent */
+            --btn-active: #3b82f6;
+            --warn: #1e3a8a;     /* Deep Blue for alerts */
             --bone: var(--text);
             --danger: var(--warn);
             --gold-dim: #8a8a8a;
@@ -57,7 +57,7 @@
             text-transform: uppercase;
         }
 
-        .btn-sos { background: var(--red); border: none; color: white; font-size: 1.3rem; margin-bottom: 20px; }
+        .btn-sos { background: var(--red); border: none; color: var(--text); font-size: 1.3rem; margin-bottom: 20px; }
 
         /* SIMPLE PULSE FOR SOS */
         .pulse {
@@ -156,9 +156,9 @@
         }
 
         .btn-circuit-breaker {
-            background-color: #ff4757;
-            color: #ffffff;
-            border: 2px solid #ffffff;
+            background-color: #1d4ed8;
+            color: #bfdbfe;
+            border: 2px solid #93c5fd;
         }
 
         .spark-stage {
@@ -176,12 +176,12 @@
         }
 
         .spark-word {
-            color: #ffffff;
+            color: var(--text);
             font-family: 'Inter', sans-serif;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 0.5rem;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+            filter: drop-shadow(0 0 10px rgba(147, 197, 253, 0.8));
             transition: all 3s ease-in;
             text-align: center;
             word-break: break-word;
@@ -377,11 +377,11 @@
         <h1>DEFUSE</h1>
         <p>Tactical Neutralization Protocol</p>
         <div style="margin-top: 30px; width: 100%;">
-            <button class="btn btn-sos" onclick="nav('sos')">SOS: BREATHING</button>
-            <button class="btn" onclick="nav('sweep')">SACCADIC SWEEP 👁️</button>
-            <button class="btn" onclick="nav('ground')">SENSORY ANCHOR</button>
-            <button class="btn" style="border-color: var(--red); color: var(--red);" onclick="nav('terminate')">TERMINATE SPARK</button>
-            <button class="btn" style="background: var(--gold); color: var(--bg); border-color: var(--gold);" onclick="nav('activate')">⚡ GET MOVING (MICRO-WIN)</button>
+            <button class="btn" onclick="openHaltSection()">HALT</button>
+            <button class="btn" onclick="nav('sweep')">STILL</button>
+            <button class="btn" onclick="openSparkSection()">SPARK</button>
+            <button class="btn" onclick="openWeaveSection()">WEAVE</button>
+            <button class="btn btn-circuit-breaker" onclick="openCircuitBreakerSection()">CIRCUIT BREAKER</button>
         </div>
     </div>
 
@@ -393,9 +393,9 @@
     </div>
 
     <div id="sweep" class="screen">
-        <h1>SWEEP</h1>
+        <h1>STILL</h1>
         <p>Keep your head still. Track the moving point with your eyes for 30 seconds.</p>
-        <button class="btn" onclick="initiateSaccadicSweep()">START SWEEP</button>
+        <button class="btn" onclick="initiateSaccadicSweep()">START STILL</button>
         <button class="btn" onclick="nav('home')" style="border:none; opacity:0.5;">CANCEL</button>
     </div>
 
@@ -481,11 +481,11 @@
         let correctCount = 0;
         let emergencyPhaseTimer = null;
         const phases = {
-            HALT: "Triage",
-            STILL: "Saccadic",
-            SPARK: "Dispersal",
-            WEAVE: "Convergence",
-            EMERGENCY: "Circuit_Breaker"
+            HALT: "Halt",
+            STILL: "Still",
+            SPARK: "Spark",
+            WEAVE: "Weave",
+            CIRCUIT_BREAKER: "Circuit_Breaker"
         };
         const weaveLibrary = [
             'concentric-circles',
@@ -642,6 +642,50 @@
                 clearEmergencyMode();
                 stopOrbit();
             }
+        }
+
+        function openHaltSection() {
+            nav('terminate');
+            stopOrbit();
+            currentPhase = phases.HALT;
+            haltProgress = 0;
+            weaveProgress = 1;
+            document.getElementById('spark-in').style.display = 'none';
+            document.getElementById('spark-stage').style.display = 'none';
+            document.getElementById('orbit-stage').style.display = 'none';
+            document.getElementById('halt-stage').style.display = 'block';
+            document.getElementById('terminate-note').innerText = 'HALT: answer each prompt and press ENTER.';
+            updateHaltUI();
+        }
+
+        function openSparkSection() {
+            nav('terminate');
+            document.getElementById('terminate-note').innerText = 'SPARK: type the trigger word and press ENTER to shatter it.';
+        }
+
+        function openWeaveSection() {
+            nav('terminate');
+            stopOrbit();
+            currentPhase = phases.WEAVE;
+            document.getElementById('spark-in').style.display = 'none';
+            document.getElementById('spark-stage').style.display = 'none';
+            document.getElementById('halt-stage').style.display = 'none';
+            document.getElementById('orbit-stage').style.display = 'block';
+            document.getElementById('weave-instr').innerText = `${complexLevels[0].n}: return to hub before each spoke.`;
+            drawLoop();
+            loadNextWeave();
+            weavePatternTimer = setInterval(loadNextWeave, 9000);
+            const group = document.getElementById('orbit-group');
+            let angle = 0;
+            orbitInterval = setInterval(() => {
+                angle = (angle + 8) % 360;
+                group.setAttribute('transform', `translate(80 80) rotate(${angle})`);
+            }, 30);
+        }
+
+        function openCircuitBreakerSection() {
+            nav('terminate');
+            triggerCircuitBreaker();
         }
 
         // SOS LOGIC
@@ -1071,7 +1115,7 @@
                 sparkShatterCleanup = null;
             }
 
-            currentPhase = phases.EMERGENCY;
+            currentPhase = phases.CIRCUIT_BREAKER;
             sparkInput.disabled = true;
             sparkStage.style.display = 'none';
             sparkWord.classList.remove('expand');
