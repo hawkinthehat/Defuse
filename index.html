@@ -6,18 +6,20 @@
     <title>DEFUSE | Neutralize</title>
     <style>
         :root {
-            --bg: #0f172a;        /* Deep Midnight Slate */
-            --bone: #f8fafc;      /* Clean White-Grey for text/action */
-            --accent: #38bdf8;    /* Professional Sky Blue */
-            --danger: #ef4444;    /* Crimson for halt/shatter */
-            --gold-dim: #94a3b8;  /* Muted slate for lead lines */
-            --border: rgba(148, 163, 184, 0.35);
-            --card: #1e293b;
+            --bg: #2b2b2b;       /* Dark Grey */
+            --panel: #3d3d3d;    /* Mid Grey */
+            --text: #e0e0e0;     /* Light Grey Text */
+            --accent: #ffffff;   /* Stark White for Explosions */
+            --warn: #666666;     /* Muted Grey for alerts */
+            --bone: var(--text);
+            --danger: var(--warn);
+            --gold-dim: #8a8a8a;
+            --border: rgba(224, 224, 224, 0.25);
+            --card: var(--panel);
             --teal: var(--accent);
-            --gold: #f59e0b;
-            --red: var(--danger);
+            --gold: var(--accent);
+            --red: var(--warn);
             --lead: var(--gold-dim);
-            --text: var(--bone);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -122,15 +124,19 @@
             font-weight: 800;
         }
 
-        .shatter-sequence {
-            animation: grow-and-snap 1.5s cubic-bezier(0.95, 0.05, 0.795, 0.035) forwards;
+        /* The Exploding Word Animation */
+        .exploding-word {
+            animation: expand-and-burst 4s forwards;
         }
 
-        @keyframes grow-and-snap {
-            0% { transform: scale(1); filter: blur(0); }
-            50% { transform: scale(1.8); color: var(--danger); filter: blur(1px); }
-            90% { transform: scale(2.2); filter: blur(4px); opacity: 1; }
-            100% { transform: scale(4); filter: blur(20px); opacity: 0; }
+        .shatter-sequence {
+            animation: expand-and-burst 4s forwards;
+        }
+
+        @keyframes expand-and-burst {
+            0% { transform: scale(1); opacity: 1; filter: blur(0); }
+            80% { transform: scale(3); opacity: 0.8; filter: blur(2px); }
+            100% { transform: scale(5); opacity: 0; filter: blur(10px); }
         }
 
         .weave-wrap {
@@ -334,6 +340,7 @@
         let explosionFrame = null;
         let saccadicTimeout = null;
         let saccadicOverlay = null;
+        let correctCount = 0;
         const haltPool = [
             { i: "COUNT", q: "● ● ● ● ● ● ●", a: "7" },
             { i: "SOLVE", q: "15 - 7", a: "8" },
@@ -352,6 +359,18 @@
                 ]
             }
         ];
+
+        function validateLogicTask(userInput, actualAnswer) {
+            if (userInput === actualAnswer) {
+                correctCount++;
+                if (correctCount >= 3) {
+                    initiateSaccadicSweep(); // The reward for cognitive focus
+                    correctCount = 0;
+                }
+            } else {
+                correctCount = 0; // Reset on failure: Clinical discipline
+            }
+        }
 
         function ensureAudioGraph() {
             if (audioCtx) return true;
@@ -547,6 +566,7 @@
             const spark = document.getElementById('spark-in');
             spark.style.display = 'block';
             spark.value = '';
+            spark.classList.remove('exploding-word');
             spark.classList.remove('shatter-sequence');
             document.getElementById('orbit-stage').style.display = 'none';
             document.getElementById('halt-stage').style.display = 'none';
@@ -575,7 +595,9 @@
 
         function checkHalt() {
             const val = document.getElementById('halt-in').value.toUpperCase();
-            if (val === haltPool[haltProgress].a) {
+            const expected = haltPool[haltProgress].a;
+            validateLogicTask(val, expected);
+            if (val === expected) {
                 haltProgress++;
                 if (navigator.vibrate) navigator.vibrate(40);
 
@@ -771,7 +793,7 @@
                 const el = document.getElementById('spark-in');
                 if (el.value.trim() === "") return;
 
-                el.classList.add('shatter-sequence');
+                el.classList.add('exploding-word');
                 if (navigator.vibrate) {
                     navigator.vibrate([100, 50, 200, 50, 500]);
                 }
@@ -779,9 +801,10 @@
                 setTimeout(() => {
                     el.style.display = 'none';
                     el.value = '';
+                    el.classList.remove('exploding-word');
                     el.classList.remove('shatter-sequence');
                     startOrbit();
-                }, 1500);
+                }, 4000);
             }
         }
 
