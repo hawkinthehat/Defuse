@@ -10,6 +10,7 @@
             --panel: #3d3d3d;    /* Mid Grey */
             --text: #e0e0e0;     /* Light Grey Text */
             --accent: #ffffff;   /* Stark White for Explosions */
+            --btn-active: #38bdf8;
             --warn: #666666;     /* Muted Grey for alerts */
             --bone: var(--text);
             --danger: var(--warn);
@@ -124,19 +125,95 @@
             font-weight: 800;
         }
 
-        /* The Exploding Word Animation */
-        .exploding-word {
-            animation: expand-and-burst 4s forwards;
+        #terminate {
+            position: relative;
+            overflow: hidden;
         }
 
-        .shatter-sequence {
-            animation: expand-and-burst 4s forwards;
+        .vagus-border {
+            position: absolute;
+            inset: 0;
+            border: 15px solid var(--btn-active);
+            animation: vagus-pulse 10s infinite ease-in-out;
+            z-index: 100;
+            pointer-events: none;
+            border-radius: 16px;
         }
 
-        @keyframes expand-and-burst {
-            0% { transform: scale(1); opacity: 1; filter: blur(0); }
-            80% { transform: scale(3); opacity: 0.8; filter: blur(2px); }
-            100% { transform: scale(5); opacity: 0; filter: blur(10px); }
+        @keyframes vagus-pulse {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            40% { opacity: 1; transform: scale(0.98); }
+        }
+
+        .extreme-strobe {
+            animation: red-white-strobe 0.08s infinite;
+        }
+
+        @keyframes red-white-strobe {
+            0% { background-color: #ff0000; }
+            50% { background-color: #ffffff; }
+            100% { background-color: #ff0000; }
+        }
+
+        .btn-circuit-breaker {
+            background-color: #ff4757;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+        }
+
+        .spark-stage {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            margin: 10px 0 14px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+        }
+
+        .spark-word {
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.5rem;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+            transition: all 3s ease-in;
+            text-align: center;
+            word-break: break-word;
+            padding: 0 14px;
+            max-width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .spark-word.expand {
+            transform: scale(15);
+            opacity: 0.1;
+        }
+
+        .shard {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--btn-active);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.8s ease-out;
+        }
+
+        .shattered {
+            transform: translate(var(--tx), var(--ty)) rotate(var(--tr));
+            opacity: 0;
+        }
+
+        #spark-shatter-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
         }
 
         .weave-wrap {
@@ -167,6 +244,57 @@
             border-radius: 12px;
             border: 1px solid rgba(148, 163, 184, 0.25);
             margin-bottom: 10px;
+        }
+
+        .weave-viewport {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            margin-bottom: 10px;
+            overflow: hidden;
+            background: #020617;
+        }
+
+        .weave-pattern {
+            position: absolute;
+            inset: -50%;
+            transform-origin: center;
+            opacity: 0.85;
+        }
+
+        .concentric-circles .weave-pattern {
+            background:
+                repeating-radial-gradient(circle, rgba(56, 189, 248, 0.45) 0 2px, transparent 2px 22px);
+        }
+
+        .converging-grids .weave-pattern {
+            background:
+                repeating-linear-gradient(90deg, rgba(248, 250, 252, 0.2) 0 2px, transparent 2px 26px),
+                repeating-linear-gradient(0deg, rgba(56, 189, 248, 0.2) 0 2px, transparent 2px 26px);
+        }
+
+        .inward-tessellation .weave-pattern {
+            background:
+                repeating-conic-gradient(from 0deg, rgba(148, 163, 184, 0.25) 0deg 12deg, transparent 12deg 24deg);
+        }
+
+        .vortex-moire .weave-pattern {
+            background:
+                repeating-radial-gradient(circle at 35% 50%, rgba(56, 189, 248, 0.35) 0 3px, transparent 3px 14px),
+                repeating-radial-gradient(circle at 65% 50%, rgba(248, 250, 252, 0.3) 0 3px, transparent 3px 16px);
+            mix-blend-mode: screen;
+        }
+
+        .animate-inward .weave-pattern {
+            animation: pull-to-center 10s linear infinite;
+        }
+
+        @keyframes pull-to-center {
+            0% { transform: scale(2); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
         }
 
         #weave-instr {
@@ -293,11 +421,20 @@
     <div id="terminate" class="screen">
         <h1 style="color: var(--red);">TERMINATE</h1>
         <p id="terminate-note">Type the trigger word and press ENTER to shatter it.</p>
+        <div id="vagus-border" class="vagus-border" aria-hidden="true" style="display: none;"></div>
         <input id="spark-in" type="text" placeholder="SPARK WORD" onkeydown="handleSpark(event)" autocomplete="off">
+
+        <div class="spark-stage" id="spark-stage" style="display: none;">
+            <div id="spark-word" class="spark-word"></div>
+            <div id="spark-shatter-layer" aria-hidden="true"></div>
+        </div>
 
         <div class="weave-wrap" id="orbit-stage" style="display: none;">
             <p id="weave-instr">THE RAVEN'S EYE: return to hub before each spoke.</p>
             <canvas id="cvs" width="320" height="140" aria-label="Complex weave guide"></canvas>
+            <div class="weave-viewport concentric-circles animate-inward" id="weave-viewport" aria-hidden="true">
+                <div class="weave-pattern"></div>
+            </div>
             <svg viewBox="0 0 160 160" width="100%" height="140" aria-label="EMDR orbit guide">
                 <circle class="weave-lead" cx="80" cy="80" r="46"></circle>
                 <g id="orbit-group" transform="translate(80 80)">
@@ -314,6 +451,7 @@
             <button class="btn" style="margin-top: 10px;" onclick="checkHalt()">CONFIRM</button>
         </div>
 
+        <button class="btn btn-circuit-breaker" onclick="triggerCircuitBreaker()" title="Emergency circuit breaker: pulse border and strobe warning.">CIRCUIT BREAKER</button>
         <button class="btn" style="border:none; opacity:0.5;" onclick="nav('home')">CANCEL</button>
     </div>
 
@@ -341,6 +479,23 @@
         let saccadicTimeout = null;
         let saccadicOverlay = null;
         let correctCount = 0;
+        let emergencyPhaseTimer = null;
+        const phases = {
+            HALT: "Triage",
+            STILL: "Saccadic",
+            SPARK: "Dispersal",
+            WEAVE: "Convergence",
+            EMERGENCY: "Circuit_Breaker"
+        };
+        const weaveLibrary = [
+            'concentric-circles',
+            'converging-grids',
+            'inward-tessellation',
+            'vortex-moire'
+        ];
+        let currentPhase = phases.SPARK;
+        let sparkShatterCleanup = null;
+        let weavePatternTimer = null;
         const haltPool = [
             { i: "COUNT", q: "● ● ● ● ● ● ●", a: "7" },
             { i: "SOLVE", q: "15 - 7", a: "8" },
@@ -483,7 +638,10 @@
             }
 
             if (id === 'terminate') resetTerminateScreen();
-            else stopOrbit();
+            else {
+                clearEmergencyMode();
+                stopOrbit();
+            }
         }
 
         // SOS LOGIC
@@ -563,11 +721,25 @@
             haltProgress = 0;
             weaveProgress = 1;
             stopOrbit();
-            const spark = document.getElementById('spark-in');
-            spark.style.display = 'block';
-            spark.value = '';
-            spark.classList.remove('exploding-word');
-            spark.classList.remove('shatter-sequence');
+            clearEmergencyMode();
+            currentPhase = phases.SPARK;
+            const sparkInput = document.getElementById('spark-in');
+            const sparkStage = document.getElementById('spark-stage');
+            const sparkWord = document.getElementById('spark-word');
+            sparkInput.style.display = 'block';
+            sparkInput.disabled = false;
+            sparkInput.value = '';
+            sparkWord.classList.remove('expand');
+            sparkWord.textContent = '';
+            sparkStage.style.display = 'none';
+            clearSparkShatterLayer();
+            if (sparkShatterCleanup) {
+                clearTimeout(sparkShatterCleanup);
+                sparkShatterCleanup = null;
+            }
+            const weaveViewport = document.getElementById('weave-viewport');
+            weaveViewport.classList.remove(...weaveLibrary, 'animate-inward');
+            weaveViewport.classList.add(weaveLibrary[0], 'animate-inward');
             document.getElementById('orbit-stage').style.display = 'none';
             document.getElementById('halt-stage').style.display = 'none';
             document.getElementById('terminate-note').innerText = 'Type the trigger word and press ENTER to shatter it.';
@@ -576,6 +748,17 @@
             document.getElementById('halt-prompt').innerText = 'COUNT: ● ● ● ● ● ● ●';
             document.getElementById('weave-instr').innerText = "THE RAVEN'S EYE: return to hub before each spoke.";
             drawLoop();
+        }
+
+        function clearEmergencyMode() {
+            if (emergencyPhaseTimer) {
+                clearTimeout(emergencyPhaseTimer);
+                emergencyPhaseTimer = null;
+            }
+            const terminate = document.getElementById('terminate');
+            const vagusBorder = document.getElementById('vagus-border');
+            if (terminate) terminate.classList.remove('extreme-strobe');
+            if (vagusBorder) vagusBorder.style.display = 'none';
         }
 
         function updateHaltUI() {
@@ -614,22 +797,42 @@
                 clearInterval(orbitInterval);
                 orbitInterval = null;
             }
+            if (weavePatternTimer) {
+                clearInterval(weavePatternTimer);
+                weavePatternTimer = null;
+            }
             if (explosionFrame) {
                 cancelAnimationFrame(explosionFrame);
                 explosionFrame = null;
             }
         }
 
+        function loadNextWeave() {
+            const container = document.getElementById('weave-viewport');
+            if (!container) return;
+            container.classList.remove(...weaveLibrary);
+            const next = weaveLibrary[Math.floor(Math.random() * weaveLibrary.length)];
+            container.classList.add(next, 'animate-inward');
+        }
+
+        function clearSparkShatterLayer() {
+            const layer = document.getElementById('spark-shatter-layer');
+            if (layer) layer.innerHTML = '';
+        }
+
         function startOrbit() {
             document.getElementById('orbit-stage').style.display = 'block';
             document.getElementById('halt-stage').style.display = 'block';
             haltProgress = 0;
-             weaveProgress = 1;
+            weaveProgress = 1;
+            currentPhase = phases.WEAVE;
             document.getElementById('weave-instr').innerText = `${complexLevels[0].n}: return to hub before each spoke.`;
             drawLoop();
             updateHaltUI();
 
             stopOrbit();
+            loadNextWeave();
+            weavePatternTimer = setInterval(loadNextWeave, 9000);
             const group = document.getElementById('orbit-group');
             let angle = 0;
             orbitInterval = setInterval(() => {
@@ -745,6 +948,8 @@
 
         function startVagalReset() {
             stopOrbit();
+            clearEmergencyMode();
+            currentPhase = phases.STILL;
             document.getElementById('terminate-note').innerText = 'Sequence complete. Shift to long exhales.';
             nav('sos');
             document.getElementById('b-text').innerText = 'Sweep complete: inhale 4s, exhale 6s.';
@@ -763,6 +968,7 @@
 
         // Protocol Phase: Neural Disruption
         function initiateSaccadicSweep() {
+            currentPhase = phases.STILL;
             clearSaccadicSweep();
             const overlay = document.createElement('div');
             overlay.className = 'clinical-overlay';
@@ -788,23 +994,108 @@
             }, 30000);
         }
 
-        function handleSpark(e) {
-            if (e.key === 'Enter') {
-                const el = document.getElementById('spark-in');
-                if (el.value.trim() === "") return;
+        function triggerSpark() {
+            const sparkInput = document.getElementById('spark-in');
+            const sparkStage = document.getElementById('spark-stage');
+            const sparkWord = document.getElementById('spark-word');
+            const shatterLayer = document.getElementById('spark-shatter-layer');
+            const word = sparkInput.value.trim().toUpperCase();
+            if (!word) return;
 
-                el.classList.add('exploding-word');
-                if (navigator.vibrate) {
-                    navigator.vibrate([100, 50, 200, 50, 500]);
+            currentPhase = phases.SPARK;
+            sparkInput.disabled = true;
+            sparkInput.style.display = 'none';
+            sparkWord.textContent = word;
+            sparkWord.classList.remove('expand');
+            clearSparkShatterLayer();
+            sparkStage.style.display = 'flex';
+
+            if (navigator.vibrate) navigator.vibrate([100, 50, 200, 50, 500]);
+
+            requestAnimationFrame(() => {
+                sparkWord.classList.add('expand');
+            });
+
+            const onTransitionEnd = (event) => {
+                if (event.propertyName !== 'transform') return;
+                sparkWord.removeEventListener('transitionend', onTransitionEnd);
+
+                const shardCount = 26;
+                const rect = sparkStage.getBoundingClientRect();
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const shards = [];
+
+                for (let i = 0; i < shardCount; i++) {
+                    const shard = document.createElement('div');
+                    shard.className = 'shard';
+                    shard.style.left = `${centerX}px`;
+                    shard.style.top = `${centerY}px`;
+                    shard.style.setProperty('--tx', `${Math.round((Math.random() - 0.5) * rect.width * 1.4)}px`);
+                    shard.style.setProperty('--ty', `${Math.round((Math.random() - 0.5) * rect.height * 1.6)}px`);
+                    shard.style.setProperty('--tr', `${Math.round((Math.random() - 0.5) * 520)}deg`);
+                    shatterLayer.appendChild(shard);
+                    shards.push(shard);
                 }
 
-                setTimeout(() => {
-                    el.style.display = 'none';
-                    el.value = '';
-                    el.classList.remove('exploding-word');
-                    el.classList.remove('shatter-sequence');
+                requestAnimationFrame(() => {
+                    shards.forEach((shard) => shard.classList.add('shattered'));
+                });
+
+                sparkShatterCleanup = setTimeout(() => {
+                    sparkShatterCleanup = null;
+                    clearSparkShatterLayer();
+                    sparkWord.classList.remove('expand');
+                    sparkWord.textContent = '';
+                    sparkStage.style.display = 'none';
+                    currentPhase = phases.WEAVE;
                     startOrbit();
-                }, 4000);
+                }, 900);
+            };
+
+            sparkWord.addEventListener('transitionend', onTransitionEnd);
+        }
+
+        function triggerCircuitBreaker() {
+            const terminate = document.getElementById('terminate');
+            const vagusBorder = document.getElementById('vagus-border');
+            const sparkInput = document.getElementById('spark-in');
+            const sparkStage = document.getElementById('spark-stage');
+            const sparkWord = document.getElementById('spark-word');
+
+            stopOrbit();
+            clearSaccadicSweep();
+            clearSparkShatterLayer();
+            if (sparkShatterCleanup) {
+                clearTimeout(sparkShatterCleanup);
+                sparkShatterCleanup = null;
+            }
+
+            currentPhase = phases.EMERGENCY;
+            sparkInput.disabled = true;
+            sparkStage.style.display = 'none';
+            sparkWord.classList.remove('expand');
+            sparkWord.textContent = '';
+            document.getElementById('orbit-stage').style.display = 'none';
+            document.getElementById('halt-stage').style.display = 'none';
+            document.getElementById('terminate-note').innerText = 'CIRCUIT BREAKER ACTIVE: follow the border pulse and exhale slowly.';
+
+            terminate.classList.add('extreme-strobe');
+            vagusBorder.style.display = 'block';
+            if (navigator.vibrate) navigator.vibrate([200, 60, 200, 60, 400]);
+
+            if (emergencyPhaseTimer) clearTimeout(emergencyPhaseTimer);
+            emergencyPhaseTimer = setTimeout(() => {
+                emergencyPhaseTimer = null;
+                clearEmergencyMode();
+                startVagalReset();
+            }, 10000);
+        }
+
+        function handleSpark(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                triggerSpark();
             }
         }
 
