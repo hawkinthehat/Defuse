@@ -56,8 +56,6 @@
 
         .btn-sos { background: var(--red); border: none; color: white; font-size: 1.3rem; margin-bottom: 20px; }
 
-        #timer { font-size: 5rem; color: var(--teal); font-weight: 900; margin: 20px 0; }
-
         /* SIMPLE PULSE FOR SOS */
         .pulse {
             width: 120px; height: 120px;
@@ -246,7 +244,7 @@
         <p>Tactical Neutralization Protocol</p>
         <div style="margin-top: 30px; width: 100%;">
             <button class="btn btn-sos" onclick="nav('sos')">SOS: BREATHING</button>
-            <button class="btn" onclick="nav('ice')">BIOLOGICAL RESET ❄️</button>
+            <button class="btn" onclick="nav('sweep')">SACCADIC SWEEP 👁️</button>
             <button class="btn" onclick="nav('ground')">SENSORY ANCHOR</button>
             <button class="btn" style="border-color: var(--red); color: var(--red);" onclick="nav('terminate')">TERMINATE SPARK</button>
             <button class="btn" style="background: var(--gold); color: var(--bg); border-color: var(--gold);" onclick="nav('activate')">⚡ GET MOVING (MICRO-WIN)</button>
@@ -260,11 +258,10 @@
         <button class="btn" onclick="nav('home')">STABILIZED</button>
     </div>
 
-    <div id="ice" class="screen">
-        <h1>RESET</h1>
-        <p>Hold ice to your face to force a heart rate drop.</p>
-        <div id="timer">15</div>
-        <button class="btn" id="t-start" onclick="runTimer()">START OVERRIDE</button>
+    <div id="sweep" class="screen">
+        <h1>SWEEP</h1>
+        <p>Keep your head still. Track the moving point with your eyes for 30 seconds.</p>
+        <button class="btn" onclick="initiateSaccadicSweep()">START SWEEP</button>
         <button class="btn" onclick="nav('home')" style="border:none; opacity:0.5;">CANCEL</button>
     </div>
 
@@ -478,18 +475,6 @@
                 let s = Math.floor(Date.now() / 1000) % 8;
                 if (s < 4) txt.innerText = "INHALING...";
                 else txt.innerText = "EXHALING...";
-            }, 1000);
-        }
-
-        // TIMER LOGIC
-        function runTimer() {
-            let t = 15;
-            const el = document.getElementById('timer');
-            const btn = document.getElementById('t-start');
-            btn.disabled = true;
-            const int = setInterval(() => {
-                t--; el.innerText = t;
-                if(t <= 0) { clearInterval(int); el.innerText = "DONE"; btn.disabled = false; }
             }, 1000);
         }
 
@@ -740,7 +725,7 @@
             stopOrbit();
             document.getElementById('terminate-note').innerText = 'Sequence complete. Shift to long exhales.';
             nav('sos');
-            document.getElementById('b-text').innerText = 'Vagal reset: inhale 4s, exhale 6s.';
+            document.getElementById('b-text').innerText = 'Sweep complete: inhale 4s, exhale 6s.';
         }
 
         function clearSaccadicSweep() {
@@ -773,10 +758,10 @@
             document.body.appendChild(overlay);
             saccadicOverlay = overlay;
 
-            // Auto-terminate after 30 seconds and move to next clinical pillar.
+            // Auto-terminate after 30 seconds and transition to breathing.
             saccadicTimeout = setTimeout(() => {
                 clearSaccadicSweep();
-                console.log('Sweep complete: Baseline stabilized. Proceeding to Analysis.');
+                console.log('Sweep complete: transitioning to guided breathing.');
                 startVagalReset();
             }, 30000);
         }
