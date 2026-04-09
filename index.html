@@ -319,38 +319,56 @@
             background: radial-gradient(circle at center, rgba(51, 65, 85, 0.9), rgba(30, 41, 59, 1));
         }
 
-        .spark-word {
-            color: var(--text);
+        .spark-core {
+            color: #ffffff;
             font-family: 'Inter', sans-serif;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 0.5rem;
-            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.9));
-            transition: all 3s ease-in;
+            font-size: clamp(1.8rem, 7vw, 3rem);
             text-align: center;
             word-break: break-word;
             padding: 0 14px;
             max-width: 100%;
             position: relative;
             z-index: 1;
+            transform: scale(1);
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
+            opacity: 1;
         }
 
-        .spark-word.expand {
-            transform: scale(15);
-            opacity: 0.1;
+        .spark-core.charging {
+            animation: spark-charge 2s ease-in-out forwards;
+        }
+
+        @keyframes spark-charge {
+            0% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.65)) brightness(1);
+            }
+            100% {
+                transform: scale(0.72);
+                filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 40px rgba(0, 210, 211, 0.8)) brightness(1.8);
+            }
         }
 
         .shard {
             position: absolute;
-            width: 10px;
-            height: 10px;
-            background: var(--btn-active);
+            background: #ffffff;
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.8s ease-out;
+            opacity: 1;
+            transition: transform 1.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.5s ease-out;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.75));
+        }
+
+        .shard-teal {
+            background: #00d2d3;
+            box-shadow: 0 0 10px rgba(0, 210, 211, 0.95);
+            filter: drop-shadow(0 0 10px rgba(0, 210, 211, 0.92));
         }
 
         .shattered {
-            transform: translate(var(--tx), var(--ty)) rotate(var(--tr));
+            transform: translate(var(--tx), var(--ty)) rotate(var(--tr)) scale(0);
             opacity: 0;
         }
 
@@ -629,7 +647,7 @@
         <input id="spark-in" type="text" placeholder="SPARK WORD" onkeydown="handleSpark(event)" autocomplete="off">
 
         <div class="spark-stage" id="spark-stage" style="display: none;">
-            <div id="spark-word" class="spark-word"></div>
+            <div id="spark-word" class="spark-core"></div>
             <div id="spark-shatter-layer" aria-hidden="true"></div>
         </div>
 
@@ -702,6 +720,7 @@
         ];
         let currentPhase = phases.SPARK;
         let sparkShatterCleanup = null;
+        let sparkChargeTimer = null;
         let weavePatternTimer = null;
         const haltPool = [
             { i: "COUNT", q: "● ● ● ● ● ● ●", a: "7" },
@@ -982,10 +1001,15 @@
             sparkInput.style.display = 'block';
             sparkInput.disabled = false;
             sparkInput.value = '';
-            sparkWord.classList.remove('expand');
+            sparkWord.classList.remove('charging');
+            sparkWord.style.display = 'block';
             sparkWord.textContent = '';
             sparkStage.style.display = 'none';
             clearSparkShatterLayer();
+            if (sparkChargeTimer) {
+                clearTimeout(sparkChargeTimer);
+                sparkChargeTimer = null;
+            }
             if (sparkShatterCleanup) {
                 clearTimeout(sparkShatterCleanup);
                 sparkShatterCleanup = null;
@@ -1123,6 +1147,11 @@
                 angle = (angle + 8) % 360;
                 group.setAttribute('transform', `translate(80 80) rotate(${angle})`);
             }, 30);
+        }
+
+        function startAxialStabilize() {
+            currentPhase = phases.WEAVE;
+            startOrbit();
         }
 
         function startTheStrobe() {
@@ -1358,21 +1387,31 @@
             sparkInput.disabled = true;
             sparkInput.style.display = 'none';
             sparkWord.textContent = word;
-            sparkWord.classList.remove('expand');
+            sparkWord.classList.remove('charging');
+            sparkWord.style.display = 'block';
             clearSparkShatterLayer();
             sparkStage.style.display = 'flex';
+            if (sparkChargeTimer) {
+                clearTimeout(sparkChargeTimer);
+                sparkChargeTimer = null;
+            }
+            if (sparkShatterCleanup) {
+                clearTimeout(sparkShatterCleanup);
+                sparkShatterCleanup = null;
+            }
 
             if (navigator.vibrate) navigator.vibrate([100, 50, 200, 50, 500]);
 
             requestAnimationFrame(() => {
-                sparkWord.classList.add('expand');
+                sparkWord.classList.add('charging');
             });
 
-            const onTransitionEnd = (event) => {
-                if (event.propertyName !== 'transform') return;
-                sparkWord.removeEventListener('transitionend', onTransitionEnd);
+            sparkChargeTimer = setTimeout(() => {
+                sparkChargeTimer = null;
+                sparkWord.classList.remove('charging');
+                sparkWord.style.display = 'none';
 
-                const shardCount = 26;
+                const shardCount = 54 + Math.floor(Math.random() * 10);
                 const rect = sparkStage.getBoundingClientRect();
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
@@ -1380,12 +1419,15 @@
 
                 for (let i = 0; i < shardCount; i++) {
                     const shard = document.createElement('div');
-                    shard.className = 'shard';
-                    shard.style.left = `${centerX}px`;
-                    shard.style.top = `${centerY}px`;
-                    shard.style.setProperty('--tx', `${Math.round((Math.random() - 0.5) * rect.width * 1.4)}px`);
-                    shard.style.setProperty('--ty', `${Math.round((Math.random() - 0.5) * rect.height * 1.6)}px`);
-                    shard.style.setProperty('--tr', `${Math.round((Math.random() - 0.5) * 520)}deg`);
+                    shard.className = `shard ${Math.random() > 0.45 ? 'shard-teal' : ''}`;
+                    const size = Math.random() * 15 + 5;
+                    shard.style.width = `${size}px`;
+                    shard.style.height = `${size}px`;
+                    shard.style.left = `${centerX - (size / 2)}px`;
+                    shard.style.top = `${centerY - (size / 2)}px`;
+                    shard.style.setProperty('--tx', `${Math.round((Math.random() - 0.5) * 1000)}px`);
+                    shard.style.setProperty('--ty', `${Math.round((Math.random() - 0.5) * 1000)}px`);
+                    shard.style.setProperty('--tr', `${Math.round((Math.random() - 0.5) * 1440)}deg`);
                     shatterLayer.appendChild(shard);
                     shards.push(shard);
                 }
@@ -1397,15 +1439,13 @@
                 sparkShatterCleanup = setTimeout(() => {
                     sparkShatterCleanup = null;
                     clearSparkShatterLayer();
-                    sparkWord.classList.remove('expand');
+                    sparkWord.classList.remove('charging');
+                    sparkWord.style.display = 'block';
                     sparkWord.textContent = '';
                     sparkStage.style.display = 'none';
-                    currentPhase = phases.WEAVE;
-                    startOrbit();
-                }, 900);
-            };
-
-            sparkWord.addEventListener('transitionend', onTransitionEnd);
+                    startAxialStabilize();
+                }, 1800);
+            }, 2000);
         }
 
         function triggerCircuitBreaker() {
@@ -1417,6 +1457,10 @@
             stopOrbit();
             clearSaccadicSweep();
             clearSparkShatterLayer();
+            if (sparkChargeTimer) {
+                clearTimeout(sparkChargeTimer);
+                sparkChargeTimer = null;
+            }
             if (sparkShatterCleanup) {
                 clearTimeout(sparkShatterCleanup);
                 sparkShatterCleanup = null;
@@ -1425,7 +1469,8 @@
             currentPhase = phases.EMERGENCY;
             sparkInput.disabled = true;
             sparkStage.style.display = 'none';
-            sparkWord.classList.remove('expand');
+            sparkWord.classList.remove('charging');
+            sparkWord.style.display = 'block';
             sparkWord.textContent = '';
             document.getElementById('orbit-stage').style.display = 'none';
             document.getElementById('halt-stage').style.display = 'none';
