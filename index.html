@@ -481,7 +481,7 @@
             margin: 0 0 12px;
         }
 
-        /* SXT'EKW Technical Tracker */
+        /* Ocular Sweep Tracker */
         .saccadic-track {
             width: 100vw;
             height: 100vh;
@@ -491,15 +491,22 @@
             margin: 0;
         }
 
-        .saccadic-track::before {
-            content: '';
+        .ocular-baseline {
             position: absolute;
-            left: 0;
-            right: 0;
             top: 50%;
-            height: 6px;
+            left: 5%;
+            width: 90%;
+            height: 1.5px;
+            background: rgba(0, 210, 211, 0.25);
+            box-shadow: 0 0 10px rgba(0, 210, 211, 0.4);
             transform: translateY(-50%);
-            background: linear-gradient(90deg, rgba(20, 184, 166, 0.3), rgba(20, 184, 166, 0.65), rgba(20, 184, 166, 0.3));
+            z-index: 5;
+            animation: baseline-pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes baseline-pulse {
+            0%, 100% { opacity: 0.2; filter: blur(1px); }
+            50% { opacity: 0.5; filter: blur(0px); }
         }
 
         .saccadic-point {
@@ -510,6 +517,7 @@
             top: 50%;
             transform: translate(-50%, -50%);
             animation: saccadic-figure-eight-sweep 2s infinite alternate steps(20, end);
+            z-index: 6;
         }
 
         .saccadic-feather {
@@ -571,12 +579,12 @@
             }
             20% {
                 left: 14%;
-                top: 44%;
+                top: 42%;
                 transform: translate(-50%, -50%) rotate(-7deg);
             }
             40% {
                 left: 36%;
-                top: 56%;
+                top: 58%;
                 transform: translate(-50%, -50%) rotate(-2deg);
             }
             50% {
@@ -586,12 +594,12 @@
             }
             60% {
                 left: 64%;
-                top: 44%;
+                top: 42%;
                 transform: translate(-50%, -50%) rotate(2deg);
             }
             80% {
                 left: 86%;
-                top: 56%;
+                top: 58%;
                 transform: translate(-50%, -50%) rotate(7deg);
             }
             100% {
@@ -627,8 +635,8 @@
 
     <div id="sweep" class="screen">
         <h1>STILL</h1>
-        <p>Keep your head still. Track the moving point with your eyes for 30 seconds.</p>
-        <button class="btn" onclick="initiateSaccadicSweep()">START STILL</button>
+        <p>Ocular Sweep: Maintain Basal Alignment while tracking the Teal Feather's jumping movement for 30 seconds.</p>
+        <button class="btn" onclick="initiateSaccadicSweep()">START OCULAR SWEEP</button>
         <button class="btn" onclick="nav('home')" style="border:none; opacity:0.5;">CANCEL</button>
     </div>
 
@@ -723,7 +731,7 @@
         const baseCentripetalDuration = 15;
         const phases = {
             HALT: "Triage",
-            STILL: "Ocular_Sweep",
+            STILL: "Ocular Sweep",
             SPARK: "Dispersal",
             WEAVE: "Axial_Stabilize",
             EMERGENCY: "Circuit_Breaker"
@@ -1331,7 +1339,7 @@
             }
         }
 
-        // Protocol Phase: Neural Disruption
+        // Protocol Phase: Ocular Sweep
         function initiateSaccadicSweep() {
             currentPhase = phases.STILL;
             clearSaccadicSweep();
@@ -1340,8 +1348,9 @@
 
             overlay.innerHTML = `
                 <p class="warn-text saccadic-alert">SYSTEM ALERT: HIGH-FREQUENCY AMYGDALA FIRING DETECTED</p>
-                <p class="saccadic-instruction">Initiating Saccadic Sweep. Keep cranium stationary. Track the teal feather.</p>
+                <p class="saccadic-instruction">Initiating Ocular Sweep. Maintain Basal Alignment while tracking the Teal Feather's jumping movement.</p>
                 <div class="saccadic-track">
+                    <div class="ocular-baseline" aria-hidden="true"></div>
                     <div class="saccadic-point" aria-label="Teal feather target">
                         <span class="saccadic-anchor" aria-hidden="true"></span>
                         <svg class="saccadic-feather" viewBox="0 0 64 32" role="img" aria-label="Teal feather">
