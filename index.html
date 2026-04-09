@@ -16,6 +16,7 @@
             --text: #dbeafe;     /* Light Blue Text */
             --accent: #38bdf8;   /* Primary Blue Accent */
             --btn-active: #0ea5e9;
+            --neon-teal: #00d2d3;
             --warn: #2563eb;     /* Deep Blue for alerts */
             --bone: var(--text);
             --danger: var(--warn);
@@ -371,15 +372,16 @@
         }
 
         .weave-lead {
-            stroke: var(--lead);
-            stroke-dasharray: 8, 12;
-            stroke-width: 2;
+            stroke: var(--neon-teal);
+            stroke-dasharray: 8, 10;
+            stroke-width: 3;
             fill: none;
+            filter: drop-shadow(0 0 10px rgba(0, 210, 211, 0.8));
         }
 
         #orbit-thread {
-            fill: #38bdf8;
-            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.95));
+            fill: #00d2d3;
+            filter: drop-shadow(0 0 9px rgba(0, 210, 211, 0.98));
         }
 
         #cvs {
@@ -408,37 +410,38 @@
             position: absolute;
             width: 200%;
             height: 200%;
-            opacity: 0.6;
+            opacity: 0.9;
+            filter: drop-shadow(0 0 8px rgba(0, 210, 211, 0.55)) drop-shadow(0 0 18px rgba(0, 210, 211, 0.4));
             animation: centripetal-flow 15s linear infinite;
         }
 
         .pattern-layer.tessellation-hex {
             background:
-                repeating-linear-gradient(0deg, rgba(219, 234, 254, 0.2) 0 2px, transparent 2px 26px),
-                repeating-linear-gradient(60deg, rgba(56, 189, 248, 0.25) 0 2px, transparent 2px 26px),
-                repeating-linear-gradient(120deg, rgba(56, 189, 248, 0.25) 0 2px, transparent 2px 26px);
+                repeating-linear-gradient(0deg, rgba(219, 234, 254, 0.28) 0 3px, transparent 3px 22px),
+                repeating-linear-gradient(60deg, rgba(0, 210, 211, 0.52) 0 3px, transparent 3px 22px),
+                repeating-linear-gradient(120deg, rgba(0, 210, 211, 0.52) 0 3px, transparent 3px 22px);
         }
 
         .pattern-layer.fractal-spiral {
             background:
                 repeating-conic-gradient(
                     from 0deg,
-                    rgba(219, 234, 254, 0.42) 0deg 10deg,
-                    rgba(56, 189, 248, 0.12) 10deg 25deg,
+                    rgba(219, 234, 254, 0.5) 0deg 10deg,
+                    rgba(0, 210, 211, 0.45) 10deg 25deg,
                     transparent 25deg 36deg
                 );
         }
 
         .pattern-layer.moire-interference {
             background:
-                repeating-radial-gradient(circle at 35% 50%, rgba(56, 189, 248, 0.45) 0 3px, transparent 3px 14px),
-                repeating-radial-gradient(circle at 65% 50%, rgba(219, 234, 254, 0.35) 0 3px, transparent 3px 16px);
+                repeating-radial-gradient(circle at 35% 50%, rgba(0, 210, 211, 0.62) 0 4px, transparent 4px 12px),
+                repeating-radial-gradient(circle at 65% 50%, rgba(219, 234, 254, 0.44) 0 4px, transparent 4px 14px);
             mix-blend-mode: screen;
         }
 
         @keyframes centripetal-flow {
             0% { transform: scale(1.5); opacity: 0; }
-            20% { opacity: 0.6; }
+            20% { opacity: 0.9; }
             100% { transform: scale(0); opacity: 0; }
         }
 
@@ -1126,7 +1129,9 @@
 
             ctx.setLineDash([5, 15]);
             ctx.strokeStyle = 'rgba(219, 234, 254, 0.25)';
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 2.2;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
             ctx.beginPath();
             pts.forEach((pt, idx) => {
                 if (idx === 0) ctx.moveTo(pt.x, pt.y);
@@ -1136,10 +1141,21 @@
 
             const activeCount = Math.max(1, Math.min(weaveProgress, pts.length));
             ctx.setLineDash([]);
-            ctx.strokeStyle = '#38bdf8';
-            ctx.lineWidth = 4;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = '#38bdf8';
+            ctx.strokeStyle = '#00d2d3';
+            ctx.lineWidth = 6;
+            ctx.shadowBlur = 22;
+            ctx.shadowColor = '#00d2d3';
+            ctx.beginPath();
+            pts.slice(0, activeCount).forEach((pt, idx) => {
+                if (idx === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.stroke();
+
+            // Bright inner core boosts contrast on slate and adds a "heavy pull" look.
+            ctx.strokeStyle = 'rgba(219, 234, 254, 0.9)';
+            ctx.lineWidth = 2.2;
+            ctx.shadowBlur = 12;
             ctx.beginPath();
             pts.slice(0, activeCount).forEach((pt, idx) => {
                 if (idx === 0) ctx.moveTo(pt.x, pt.y);
@@ -1152,9 +1168,9 @@
                 const isActive = idx < activeCount;
                 ctx.beginPath();
                 ctx.fillStyle = pt.type === 'hub'
-                    ? (isActive ? '#dbeafe' : 'rgba(219, 234, 254, 0.35)')
-                    : (isActive ? '#38bdf8' : 'rgba(148, 163, 184, 0.45)');
-                ctx.arc(pt.x, pt.y, pt.type === 'hub' ? 5.5 : 4, 0, Math.PI * 2);
+                    ? (isActive ? '#e6f8ff' : 'rgba(219, 234, 254, 0.35)')
+                    : (isActive ? '#00d2d3' : 'rgba(148, 163, 184, 0.45)');
+                ctx.arc(pt.x, pt.y, pt.type === 'hub' ? 6.5 : 5, 0, Math.PI * 2);
                 ctx.fill();
             });
         }
