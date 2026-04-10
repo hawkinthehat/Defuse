@@ -142,7 +142,7 @@
             border-radius: 18px;
             padding: 22px 18px;
             font-weight: 900;
-            margin: 10vh auto 24px;
+            margin: clamp(16px, 5vh, 52px) auto 24px;
             box-shadow: 0 0 26px rgba(56, 189, 248, 0.28);
         }
 
@@ -162,8 +162,11 @@
         }
 
         #terminate.spark-ready {
-            min-height: calc(100vh - 40px);
-            justify-content: center;
+            min-height: calc(100dvh - 40px);
+            justify-content: flex-start;
+            padding-top: clamp(10px, 4vh, 38px);
+            padding-bottom: calc(90px + env(safe-area-inset-bottom));
+            overflow-y: auto;
         }
 
         #terminate.spark-ready h1,
