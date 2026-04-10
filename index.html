@@ -1058,6 +1058,8 @@
         let weavePatternTimer = null;
         let protocolExitButton = null;
         const SPARK_SCATTER_DURATION_MS = 5000;
+        const SPARK_BURST_DURATION_MS = 900;
+        const SPARK_SETTLE_DELAY_MAX_MS = 1200;
         const SPARK_ASCENT_DURATION_MS = 1700;
         const phaseExitConfig = {
             [phases.HALT]: { display: 'TRIAGE', route: 'dashboard' },
@@ -1751,15 +1753,19 @@
             const centerX = width / 2;
             const centerY = height / 2;
             for (let i = 0; i < totalParticles; i++) {
+                const launchAngle = Math.random() * Math.PI * 2;
+                const launchSpeed = Math.random() * 18 + 12;
                 sparkParticles.push({
                     x: centerX,
                     y: centerY,
-                    vx: (Math.random() - 0.5) * 26, // Initial lateral burst.
-                    vy: -(Math.random() * 18 + 10), // Start with an upward launch to reach the top.
+                    vx: Math.cos(launchAngle) * launchSpeed * 1.15, // Strong radial explosion.
+                    vy: Math.sin(launchAngle) * launchSpeed - (Math.random() * 8 + 9), // Upward bias before drift.
                     size: Math.random() * 2.5 + 0.5,
                     color: `hsl(${Math.random() * 30 + 15}, 100%, 60%)`, // Start fiery
                     randomOffset: Math.random() * 1000, // Unique seed for random drift
                     sweepPhase: Math.random() * Math.PI * 2,
+                    settleDelay: Math.random() * SPARK_SETTLE_DELAY_MAX_MS,
+                    settlePrimed: false,
                     life: 1,
                     settled: false
                 });
@@ -1771,26 +1777,39 @@
                 if (p.settled) return; // Stop calculating physics for "sand"
 
                 const isSettling = stage === 'settling';
+                const isBurst = !isSettling && elapsed < SPARK_BURST_DURATION_MS;
                 const isAscent = !isSettling && elapsed < SPARK_ASCENT_DURATION_MS;
+                const settlingElapsed = Math.max(0, elapsed - SPARK_SCATTER_DURATION_MS);
                 const topTarget = canvasHeight * 0.08;
 
                 // 1. Horizontal sweep force during settling (keeps bilateral motion)
                 const sweepForce = isSettling
-                    ? Math.sin((time / 520) + p.sweepPhase) * 0.35
+                    ? Math.sin((time / 800) + p.sweepPhase) * 0.42
                     : 0;
 
                 // 2. Random Exploration (The "Brownian" drift)
                 // Makes particles dance/wiggle instead of falling straight.
-                const noiseX = Math.sin((time + p.randomOffset) / 500) * (isSettling ? 1.4 : 2);
-                const noiseY = Math.cos((time + p.randomOffset) / 700) * (isSettling ? 0.9 : (isAscent ? 1.1 : 1.8));
+                const noiseX = Math.sin((time + p.randomOffset) / 430) * (isSettling ? 0.9 : (isBurst ? 2.8 : 2.1));
+                const noiseY = Math.cos((time + p.randomOffset) / 620) * (isSettling ? 0.45 : (isAscent ? 1.2 : 1.9));
 
                 // 3. Gravity & Friction
                 // During ascent, bias motion toward the top before settling begins.
-                const gravity = isSettling ? 0.25 : (isAscent ? -0.48 : 0.35);
-                p.vx = (p.vx + sweepForce) * (isSettling ? 0.92 : 0.95);
-                p.vy *= isAscent ? 0.98 : 0.95;
+                const waitingToDrop = isSettling && settlingElapsed < p.settleDelay;
+                const gravity = waitingToDrop ? -0.04 : (isSettling ? 0.3 : (isAscent ? -0.42 : 0.12));
+                p.vx = (p.vx + sweepForce) * (isSettling ? 0.9 : 0.94);
+                p.vy *= isBurst ? 0.98 : (isAscent ? 0.97 : 0.94);
                 if (isAscent) {
                     p.vy += (topTarget - p.y) * 0.03;
+                }
+                if (isSettling && !p.settlePrimed) {
+                    p.settlePrimed = true;
+                    if (p.y > canvasHeight * 0.35) {
+                        p.y = (canvasHeight * 0.12) + (Math.random() * canvasHeight * 0.16);
+                    }
+                    p.vy = Math.max(0.3, Math.abs(p.vy) * 0.2);
+                }
+                if (waitingToDrop) {
+                    p.vy += (topTarget - p.y) * 0.04;
                 }
 
                 // Apply all forces
@@ -1825,7 +1844,7 @@
 
                 // 5. Sand Accumulation Logic
                 // 'sparkSandLevel' raises the floor slightly.
-                const floor = Math.max(p.size, canvasHeight - p.size - (sparkSandLevel * 0.015));
+                const floor = Math.max(p.size, canvasHeight - p.size - (sparkSandLevel * 0.028));
                 if (isSettling && p.y >= floor) {
                     p.y = Math.min(canvasHeight - p.size, floor + (Math.random() * 1.5)); // Add slight "grainy" texture
                     p.settled = true;
