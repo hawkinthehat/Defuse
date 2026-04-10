@@ -497,7 +497,7 @@
         }
 
         .spark-stage.fuse-active .spark-core {
-            animation: spark-fuse-scale 2s ease-in-out forwards;
+            animation: spark-fuse-scale 3.5s ease-in-out forwards;
         }
 
         .spark-fuse-dot {
@@ -516,7 +516,7 @@
 
         .spark-stage.fuse-active .spark-fuse-dot {
             opacity: 1;
-            animation: spark-fuse-run 2s linear forwards;
+            animation: spark-fuse-run 3.5s linear forwards;
         }
 
         .spark-follow-instruction {
@@ -952,7 +952,7 @@
         const phaseExitConfig = {
             [phases.HALT]: { display: 'TRIAGE', route: 'dashboard' },
             [phases.STILL]: { display: 'OCULAR SWEEP', route: 'dashboard' },
-            [phases.SPARK]: { display: 'SPARK', route: 'axial' },
+            [phases.SPARK]: { display: 'SPARK', route: 'dashboard' },
             [phases.WEAVE]: { display: 'AXIAL STABILIZE', route: 'dashboard' },
             [phases.EMERGENCY]: { display: 'CIRCUIT BREAKER', route: 'axial' }
         };
@@ -1810,7 +1810,7 @@
                 if (typeof window.playDefuseShatter === 'function') {
                     window.playDefuseShatter();
                 }
-                if (navigator.vibrate) navigator.vibrate(200);
+                if (navigator.vibrate) navigator.vibrate([10, 50, 100]);
 
                 if (explosionFrame) cancelAnimationFrame(explosionFrame);
                 explosionFrame = requestAnimationFrame(renderSparkExplosion);
@@ -1825,13 +1825,16 @@
                     sparkShatterCleanup = null;
                     clearSparkShatterLayer();
                     terminateScreen.classList.remove('spark-fullscreen');
+                    terminateScreen.classList.add('spark-ready');
                     sparkWord.style.display = 'block';
                     sparkWord.textContent = '';
                     sparkStage.style.display = 'none';
                     sparkInput.disabled = false;
-                    startAxialStabilize();
+                    sparkInput.style.display = 'block';
+                    sparkInput.value = '';
+                    sparkInput.focus();
                 }, 10500);
-            }, 2000);
+            }, 3500);
         }
 
         function triggerCircuitBreaker() {
