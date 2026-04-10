@@ -130,18 +130,26 @@
         }
 
         #spark-in {
-            font-size: 1.8rem;
-            background: transparent;
-            border: none;
+            font-size: clamp(2rem, 6vw, 3.2rem);
+            background: rgba(15, 23, 42, 0.72);
+            border: 2px solid rgba(56, 189, 248, 0.75);
             color: var(--bone);
             text-align: center;
-            transition: all 0.1s ease;
+            transition: all 0.2s ease;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            width: 100%;
-            border-radius: 12px;
-            padding: 14px;
-            font-weight: 800;
+            letter-spacing: 0.2em;
+            width: min(90vw, 640px);
+            border-radius: 18px;
+            padding: 22px 18px;
+            font-weight: 900;
+            margin: 10vh auto 24px;
+            box-shadow: 0 0 26px rgba(56, 189, 248, 0.28);
+        }
+
+        #spark-in:focus {
+            outline: none;
+            border-color: #93c5fd;
+            box-shadow: 0 0 34px rgba(147, 197, 253, 0.45);
         }
 
         #terminate {
@@ -151,6 +159,17 @@
 
         #terminate.screen {
             max-width: 560px;
+        }
+
+        #terminate.spark-ready {
+            min-height: calc(100vh - 40px);
+            justify-content: center;
+        }
+
+        #terminate.spark-ready h1,
+        #terminate.spark-ready #terminate-note {
+            width: 100%;
+            text-align: center;
         }
 
         .circuit-breaker-overlay {
@@ -416,6 +435,38 @@
             border-radius: 12px;
             border: 1px solid var(--border);
             background: radial-gradient(circle at center, rgba(51, 65, 85, 0.9), rgba(30, 41, 59, 1));
+        }
+
+        #terminate.spark-fullscreen {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            max-width: none;
+            min-height: 100vh;
+            margin: 0;
+            border-radius: 0;
+            padding: 0;
+            z-index: 1100;
+            justify-content: center;
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+        }
+
+        #terminate.spark-fullscreen h1,
+        #terminate.spark-fullscreen #terminate-note,
+        #terminate.spark-fullscreen #spark-in,
+        #terminate.spark-fullscreen #halt-stage,
+        #terminate.spark-fullscreen #orbit-stage,
+        #terminate.spark-fullscreen .btn {
+            display: none !important;
+        }
+
+        #terminate.spark-fullscreen .spark-stage {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            border-radius: 0;
+            border: none;
+            background: radial-gradient(circle at center, rgba(30, 41, 59, 0.95), rgba(2, 6, 23, 1));
         }
 
         .spark-core {
@@ -1130,6 +1181,8 @@
             nav('terminate');
             stopOrbit();
             currentPhase = phases.HALT;
+            const terminateScreen = document.getElementById('terminate');
+            terminateScreen.classList.remove('spark-ready', 'spark-fullscreen');
             haltProgress = 0;
             weaveProgress = 1;
             document.getElementById('spark-in').style.display = 'none';
@@ -1144,6 +1197,9 @@
         function openSparkSection() {
             nav('terminate');
             currentPhase = phases.SPARK;
+            const terminateScreen = document.getElementById('terminate');
+            terminateScreen.classList.add('spark-ready');
+            terminateScreen.classList.remove('spark-fullscreen');
             document.getElementById('terminate-note').innerText = 'SPARK: type the trigger word and press ENTER to shatter it.';
             createExitButton(currentPhase);
         }
@@ -1152,6 +1208,8 @@
             nav('terminate');
             stopOrbit();
             currentPhase = phases.WEAVE;
+            const terminateScreen = document.getElementById('terminate');
+            terminateScreen.classList.remove('spark-ready', 'spark-fullscreen');
             document.getElementById('spark-in').style.display = 'none';
             document.getElementById('spark-stage').style.display = 'none';
             document.getElementById('halt-stage').style.display = 'none';
@@ -1287,6 +1345,9 @@
             stopOrbit();
             clearEmergencyMode();
             currentPhase = phases.SPARK;
+            const terminateScreen = document.getElementById('terminate');
+            terminateScreen.classList.add('spark-ready');
+            terminateScreen.classList.remove('spark-fullscreen');
             const sparkInput = document.getElementById('spark-in');
             const sparkStage = document.getElementById('spark-stage');
             const sparkWord = document.getElementById('spark-word');
@@ -1715,6 +1776,7 @@
             const sparkInput = document.getElementById('spark-in');
             const sparkStage = document.getElementById('spark-stage');
             const sparkWord = document.getElementById('spark-word');
+            const terminateScreen = document.getElementById('terminate');
             const word = sparkInput.value.trim().toUpperCase();
             if (!word) return;
 
@@ -1725,6 +1787,8 @@
             sparkInput.disabled = true;
             sparkInput.style.display = 'none';
             sparkInput.value = '';
+            terminateScreen.classList.remove('spark-ready');
+            terminateScreen.classList.add('spark-fullscreen');
             sparkWord.textContent = word;
             sparkWord.style.display = 'block';
             sparkStage.style.display = 'flex';
@@ -1760,6 +1824,7 @@
                 sparkShatterCleanup = setTimeout(() => {
                     sparkShatterCleanup = null;
                     clearSparkShatterLayer();
+                    terminateScreen.classList.remove('spark-fullscreen');
                     sparkWord.style.display = 'block';
                     sparkWord.textContent = '';
                     sparkStage.style.display = 'none';
@@ -1774,6 +1839,7 @@
             const sparkInput = document.getElementById('spark-in');
             const sparkStage = document.getElementById('spark-stage');
             const sparkWord = document.getElementById('spark-word');
+            const terminateScreen = document.getElementById('terminate');
 
             stopOrbit();
             clearSaccadicSweep();
@@ -1782,6 +1848,7 @@
 
             currentPhase = phases.EMERGENCY;
             createExitButton(currentPhase);
+            terminateScreen.classList.remove('spark-ready', 'spark-fullscreen');
             sparkInput.disabled = true;
             sparkStage.style.display = 'none';
             sparkWord.style.display = 'block';
