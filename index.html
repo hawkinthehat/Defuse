@@ -507,8 +507,8 @@
             width: 14px;
             height: 14px;
             border-radius: 50%;
-            background: #f97316;
-            box-shadow: 0 0 16px rgba(249, 115, 22, 0.95);
+            background: #ef4444;
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.95);
             transform: translate(-50%, -50%);
             z-index: 4;
             opacity: 0;
@@ -516,7 +516,7 @@
 
         .spark-stage.fuse-active .spark-fuse-dot {
             opacity: 1;
-            animation: spark-fuse-run 3.5s linear forwards;
+            animation: spark-fuse-run 3.5s linear forwards, spark-fuse-glow-shift 3.5s ease-in-out forwards;
         }
 
         .spark-follow-instruction {
@@ -625,6 +625,17 @@
             }
             100% {
                 left: 50%;
+            }
+        }
+
+        @keyframes spark-fuse-glow-shift {
+            0% {
+                background: #ef4444;
+                box-shadow: 0 0 14px rgba(239, 68, 68, 0.96);
+            }
+            100% {
+                background: #f97316;
+                box-shadow: 0 0 22px rgba(249, 115, 22, 0.98);
             }
         }
 
@@ -1034,8 +1045,10 @@
         let sparkStageState = 'idle';
         let sparkParticles = [];
         let sparkSettledParticles = [];
+        let sparkExplosionStartTime = null;
         let weavePatternTimer = null;
         let protocolExitButton = null;
+        const SPARK_SWOOP_DURATION_MS = 10000;
         const phaseExitConfig = {
             [phases.HALT]: { display: 'TRIAGE', route: 'dashboard' },
             [phases.STILL]: { display: 'OCULAR SWEEP', route: 'dashboard' },
@@ -1682,6 +1695,7 @@
         function clearSparkShatterLayer({ preserveSettled = true } = {}) {
             sparkParticles = [];
             sparkStageState = 'idle';
+            sparkExplosionStartTime = null;
             const sparkStage = document.getElementById('spark-stage');
             if (sparkStage) {
                 sparkStage.classList.remove('fuse-active', 'settling-active');
@@ -1724,14 +1738,25 @@
 
         function createSparkExplosion(width, height) {
             sparkParticles = [];
-            for (let i = 0; i < 150; i++) {
+            sparkExplosionStartTime = performance.now();
+            const totalParticles = 300;
+            for (let i = 0; i < totalParticles; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 16 + 8;
+                const hueStart = 214 + Math.random() * 14; // Deep blue family.
+                const hueEnd = 118 + Math.random() * 12; // Forest green family.
                 sparkParticles.push({
                     x: width / 2,
                     y: height / 2,
-                    vx: (Math.random() - 0.5) * 14,
-                    vy: (Math.random() - 0.5) * 16,
-                    size: Math.random() * 3 + 1,
-                    color: `hsl(${Math.random() * 18 + 24}, 84%, 62%)`,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - (Math.random() * 6 + 3),
+                    size: Math.random() * 3.2 + 1,
+                    hueStart,
+                    hueEnd,
+                    color: `hsl(${hueStart}, 78%, 34%)`,
+                    swoopAmplitude: Math.random() * 2.6 + 0.9,
+                    swoopFrequency: Math.random() * 0.004 + 0.0015,
+                    swoopPhase: Math.random() * Math.PI * 2,
                     life: 1,
                     settled: false
                 });
@@ -1747,6 +1772,16 @@
 
             const { ctx, width, height } = canvasData;
             ctx.clearRect(0, 0, width, height);
+            if (!sparkExplosionStartTime) {
+                sparkExplosionStartTime = time;
+            }
+            const elapsed = time - sparkExplosionStartTime;
+            const settlingPhase = elapsed >= SPARK_SWOOP_DURATION_MS;
+            const sparkStage = document.getElementById('spark-stage');
+            if (settlingPhase && sparkStageState !== 'settling') {
+                sparkStageState = 'settling';
+                if (sparkStage) sparkStage.classList.add('settling-active');
+            }
             const binSize = 6;
             const binCount = Math.max(1, Math.ceil(width / binSize));
             const pileHeights = new Array(binCount).fill(0);
@@ -1762,30 +1797,39 @@
 
             const activeParticles = [];
             sparkParticles.forEach((p) => {
-                const sway = sparkStageState === 'settling' ? Math.sin(time / 380) * 1.1 : 0;
-                p.x += p.vx + sway;
+                const swoop = Math.sin((time * p.swoopFrequency) + p.swoopPhase) * p.swoopAmplitude;
+                p.x += p.vx + (settlingPhase ? swoop * 0.3 : swoop);
                 p.y += p.vy;
-                p.vx *= 0.985;
-                p.vy += 0.42;
-                p.vy *= 0.992;
+                p.vx *= settlingPhase ? 0.987 : 0.994;
+                p.vy += settlingPhase ? 0.34 : 0.22;
+                p.vy *= settlingPhase ? 0.995 : 0.998;
+
+                const progress = Math.min(1, elapsed / SPARK_SWOOP_DURATION_MS);
+                const hue = p.hueStart + ((p.hueEnd - p.hueStart) * progress);
+                const lightness = settlingPhase ? 30 : 34 - (progress * 3);
+                p.color = `hsl(${hue}, 72%, ${lightness}%)`;
 
                 if (p.x < p.size) {
                     p.x = p.size;
-                    p.vx *= -0.35;
+                    p.vx = Math.abs(p.vx) * (settlingPhase ? 0.45 : 0.75);
                 } else if (p.x > width - p.size) {
                     p.x = width - p.size;
-                    p.vx *= -0.35;
+                    p.vx = -Math.abs(p.vx) * (settlingPhase ? 0.45 : 0.75);
                 }
 
-                if (sparkStageState === 'settling') {
+                if (settlingPhase) {
                     p.life = Math.max(0.18, p.life - 0.004);
-                    p.color = `hsl(42, 70%, ${Math.max(36, p.life * 70)}%)`;
+                } else if (p.y >= height - p.size) {
+                    // Keep particles in motion for the full swoop window.
+                    p.y = height - p.size;
+                    p.vy = -Math.max(2.2, Math.abs(p.vy) * 0.68);
+                    p.vx *= 0.97;
                 }
 
                 const binIndex = Math.max(0, Math.min(binCount - 1, Math.floor(p.x / binSize)));
                 const floorY = Math.max(p.size, height - p.size - pileHeights[binIndex]);
 
-                if (p.y >= floorY) {
+                if (settlingPhase && p.y >= floorY) {
                     p.y = floorY;
                     p.settled = true;
                     p.vx = 0;
@@ -1794,7 +1838,7 @@
                         x: p.x,
                         y: p.y,
                         size: p.size,
-                        color: `hsl(${Math.random() * 15 + 28}, 70%, ${Math.random() * 10 + 45}%)`
+                        color: `hsl(${Math.random() * 12 + 118}, 56%, ${Math.random() * 12 + 24}%)`
                     });
                     pileHeights[binIndex] += Math.max(1, p.size * 0.65);
                     ctx.fillStyle = p.color;
@@ -2105,7 +2149,7 @@
                     sparkSettleTimer = null;
                     sparkStageState = 'settling';
                     sparkStage.classList.add('settling-active');
-                }, 500);
+                }, SPARK_SWOOP_DURATION_MS);
 
                 sparkShatterCleanup = setTimeout(() => {
                     sparkShatterCleanup = null;
@@ -2115,7 +2159,7 @@
                 sparkFollowupTimer = setTimeout(() => {
                     sparkFollowupTimer = null;
                     showSparkFollowup();
-                }, 10000);
+                }, SPARK_SWOOP_DURATION_MS + 4000);
             }, 3500);
         }
 
