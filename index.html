@@ -1057,10 +1057,21 @@
         let sparkExplosionStartTime = null;
         let weavePatternTimer = null;
         let protocolExitButton = null;
-        const SPARK_SCATTER_DURATION_MS = 5000;
-        const SPARK_BURST_DURATION_MS = 900;
-        const SPARK_SETTLE_DELAY_MAX_MS = 1200;
-        const SPARK_ASCENT_DURATION_MS = 1700;
+        // Spark particle tuning knobs: adjust these values for feel.
+        const SPARK_TUNING = {
+            BURST_DURATION_MS: 900,
+            SCATTER_DURATION_MS: 5000,
+            ASCENT_DURATION_MS: 1700,
+            SETTLE_DELAY_MAX_MS: 1200,
+            // Larger values = slower, more hypnotic horizontal sway.
+            SWAY_TIME_DIVISOR: 800,
+            // Lower values = lighter float; higher values = faster drop.
+            SETTLING_GRAVITY: 0.3,
+            // Smaller values = thinner bottom pile growth per settled particle.
+            SAND_FILL_MULTIPLIER: 0.028,
+            BURST_SPEED_MIN: 12,
+            BURST_SPEED_RANGE: 18
+        };
         const phaseExitConfig = {
             [phases.HALT]: { display: 'TRIAGE', route: 'dashboard' },
             [phases.STILL]: { display: 'OCULAR SWEEP', route: 'dashboard' },
@@ -1754,7 +1765,7 @@
             const centerY = height / 2;
             for (let i = 0; i < totalParticles; i++) {
                 const launchAngle = Math.random() * Math.PI * 2;
-                const launchSpeed = Math.random() * 18 + 12;
+                const launchSpeed = Math.random() * SPARK_TUNING.BURST_SPEED_RANGE + SPARK_TUNING.BURST_SPEED_MIN;
                 sparkParticles.push({
                     x: centerX,
                     y: centerY,
@@ -1764,7 +1775,7 @@
                     color: `hsl(${Math.random() * 30 + 15}, 100%, 60%)`, // Start fiery
                     randomOffset: Math.random() * 1000, // Unique seed for random drift
                     sweepPhase: Math.random() * Math.PI * 2,
-                    settleDelay: Math.random() * SPARK_SETTLE_DELAY_MAX_MS,
+                    settleDelay: Math.random() * SPARK_TUNING.SETTLE_DELAY_MAX_MS,
                     settlePrimed: false,
                     life: 1,
                     settled: false
@@ -1777,14 +1788,14 @@
                 if (p.settled) return; // Stop calculating physics for "sand"
 
                 const isSettling = stage === 'settling';
-                const isBurst = !isSettling && elapsed < SPARK_BURST_DURATION_MS;
-                const isAscent = !isSettling && elapsed < SPARK_ASCENT_DURATION_MS;
-                const settlingElapsed = Math.max(0, elapsed - SPARK_SCATTER_DURATION_MS);
+                const isBurst = !isSettling && elapsed < SPARK_TUNING.BURST_DURATION_MS;
+                const isAscent = !isSettling && elapsed < SPARK_TUNING.ASCENT_DURATION_MS;
+                const settlingElapsed = Math.max(0, elapsed - SPARK_TUNING.SCATTER_DURATION_MS);
                 const topTarget = canvasHeight * 0.08;
 
                 // 1. Horizontal sweep force during settling (keeps bilateral motion)
                 const sweepForce = isSettling
-                    ? Math.sin((time / 800) + p.sweepPhase) * 0.42
+                    ? Math.sin((time / SPARK_TUNING.SWAY_TIME_DIVISOR) + p.sweepPhase) * 0.42
                     : 0;
 
                 // 2. Random Exploration (The "Brownian" drift)
@@ -1795,7 +1806,7 @@
                 // 3. Gravity & Friction
                 // During ascent, bias motion toward the top before settling begins.
                 const waitingToDrop = isSettling && settlingElapsed < p.settleDelay;
-                const gravity = waitingToDrop ? -0.04 : (isSettling ? 0.3 : (isAscent ? -0.42 : 0.12));
+                const gravity = waitingToDrop ? -0.04 : (isSettling ? SPARK_TUNING.SETTLING_GRAVITY : (isAscent ? -0.42 : 0.12));
                 p.vx = (p.vx + sweepForce) * (isSettling ? 0.9 : 0.94);
                 p.vy *= isBurst ? 0.98 : (isAscent ? 0.97 : 0.94);
                 if (isAscent) {
@@ -1844,7 +1855,7 @@
 
                 // 5. Sand Accumulation Logic
                 // 'sparkSandLevel' raises the floor slightly.
-                const floor = Math.max(p.size, canvasHeight - p.size - (sparkSandLevel * 0.028));
+                const floor = Math.max(p.size, canvasHeight - p.size - (sparkSandLevel * SPARK_TUNING.SAND_FILL_MULTIPLIER));
                 if (isSettling && p.y >= floor) {
                     p.y = Math.min(canvasHeight - p.size, floor + (Math.random() * 1.5)); // Add slight "grainy" texture
                     p.settled = true;
@@ -1872,7 +1883,7 @@
                 sparkExplosionStartTime = time;
             }
             const elapsed = time - sparkExplosionStartTime;
-            const settlingPhase = elapsed >= SPARK_SCATTER_DURATION_MS;
+            const settlingPhase = elapsed >= SPARK_TUNING.SCATTER_DURATION_MS;
             const sparkStage = document.getElementById('spark-stage');
             if (settlingPhase && sparkStageState !== 'settling') {
                 sparkStageState = 'settling';
@@ -2196,7 +2207,7 @@
                 sparkFollowupTimer = setTimeout(() => {
                     sparkFollowupTimer = null;
                     showSparkFollowup();
-                }, SPARK_SCATTER_DURATION_MS + 4000);
+                }, SPARK_TUNING.SCATTER_DURATION_MS + 4000);
             }, 3500);
         }
 
