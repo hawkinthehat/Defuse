@@ -996,6 +996,11 @@
         let binauralGain = null;
         let spiritNoise = null;
         let spiritMotionInterval = null;
+        let sparkNoiseBuffer = null;
+        let sparkFuseNoise = null;
+        let sparkFuseGain = null;
+        let sparkFuseBandpass = null;
+        let sparkFuseHighpass = null;
         let orbitInterval = null;
         let haltProgress = 0;
         let weaveProgress = 1;
@@ -1155,6 +1160,98 @@
                 spiritNoise.disconnect();
                 spiritNoise = null;
             }
+        }
+
+        function getSparkNoiseBuffer() {
+            if (!ensureAudioGraph()) return null;
+            if (sparkNoiseBuffer) return sparkNoiseBuffer;
+            const bufferLength = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferLength, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferLength; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.85;
+            }
+            sparkNoiseBuffer = buffer;
+            return sparkNoiseBuffer;
+        }
+
+        function stopSparkFuseSizzle() {
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            if (sparkFuseGain?.gain) {
+                try {
+                    sparkFuseGain.gain.cancelScheduledValues(now);
+                    sparkFuseGain.gain.setTargetAtTime(0.0001, now, 0.03);
+                } catch (e) {
+                    // Ignore automation edge-cases when node was already released.
+                }
+            }
+            if (sparkFuseNoise) {
+                try {
+                    sparkFuseNoise.stop(now + 0.08);
+                } catch (e) {
+                    // Ignore stop errors if source already ended.
+                }
+                sparkFuseNoise.disconnect();
+                sparkFuseNoise = null;
+            }
+            if (sparkFuseHighpass) {
+                sparkFuseHighpass.disconnect();
+                sparkFuseHighpass = null;
+            }
+            if (sparkFuseBandpass) {
+                sparkFuseBandpass.disconnect();
+                sparkFuseBandpass = null;
+            }
+            if (sparkFuseGain) {
+                sparkFuseGain.disconnect();
+                sparkFuseGain = null;
+            }
+        }
+
+        function playSparkFuseSizzleRamp(durationMs = 3500) {
+            if (!ensureAudioGraph()) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            stopSparkFuseSizzle();
+
+            const buffer = getSparkNoiseBuffer();
+            if (!buffer) return;
+
+            const now = audioCtx.currentTime;
+            const duration = Math.max(0.4, durationMs / 1000);
+            const end = now + duration;
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+
+            const highpass = audioCtx.createBiquadFilter();
+            highpass.type = 'highpass';
+            highpass.frequency.setValueAtTime(180, now);
+            highpass.frequency.linearRampToValueAtTime(1200, end);
+
+            const bandpass = audioCtx.createBiquadFilter();
+            bandpass.type = 'bandpass';
+            bandpass.frequency.setValueAtTime(520, now);
+            bandpass.frequency.exponentialRampToValueAtTime(5600, end);
+            bandpass.Q.setValueAtTime(0.65, now);
+            bandpass.Q.linearRampToValueAtTime(2.4, end);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.00012, now);
+            gain.gain.exponentialRampToValueAtTime(0.22, end);
+
+            noise.connect(highpass);
+            highpass.connect(bandpass);
+            bandpass.connect(gain);
+            gain.connect(binauralGain || audioCtx.destination);
+
+            noise.start(now);
+
+            sparkFuseNoise = noise;
+            sparkFuseHighpass = highpass;
+            sparkFuseBandpass = bandpass;
+            sparkFuseGain = gain;
         }
 
         function removeExitButton() {
@@ -1566,6 +1663,7 @@
                 clearTimeout(sparkFollowupTimer);
                 sparkFollowupTimer = null;
             }
+            stopSparkFuseSizzle();
         }
 
         function drawSparkSettledLayer() {
@@ -1981,17 +2079,19 @@
             sparkStage.classList.add('fuse-active');
             sparkStageState = 'fuse';
 
-            if (typeof window.playDefuseSizzle === 'function') {
-                window.playDefuseSizzle();
-            }
+            playSparkFuseSizzleRamp(3500);
 
             sparkChargeTimer = setTimeout(() => {
                 sparkChargeTimer = null;
                 sparkStageState = 'explode';
                 sparkStage.classList.remove('fuse-active');
                 const canvasData = syncSparkCanvasSize();
-                if (!canvasData) return;
+                if (!canvasData) {
+                    stopSparkFuseSizzle();
+                    return;
+                }
                 createSparkExplosion(canvasData.width, canvasData.height);
+                stopSparkFuseSizzle();
 
                 if (typeof window.playDefuseShatter === 'function') {
                     window.playDefuseShatter();
