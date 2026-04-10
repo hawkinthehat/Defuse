@@ -1051,6 +1051,7 @@
         let sparkStageState = 'idle';
         let sparkParticles = [];
         let sparkSettledParticles = [];
+        let sparkSandLevel = 0;
         let sparkExplosionStartTime = null;
         let weavePatternTimer = null;
         let protocolExitButton = null;
@@ -1713,6 +1714,7 @@
             }
             if (!preserveSettled) {
                 sparkSettledParticles = [];
+                sparkSandLevel = 0;
             }
             const canvas = document.getElementById('spark-emdr-canvas');
             if (!canvas) return;
@@ -1744,6 +1746,7 @@
 
         function createSparkExplosion(width, height) {
             sparkParticles = [];
+            sparkSandLevel = 0;
             sparkExplosionStartTime = performance.now();
             const totalParticles = 300;
             const centerX = width / 2;
@@ -1761,6 +1764,52 @@
                     settled: false
                 });
             }
+        }
+
+        function updateParticles(time, stage, canvasHeight) {
+            sparkParticles.forEach((p) => {
+                if (p.settled) return; // Stop calculating physics for "sand"
+
+                // 1. EMDR Horizontal Sweep (Bilateral Stimulation)
+                // Oscillates left/right. 800 is the speed, 18 is the width of the sway.
+                const emdrSway = stage === 'settling' ? Math.sin(time / 800) * 18 : 0;
+
+                // 2. Random Exploration (The "Brownian" drift)
+                // Makes particles dance/wiggle instead of falling straight.
+                const noiseX = Math.sin((time + p.randomOffset) / 500) * 2;
+                const noiseY = Math.cos((time + p.randomOffset) / 700) * 2;
+
+                // 3. Gravity & Friction
+                // Reduce gravity during 'settling' to make them float longer.
+                const gravity = stage === 'settling' ? 0.25 : 0.8;
+                p.vx *= 0.95; // Friction slows the initial explosion
+                p.vy *= 0.95;
+
+                // Apply all forces
+                p.x += p.vx + emdrSway + noiseX;
+                p.y += p.vy + gravity + noiseY;
+
+                // 4. Color Shift (Therapeutic Transition)
+                if (stage === 'settling') {
+                    // Shifts toward calming Teals (180 range)
+                    p.color = `hsl(${180 + Math.sin(time / 1000) * 20}, 40%, 70%)`;
+                }
+
+                // 5. Sand Accumulation Logic
+                // 'sparkSandLevel' raises the floor slightly.
+                const floor = canvasHeight - (sparkSandLevel * 0.015);
+                if (p.y >= floor) {
+                    p.y = floor + (Math.random() * 4); // Add slight "grainy" texture
+                    p.settled = true;
+                    sparkSandLevel++;
+                    sparkSettledParticles.push({
+                        x: p.x,
+                        y: p.y,
+                        size: p.size,
+                        color: p.color
+                    });
+                }
+            });
         }
 
         function renderSparkExplosion(time) {
@@ -1782,73 +1831,19 @@
                 sparkStageState = 'settling';
                 if (sparkStage) sparkStage.classList.add('settling-active');
             }
-            const binSize = 6;
-            const binCount = Math.max(1, Math.ceil(width / binSize));
-            const pileHeights = new Array(binCount).fill(0);
 
             sparkSettledParticles.forEach((p) => {
-                const binIndex = Math.max(0, Math.min(binCount - 1, Math.floor(p.x / binSize)));
-                pileHeights[binIndex] += Math.max(1, p.size * 0.65);
                 ctx.fillStyle = p.color;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                 ctx.fill();
             });
 
+            updateParticles(time, settlingPhase ? 'settling' : sparkStageState, height);
+
             const activeParticles = [];
             sparkParticles.forEach((p) => {
-                const driftX = Math.sin((time + p.randomOffset) * 0.006) * (settlingPhase ? 0.3 : 1.0);
-                const driftY = Math.cos((time + p.randomOffset) * 0.004) * (settlingPhase ? 0.12 : 0.26);
-                p.x += p.vx + driftX;
-                p.y += p.vy + driftY;
-                p.vx *= settlingPhase ? 0.972 : 0.986;
-                p.vy += settlingPhase ? 0.32 : 0.2;
-                p.vy *= settlingPhase ? 0.99 : 0.996;
-
-                const progress = Math.min(1, elapsed / SPARK_SCATTER_DURATION_MS);
-                const hue = 15 + ((Math.sin((time + p.randomOffset) * 0.01) + 1) * 10);
-                const lightness = settlingPhase ? 30 - (progress * 6) : 60 - (progress * 16);
-                p.color = `hsl(${hue}, 100%, ${lightness}%)`;
-
-                if (p.x < p.size) {
-                    p.x = p.size;
-                    p.vx = Math.abs(p.vx) * (settlingPhase ? 0.45 : 0.75);
-                } else if (p.x > width - p.size) {
-                    p.x = width - p.size;
-                    p.vx = -Math.abs(p.vx) * (settlingPhase ? 0.45 : 0.75);
-                }
-
-                if (settlingPhase) {
-                    p.life = Math.max(0.18, p.life - 0.004);
-                } else if (p.y >= height - p.size) {
-                    // Keep particles in motion for the full swoop window.
-                    p.y = height - p.size;
-                    p.vy = -Math.max(2.2, Math.abs(p.vy) * 0.68);
-                    p.vx *= 0.97;
-                }
-
-                const binIndex = Math.max(0, Math.min(binCount - 1, Math.floor(p.x / binSize)));
-                const floorY = Math.max(p.size, height - p.size - pileHeights[binIndex]);
-
-                if (settlingPhase && p.y >= floorY) {
-                    p.y = floorY;
-                    p.settled = true;
-                    p.vx = 0;
-                    p.vy = 0;
-                    sparkSettledParticles.push({
-                        x: p.x,
-                        y: p.y,
-                        size: p.size,
-                        color: `hsl(${Math.random() * 24 + 14}, 96%, ${Math.random() * 14 + 24}%)`
-                    });
-                    pileHeights[binIndex] += Math.max(1, p.size * 0.65);
-                    ctx.fillStyle = p.color;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fill();
-                    return;
-                }
-
+                if (p.settled) return;
                 ctx.fillStyle = p.color;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
