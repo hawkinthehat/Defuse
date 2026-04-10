@@ -1054,7 +1054,7 @@
         let sparkExplosionStartTime = null;
         let weavePatternTimer = null;
         let protocolExitButton = null;
-        const SPARK_SWOOP_DURATION_MS = 10000;
+        const SPARK_SCATTER_DURATION_MS = 5000;
         const phaseExitConfig = {
             [phases.HALT]: { display: 'TRIAGE', route: 'dashboard' },
             [phases.STILL]: { display: 'OCULAR SWEEP', route: 'dashboard' },
@@ -1782,7 +1782,7 @@
                 sparkExplosionStartTime = time;
             }
             const elapsed = time - sparkExplosionStartTime;
-            const settlingPhase = elapsed >= SPARK_SWOOP_DURATION_MS;
+            const settlingPhase = elapsed >= SPARK_SCATTER_DURATION_MS;
             const sparkStage = document.getElementById('spark-stage');
             if (settlingPhase && sparkStageState !== 'settling') {
                 sparkStageState = 'settling';
@@ -1810,7 +1810,7 @@
                 p.vy += settlingPhase ? 0.34 : 0.22;
                 p.vy *= settlingPhase ? 0.995 : 0.998;
 
-                const progress = Math.min(1, elapsed / SPARK_SWOOP_DURATION_MS);
+                const progress = Math.min(1, elapsed / SPARK_SCATTER_DURATION_MS);
                 const hue = p.hueStart + ((p.hueEnd - p.hueStart) * progress);
                 const lightness = settlingPhase ? 30 : 34 - (progress * 3);
                 p.color = `hsl(${hue}, 72%, ${lightness}%)`;
@@ -2155,7 +2155,7 @@
                     sparkSettleTimer = null;
                     sparkStageState = 'settling';
                     sparkStage.classList.add('settling-active');
-                }, SPARK_SWOOP_DURATION_MS);
+                }, SPARK_SCATTER_DURATION_MS);
 
                 sparkShatterCleanup = setTimeout(() => {
                     sparkShatterCleanup = null;
@@ -2165,7 +2165,7 @@
                 sparkFollowupTimer = setTimeout(() => {
                     sparkFollowupTimer = null;
                     showSparkFollowup();
-                }, SPARK_SWOOP_DURATION_MS + 4000);
+                }, SPARK_SCATTER_DURATION_MS + 4000);
             }, 3500);
         }
 
