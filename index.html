@@ -1055,6 +1055,7 @@
         let weavePatternTimer = null;
         let protocolExitButton = null;
         const SPARK_SCATTER_DURATION_MS = 5000;
+        const SPARK_ASCENT_DURATION_MS = 1700;
         const phaseExitConfig = {
             [phases.HALT]: { display: 'TRIAGE', route: 'dashboard' },
             [phases.STILL]: { display: 'OCULAR SWEEP', route: 'dashboard' },
@@ -1750,8 +1751,8 @@
                 sparkParticles.push({
                     x: centerX,
                     y: centerY,
-                    vx: (Math.random() - 0.5) * 30, // Initial explosion force
-                    vy: (Math.random() - 0.5) * 30,
+                    vx: (Math.random() - 0.5) * 26, // Initial lateral burst.
+                    vy: -(Math.random() * 18 + 10), // Start with an upward launch to reach the top.
                     size: Math.random() * 2.5 + 0.5,
                     color: `hsl(${Math.random() * 30 + 15}, 100%, 60%)`, // Start fiery
                     randomOffset: Math.random() * 1000, // Unique seed for random drift
@@ -1762,11 +1763,13 @@
             }
         }
 
-        function updateParticles(time, stage, canvasWidth, canvasHeight) {
+        function updateParticles(time, stage, canvasWidth, canvasHeight, elapsed = 0) {
             sparkParticles.forEach((p) => {
                 if (p.settled) return; // Stop calculating physics for "sand"
 
                 const isSettling = stage === 'settling';
+                const isAscent = !isSettling && elapsed < SPARK_ASCENT_DURATION_MS;
+                const topTarget = canvasHeight * 0.08;
 
                 // 1. Horizontal sweep force during settling (keeps bilateral motion)
                 const sweepForce = isSettling
@@ -1776,13 +1779,16 @@
                 // 2. Random Exploration (The "Brownian" drift)
                 // Makes particles dance/wiggle instead of falling straight.
                 const noiseX = Math.sin((time + p.randomOffset) / 500) * (isSettling ? 1.4 : 2);
-                const noiseY = Math.cos((time + p.randomOffset) / 700) * (isSettling ? 0.9 : 2);
+                const noiseY = Math.cos((time + p.randomOffset) / 700) * (isSettling ? 0.9 : (isAscent ? 1.1 : 1.8));
 
                 // 3. Gravity & Friction
-                // Reduce gravity during 'settling' to make them float longer.
-                const gravity = isSettling ? 0.25 : 0.8;
+                // During ascent, bias motion toward the top before settling begins.
+                const gravity = isSettling ? 0.25 : (isAscent ? -0.48 : 0.35);
                 p.vx = (p.vx + sweepForce) * (isSettling ? 0.92 : 0.95);
-                p.vy *= 0.95;
+                p.vy *= isAscent ? 0.98 : 0.95;
+                if (isAscent) {
+                    p.vy += (topTarget - p.y) * 0.03;
+                }
 
                 // Apply all forces
                 p.x += p.vx + noiseX;
@@ -1809,11 +1815,15 @@
                     p.y = topBound;
                     p.vy = Math.abs(p.vy) * 0.35;
                 }
+                if (!isSettling && p.y >= canvasHeight - p.size) {
+                    p.y = canvasHeight - p.size;
+                    p.vy = -Math.abs(p.vy) * 0.45;
+                }
 
                 // 5. Sand Accumulation Logic
                 // 'sparkSandLevel' raises the floor slightly.
                 const floor = Math.max(p.size, canvasHeight - p.size - (sparkSandLevel * 0.015));
-                if (p.y >= floor) {
+                if (isSettling && p.y >= floor) {
                     p.y = Math.min(canvasHeight - p.size, floor + (Math.random() * 1.5)); // Add slight "grainy" texture
                     p.settled = true;
                     sparkSandLevel++;
@@ -1854,7 +1864,7 @@
                 ctx.fill();
             });
 
-            updateParticles(time, settlingPhase ? 'settling' : sparkStageState, width, height);
+            updateParticles(time, settlingPhase ? 'settling' : sparkStageState, width, height, elapsed);
 
             const activeParticles = [];
             sparkParticles.forEach((p) => {
