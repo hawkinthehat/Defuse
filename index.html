@@ -538,6 +538,78 @@
             opacity: 1;
         }
 
+        .spark-followup {
+            position: absolute;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            width: min(92vw, 460px);
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid rgba(94, 234, 212, 0.5);
+            border-radius: 14px;
+            box-shadow: 0 14px 40px rgba(2, 6, 23, 0.65);
+            padding: 14px;
+            z-index: 7;
+            text-align: left;
+        }
+
+        .spark-followup p {
+            margin: 0 0 8px;
+            letter-spacing: 0.06em;
+        }
+
+        .spark-followup p:first-child {
+            color: #5eead4;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .spark-followup input {
+            width: 100%;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #f8fafc;
+            padding: 10px 12px;
+            margin: 8px 0 12px;
+            font-size: 0.95rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .spark-followup input:focus {
+            outline: none;
+            border-color: #5eead4;
+            box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.18);
+        }
+
+        .spark-followup-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .spark-followup-btn {
+            border: 1px solid rgba(94, 234, 212, 0.6);
+            border-radius: 999px;
+            background: rgba(30, 41, 59, 0.9);
+            color: #f8fafc;
+            padding: 8px 14px;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .spark-followup-btn:hover {
+            background: rgba(94, 234, 212, 0.2);
+        }
+
+        .spark-followup-btn-home {
+            border-color: rgba(248, 113, 113, 0.7);
+        }
+
         @keyframes spark-fuse-scale {
             0% {
                 transform: scale(1);
@@ -871,6 +943,15 @@
             <div id="spark-word" class="spark-core"></div>
             <div class="spark-fuse-dot" id="spark-fuse-dot" aria-hidden="true"></div>
             <p id="spark-follow-instruction" class="spark-follow-instruction">Follow the light with your eyes</p>
+            <div id="spark-followup" class="spark-followup" style="display: none;" role="dialog" aria-live="polite">
+                <p>Do you feel better?</p>
+                <p>Or have more worries?</p>
+                <input id="spark-followup-in" type="text" placeholder="TYPE MORE WORRIES" onkeydown="handleSparkFollowupKey(event)" autocomplete="off">
+                <div class="spark-followup-actions">
+                    <button class="spark-followup-btn spark-followup-btn-home" type="button" onclick="sparkReturnHome()">HOME</button>
+                    <button class="spark-followup-btn" type="button" onclick="repeatSparkFromFollowup()">SHATTER MORE WORRIES</button>
+                </div>
+            </div>
         </div>
 
         <div class="weave-wrap" id="orbit-stage" style="display: none;">
@@ -915,6 +996,11 @@
         let binauralGain = null;
         let spiritNoise = null;
         let spiritMotionInterval = null;
+        let sparkNoiseBuffer = null;
+        let sparkFuseNoise = null;
+        let sparkFuseGain = null;
+        let sparkFuseBandpass = null;
+        let sparkFuseHighpass = null;
         let orbitInterval = null;
         let haltProgress = 0;
         let weaveProgress = 1;
@@ -944,9 +1030,10 @@
         let sparkShatterCleanup = null;
         let sparkChargeTimer = null;
         let sparkSettleTimer = null;
+        let sparkFollowupTimer = null;
         let sparkStageState = 'idle';
         let sparkParticles = [];
-        let sparkSettledCount = 0;
+        let sparkSettledParticles = [];
         let weavePatternTimer = null;
         let protocolExitButton = null;
         const phaseExitConfig = {
@@ -1073,6 +1160,98 @@
                 spiritNoise.disconnect();
                 spiritNoise = null;
             }
+        }
+
+        function getSparkNoiseBuffer() {
+            if (!ensureAudioGraph()) return null;
+            if (sparkNoiseBuffer) return sparkNoiseBuffer;
+            const bufferLength = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferLength, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferLength; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.85;
+            }
+            sparkNoiseBuffer = buffer;
+            return sparkNoiseBuffer;
+        }
+
+        function stopSparkFuseSizzle() {
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            if (sparkFuseGain?.gain) {
+                try {
+                    sparkFuseGain.gain.cancelScheduledValues(now);
+                    sparkFuseGain.gain.setTargetAtTime(0.0001, now, 0.03);
+                } catch (e) {
+                    // Ignore automation edge-cases when node was already released.
+                }
+            }
+            if (sparkFuseNoise) {
+                try {
+                    sparkFuseNoise.stop(now + 0.08);
+                } catch (e) {
+                    // Ignore stop errors if source already ended.
+                }
+                sparkFuseNoise.disconnect();
+                sparkFuseNoise = null;
+            }
+            if (sparkFuseHighpass) {
+                sparkFuseHighpass.disconnect();
+                sparkFuseHighpass = null;
+            }
+            if (sparkFuseBandpass) {
+                sparkFuseBandpass.disconnect();
+                sparkFuseBandpass = null;
+            }
+            if (sparkFuseGain) {
+                sparkFuseGain.disconnect();
+                sparkFuseGain = null;
+            }
+        }
+
+        function playSparkFuseSizzleRamp(durationMs = 3500) {
+            if (!ensureAudioGraph()) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            stopSparkFuseSizzle();
+
+            const buffer = getSparkNoiseBuffer();
+            if (!buffer) return;
+
+            const now = audioCtx.currentTime;
+            const duration = Math.max(0.4, durationMs / 1000);
+            const end = now + duration;
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+
+            const highpass = audioCtx.createBiquadFilter();
+            highpass.type = 'highpass';
+            highpass.frequency.setValueAtTime(180, now);
+            highpass.frequency.linearRampToValueAtTime(1200, end);
+
+            const bandpass = audioCtx.createBiquadFilter();
+            bandpass.type = 'bandpass';
+            bandpass.frequency.setValueAtTime(520, now);
+            bandpass.frequency.exponentialRampToValueAtTime(5600, end);
+            bandpass.Q.setValueAtTime(0.65, now);
+            bandpass.Q.linearRampToValueAtTime(2.4, end);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.00012, now);
+            gain.gain.exponentialRampToValueAtTime(0.22, end);
+
+            noise.connect(highpass);
+            highpass.connect(bandpass);
+            bandpass.connect(gain);
+            gain.connect(binauralGain || audioCtx.destination);
+
+            noise.start(now);
+
+            sparkFuseNoise = noise;
+            sparkFuseHighpass = highpass;
+            sparkFuseBandpass = bandpass;
+            sparkFuseGain = gain;
         }
 
         function removeExitButton() {
@@ -1480,25 +1659,49 @@
                 clearTimeout(sparkShatterCleanup);
                 sparkShatterCleanup = null;
             }
+            if (sparkFollowupTimer) {
+                clearTimeout(sparkFollowupTimer);
+                sparkFollowupTimer = null;
+            }
+            stopSparkFuseSizzle();
         }
 
-        function clearSparkShatterLayer() {
+        function drawSparkSettledLayer() {
+            const canvasData = syncSparkCanvasSize();
+            if (!canvasData) return;
+            const { ctx, width, height } = canvasData;
+            ctx.clearRect(0, 0, width, height);
+            sparkSettledParticles.forEach((p) => {
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function clearSparkShatterLayer({ preserveSettled = true } = {}) {
             sparkParticles = [];
-            sparkSettledCount = 0;
             sparkStageState = 'idle';
             const sparkStage = document.getElementById('spark-stage');
             if (sparkStage) {
                 sparkStage.classList.remove('fuse-active', 'settling-active');
             }
+            hideSparkFollowup();
             if (explosionFrame) {
                 cancelAnimationFrame(explosionFrame);
                 explosionFrame = null;
+            }
+            if (!preserveSettled) {
+                sparkSettledParticles = [];
             }
             const canvas = document.getElementById('spark-emdr-canvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (preserveSettled) {
+                drawSparkSettledLayer();
+            }
         }
 
         function syncSparkCanvasSize() {
@@ -1521,15 +1724,14 @@
 
         function createSparkExplosion(width, height) {
             sparkParticles = [];
-            sparkSettledCount = 0;
             for (let i = 0; i < 150; i++) {
                 sparkParticles.push({
                     x: width / 2,
                     y: height / 2,
-                    vx: (Math.random() - 0.5) * 20,
-                    vy: (Math.random() - 0.5) * 20,
+                    vx: (Math.random() - 0.5) * 14,
+                    vy: (Math.random() - 0.5) * 16,
                     size: Math.random() * 3 + 1,
-                    color: `hsl(${Math.random() * 40 + 10}, 100%, 60%)`,
+                    color: `hsl(${Math.random() * 18 + 24}, 84%, 62%)`,
                     life: 1,
                     settled: false
                 });
@@ -1545,9 +1747,56 @@
 
             const { ctx, width, height } = canvasData;
             ctx.clearRect(0, 0, width, height);
+            const binSize = 6;
+            const binCount = Math.max(1, Math.ceil(width / binSize));
+            const pileHeights = new Array(binCount).fill(0);
 
+            sparkSettledParticles.forEach((p) => {
+                const binIndex = Math.max(0, Math.min(binCount - 1, Math.floor(p.x / binSize)));
+                pileHeights[binIndex] += Math.max(1, p.size * 0.65);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            const activeParticles = [];
             sparkParticles.forEach((p) => {
-                if (p.settled) {
+                const sway = sparkStageState === 'settling' ? Math.sin(time / 380) * 1.1 : 0;
+                p.x += p.vx + sway;
+                p.y += p.vy;
+                p.vx *= 0.985;
+                p.vy += 0.42;
+                p.vy *= 0.992;
+
+                if (p.x < p.size) {
+                    p.x = p.size;
+                    p.vx *= -0.35;
+                } else if (p.x > width - p.size) {
+                    p.x = width - p.size;
+                    p.vx *= -0.35;
+                }
+
+                if (sparkStageState === 'settling') {
+                    p.life = Math.max(0.18, p.life - 0.004);
+                    p.color = `hsl(42, 70%, ${Math.max(36, p.life * 70)}%)`;
+                }
+
+                const binIndex = Math.max(0, Math.min(binCount - 1, Math.floor(p.x / binSize)));
+                const floorY = Math.max(p.size, height - p.size - pileHeights[binIndex]);
+
+                if (p.y >= floorY) {
+                    p.y = floorY;
+                    p.settled = true;
+                    p.vx = 0;
+                    p.vy = 0;
+                    sparkSettledParticles.push({
+                        x: p.x,
+                        y: p.y,
+                        size: p.size,
+                        color: `hsl(${Math.random() * 15 + 28}, 70%, ${Math.random() * 10 + 45}%)`
+                    });
+                    pileHeights[binIndex] += Math.max(1, p.size * 0.65);
                     ctx.fillStyle = p.color;
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -1555,30 +1804,65 @@
                     return;
                 }
 
-                const sway = sparkStageState === 'settling' ? Math.sin(time / 400) * 5 : 0;
-                p.x += p.vx + sway;
-                p.y += p.vy + 2;
-                p.vx *= 0.985;
-                p.vy *= 0.985;
-
-                if (sparkStageState === 'settling') {
-                    p.life = Math.max(0.2, p.life - 0.006);
-                    p.color = `hsl(180, 50%, ${Math.max(20, p.life * 100)}%)`;
-                }
-
-                if (p.y >= height - (sparkSettledCount * 0.05)) {
-                    p.y = height - Math.random() * 10;
-                    p.settled = true;
-                    sparkSettledCount++;
-                }
-
                 ctx.fillStyle = p.color;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                 ctx.fill();
+                activeParticles.push(p);
             });
+            sparkParticles = activeParticles;
+
+            if (!sparkParticles.length && sparkStageState !== 'fuse') {
+                sparkStageState = 'settled';
+                explosionFrame = null;
+                return;
+            }
 
             explosionFrame = requestAnimationFrame(renderSparkExplosion);
+        }
+
+        function hideSparkFollowup() {
+            const panel = document.getElementById('spark-followup');
+            const input = document.getElementById('spark-followup-in');
+            if (panel) panel.style.display = 'none';
+            if (input) input.value = '';
+        }
+
+        function showSparkFollowup() {
+            const panel = document.getElementById('spark-followup');
+            const input = document.getElementById('spark-followup-in');
+            if (!panel) return;
+            panel.style.display = 'block';
+            if (input) input.focus();
+        }
+
+        function sparkReturnHome() {
+            const terminateScreen = document.getElementById('terminate');
+            terminateScreen.classList.remove('spark-fullscreen');
+            terminateScreen.classList.add('spark-ready');
+            clearSparkSequenceTimers();
+            clearSparkShatterLayer();
+            nav('home');
+        }
+
+        function repeatSparkFromFollowup() {
+            const followupInput = document.getElementById('spark-followup-in');
+            const sparkInput = document.getElementById('spark-in');
+            const nextWord = (followupInput?.value || '').trim().toUpperCase();
+            if (!nextWord || !sparkInput) {
+                if (followupInput) followupInput.focus();
+                return;
+            }
+
+            hideSparkFollowup();
+            sparkInput.value = nextWord;
+            triggerSpark();
+        }
+
+        function handleSparkFollowupKey(event) {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            repeatSparkFromFollowup();
         }
 
         function startOrbit() {
@@ -1795,17 +2079,19 @@
             sparkStage.classList.add('fuse-active');
             sparkStageState = 'fuse';
 
-            if (typeof window.playDefuseSizzle === 'function') {
-                window.playDefuseSizzle();
-            }
+            playSparkFuseSizzleRamp(3500);
 
             sparkChargeTimer = setTimeout(() => {
                 sparkChargeTimer = null;
                 sparkStageState = 'explode';
                 sparkStage.classList.remove('fuse-active');
                 const canvasData = syncSparkCanvasSize();
-                if (!canvasData) return;
+                if (!canvasData) {
+                    stopSparkFuseSizzle();
+                    return;
+                }
                 createSparkExplosion(canvasData.width, canvasData.height);
+                stopSparkFuseSizzle();
 
                 if (typeof window.playDefuseShatter === 'function') {
                     window.playDefuseShatter();
@@ -1823,17 +2109,13 @@
 
                 sparkShatterCleanup = setTimeout(() => {
                     sparkShatterCleanup = null;
-                    clearSparkShatterLayer();
-                    terminateScreen.classList.remove('spark-fullscreen');
-                    terminateScreen.classList.add('spark-ready');
-                    sparkWord.style.display = 'block';
                     sparkWord.textContent = '';
-                    sparkStage.style.display = 'none';
-                    sparkInput.disabled = false;
-                    sparkInput.style.display = 'block';
-                    sparkInput.value = '';
-                    sparkInput.focus();
-                }, 10500);
+                }, 4000);
+
+                sparkFollowupTimer = setTimeout(() => {
+                    sparkFollowupTimer = null;
+                    showSparkFollowup();
+                }, 10000);
             }, 3500);
         }
 
@@ -1881,7 +2163,11 @@
         }
 
         window.addEventListener('resize', () => {
-            if (document.getElementById('terminate').classList.contains('active')) drawLoop();
+            if (!document.getElementById('terminate').classList.contains('active')) return;
+            drawLoop();
+            if (!explosionFrame) {
+                drawSparkSettledLayer();
+            }
         });
     </script>
 </body>
