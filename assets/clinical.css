@@ -1,0 +1,36 @@
+/* Protocol Card Styling */
+.protocol-card {
+  background: rgba(47, 53, 66, 0.6); /* Slate Grey with Transparency */
+  border-left: 4px solid var(--btn-active); /* Neon Teal vertical accent */
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.protocol-card:hover {
+  background: rgba(47, 53, 66, 0.9);
+  transform: translateX(5px); /* Subtle slide-in effect */
+}
+
+.protocol-card h2 {
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  margin: 0;
+  color: var(--text-main);
+  text-transform: uppercase;
+}
+
+.purpose {
+  font-family: 'Courier New', monospace; /* Technical feel */
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5); /* Muted clinical text */
+  margin: 5px 0 0 0;
+  text-transform: uppercase;
+}
+
+/* Specific Warning Style for Circuit Breaker */
+.protocol-card.warning {
+  border-left-color: #ff4757; /* Warning Red */
+}

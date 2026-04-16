@@ -1,28 +1,49 @@
-<div id="dashboard">
-  
-  <div class="protocol-card">
-    <h2>DIAGNOSTIC TRIAGE</h2>
-    <p class="purpose">Cognitive Lock / Logic Check</p>
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEFUSE | Momentum System v3.2</title>
+    <link rel="stylesheet" href="assets/clinical.css">
+    <script src="assets/defuse-protocol.js" defer></script>
+</head>
+<body>
 
-  <div class="protocol-card">
-    <h2>OCULAR BILATERAL DESENSITIZATION</h2>
-    <p class="purpose">Memory Load / Loop Disruption</p>
-  </div>
+    <div id="app-container">
+        <header class="clinical-header">
+            <h1>DEFUSE SYSTEM v3.2</h1>
+            <p class="status">STATUS: SYSTEM_READY</p>
+        </header>
 
-  <div class="protocol-card">
-    <h2>CENTRIFUGAL COGNITIVE DISCHARGE</h2>
-    <p class="purpose">Thought Shatter / Tension Release</p>
-  </div>
+        <div id="dashboard">
+            <div class="protocol-card" onclick="launchTriage()">
+                <h2>01: DIAGNOSTIC TRIAGE</h2>
+                <p class="purpose">Cognitive Lock / Logic Check</p>
+            </div>
 
-  <div class="protocol-card">
-    <h2>CENTRIPETAL AXIAL STABILIZATION</h2>
-    <p class="purpose">Focal Grounding / Landing</p>
-  </div>
+            <div class="protocol-card" onclick="startOBD()">
+                <h2>02: OCULAR BILATERAL DESENSITIZATION</h2>
+                <p class="purpose">Memory Load / Loop Disruption</p>
+            </div>
 
-  <div class="protocol-card warning">
-    <h2>KINETIC CIRCUIT BREAKER</h2>
-    <p class="purpose">Emergency Amygdala Reset</p>
-  </div>
+            <div class="protocol-card" onclick="triggerCCD()">
+                <h2>03: CENTRIFUGAL COGNITIVE DISCHARGE</h2>
+                <p class="purpose">Thought Shatter / Tension Release</p>
+            </div>
 
-</div>
+            <div class="protocol-card" onclick="startCAS()">
+                <h2>04: CENTRIPETAL AXIAL STABILIZATION</h2>
+                <p class="purpose">Focal Grounding / Landing</p>
+            </div>
+
+            <div class="protocol-card warning" onclick="launchCircuitBreaker()">
+                <h2>05: KINETIC CIRCUIT BREAKER</h2>
+                <p class="purpose">Emergency Amygdala Reset</p>
+            </div>
+        </div>
+
+        <main id="viewport" class="hidden"></main>
+    </div>
+
+</body>
+</html>
