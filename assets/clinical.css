@@ -1,56 +1,38 @@
-/* Protocol Card Styling */
-.protocol-card {
-  background: rgba(47, 53, 66, 0.6); /* Slate Grey with Transparency */
-  border-left: 4px solid var(--btn-active); /* Neon Teal vertical accent */
-  padding: 20px;
-  margin-bottom: 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+:root {
+  --bg-dark: #05070a;        /* Deepest Obsidian */
+  --card-bg: #0d1117;       /* Dark Navy/Grey */
+  --neon-teal: #00d2d3;     /* The "Defuse" Teal */
+  --warning-red: #ff4757;   /* For the Circuit Breaker */
+  --text-dim: #8b949e;      /* Muted text for descriptions */
 }
 
-.protocol-card:hover {
-  background: rgba(47, 53, 66, 0.9);
-  transform: translateX(5px); /* Subtle slide-in effect */
+body {
+    background-color: var(--bg-dark);
+    color: var(--neon-teal);
+    /* Subtle radial glow from the center */
+    background-image: radial-gradient(circle at center, #10151d 0%, var(--bg-dark) 100%);
+}
+
+.protocol-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(0, 210, 211, 0.1); /* Very faint teal border */
+    border-left: 4px solid var(--neon-teal);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    /* This makes it look like glass */
+    backdrop-filter: blur(10px); 
 }
 
 .protocol-card h2 {
-  font-size: 0.9rem;
-  letter-spacing: 2px;
-  margin: 0;
-  color: var(--text-main);
-  text-transform: uppercase;
+    color: #ffffff; /* Bright white for titles so they stand out */
+    text-shadow: 0 0 10px rgba(0, 210, 211, 0.3);
 }
 
 .purpose {
-  font-family: 'Courier New', monospace; /* Technical feel */
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.5); /* Muted clinical text */
-  margin: 5px 0 0 0;
-  text-transform: uppercase;
+    color: var(--text-dim); /* Dimmer text for the clinical notes */
 }
 
-/* Specific Warning Style for Circuit Breaker */
+/* Make the Warning Card actually look dangerous */
 .protocol-card.warning {
-  border-left-color: #ff4757; /* Warning Red */
-}
-/* --- UI OVERLAYS --- */
-.scanlines {
-    position: fixed;
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%;
-    background: linear-gradient(
-        rgba(18, 16, 16, 0) 50%, 
-        rgba(0, 0, 0, 0.1) 50%
-    ), linear-gradient(
-        90deg, 
-        rgba(255, 0, 0, 0.02), 
-        rgba(0, 255, 0, 0.01), 
-        rgba(0, 0, 255, 0.02)
-    );
-    background-size: 100% 4px, 3px 100%;
-    pointer-events: none; /* This is crucial so you can still click buttons underneath */
-    z-index: 9999;
+    border-left-color: var(--warning-red);
+    background: linear-gradient(90deg, rgba(255, 71, 87, 0.05), var(--card-bg));
 }
