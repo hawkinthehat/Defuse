@@ -1,33 +1,142 @@
- <div id="dashboard">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEFUSE | v3.2 Clinical</title>
+    <style>
+        :root {
+            --bg-black: #05070a;
+            --neon-teal: #00d2d3;
+            --glow-white: #ffffff;
+            --purpose-blue: #70a1ff;
+            --warning-red: #ff4757;
+        }
 
-    <div class="protocol-card" onclick="launchPDT()">
-        <p class="term">COGNITIVE PATTERN INTERRUPT</p>
-        <h2 class="callsign">CPI</h2>
-        <p class="purpose">USE THIS TO: BREAK AUTOPILOT & ENGAGE LOGIC</p>
+        body {
+            background-color: var(--bg-black);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        #dashboard {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            padding: 60px 20px;
+            width: 100%;
+        }
+
+        .protocol-card {
+            background: rgba(0, 0, 0, 0.95);
+            border: 1.5px solid var(--neon-teal);
+            padding: 40px 20px;
+            width: 85%;
+            max-width: 400px;
+            text-align: center;
+            border-radius: 4px;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 0 15px rgba(0, 210, 211, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .protocol-card:hover {
+            background: rgba(0, 210, 211, 0.05);
+            box-shadow: 0 0 35px rgba(0, 210, 211, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .term {
+            font-size: 0.6rem;
+            letter-spacing: 4px;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0 0 12px 0;
+            text-transform: uppercase;
+        }
+
+        .callsign {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 12px;
+            margin: 0;
+            color: var(--glow-white);
+            text-shadow: 0 0 15px rgba(0, 210, 211, 0.7);
+            padding-left: 12px; /* Center offset */
+        }
+
+        .purpose {
+            color: var(--purpose-blue);
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            margin: 20px 0 0 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+            width: 90%;
+        }
+
+        .protocol-card.warning { border-color: var(--warning-red); }
+        .protocol-card.warning .callsign { text-shadow: 0 0 15px rgba(255, 71, 87, 0.7); }
+        .protocol-card.warning .purpose { color: #ff7f50; }
+
+        /* UI OVERLAY */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="dashboard">
+        <div class="protocol-card" onclick="location.href='#cpi'">
+            <p class="term">COGNITIVE PATTERN INTERRUPT</p>
+            <h2 class="callsign">CPI</h2>
+            <p class="purpose">USE THIS TO: BREAK AUTOPILOT & ENGAGE LOGIC</p>
+        </div>
+
+        <div class="protocol-card" onclick="location.href='#obd'">
+            <p class="term">OCULAR BILATERAL DESENSITIZATION</p>
+            <h2 class="callsign">OBD</h2>
+            <p class="purpose">USE THIS TO: UNSTICK LOOPS & LOWER DISTRESS</p>
+        </div>
+
+        <div class="protocol-card" onclick="location.href='#ccd'">
+            <p class="term">CENTRIFUGAL COGNITIVE DISCHARGE</p>
+            <h2 class="callsign">CCD</h2>
+            <p class="purpose">USE THIS TO: SHATTER FIXED INTENSE THOUGHTS</p>
+        </div>
+
+        <div class="protocol-card" onclick="location.href='#cas'">
+            <p class="term">CENTRIPETAL AXIAL STABILIZATION</p>
+            <h2 class="callsign">CAS</h2>
+            <p class="purpose">USE THIS TO: RECENTER FOCUS & LAND BASELINE</p>
+        </div>
+
+        <div class="protocol-card warning" onclick="location.href='#kcb'">
+            <p class="term">KINETIC CIRCUIT BREAKER</p>
+            <h2 class="callsign">KCB</h2>
+            <p class="purpose">USE THIS FOR: ACUTE EMERGENCY SYSTEM RESET</p>
+        </div>
     </div>
 
-    <div class="protocol-card" onclick="startOBD()">
-        <p class="term">OCULAR BILATERAL DESENSITIZATION</p>
-        <h2 class="callsign">OBD</h2>
-        <p class="purpose">USE THIS TO: UNSTICK LOOPS & LOWER DISTRESS</p>
-    </div>
+    <div class="scanlines"></div>
 
-    <div class="protocol-card" onclick="triggerCCD()">
-        <p class="term">CENTRIFUGAL COGNITIVE DISCHARGE</p>
-        <h2 class="callsign">CCD</h2>
-        <p class="purpose">USE THIS TO: SHATTER FIXED INTENSE THOUGHTS</p>
-    </div>
-
-    <div class="protocol-card" onclick="startCAS()">
-        <p class="term">CENTRIPETAL AXIAL STABILIZATION</p>
-        <h2 class="callsign">CAS</h2>
-        <p class="purpose">USE THIS TO: RECENTER FOCUS & LAND Baseline</p>
-    </div>
-
-    <div class="protocol-card warning" onclick="launchKCB()">
-        <p class="term">KINETIC CIRCUIT BREAKER</p>
-        <h2 class="callsign">KCB</h2>
-        <p class="purpose">USE THIS FOR: ACUTE EMERGENCY SYSTEM RESET</p>
-    </div>
-
-</div>
+</body>
+</html>
