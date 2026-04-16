@@ -1,38 +1,60 @@
 :root {
-  --bg-dark: #05070a;        /* Deepest Obsidian */
-  --card-bg: #0d1117;       /* Dark Navy/Grey */
-  --neon-teal: #00d2d3;     /* The "Defuse" Teal */
-  --warning-red: #ff4757;   /* For the Circuit Breaker */
-  --text-dim: #8b949e;      /* Muted text for descriptions */
+  --bg-dark: #05070a;
+  --neon-teal: #00d2d3;
+  --purpose-text: #70a1ff; /* A soft, tech-blue for explanations */
+  --warning-red: #ff4757;
 }
 
-body {
-    background-color: var(--bg-dark);
-    color: var(--neon-teal);
-    /* Subtle radial glow from the center */
-    background-image: radial-gradient(circle at center, #10151d 0%, var(--bg-dark) 100%);
+#dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers the cards horizontally */
+    gap: 20px;
+    padding-top: 50px;
 }
 
 .protocol-card {
-    background: var(--card-bg);
-    border: 1px solid rgba(0, 210, 211, 0.1); /* Very faint teal border */
-    border-left: 4px solid var(--neon-teal);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    /* This makes it look like glass */
-    backdrop-filter: blur(10px); 
+    background: transparent; /* Makes the border the main feature */
+    border: 1.5px solid var(--neon-teal); /* Full Teal Border */
+    padding: 25px;
+    width: 85%; /* Sits centered on the tablet screen */
+    max-width: 400px;
+    text-align: center; /* Centers the text inside the card */
+    border-radius: 2px; /* Sharp, technical corners */
+    transition: 0.3s all ease-in-out;
+    box-shadow: 0 0 15px rgba(0, 210, 211, 0.1); /* Subtle outer glow */
+}
+
+.protocol-card:hover {
+    background: rgba(0, 210, 211, 0.05); /* Very faint teal fill on hover */
+    box-shadow: 0 0 25px rgba(0, 210, 211, 0.3);
+    transform: translateY(-2px);
 }
 
 .protocol-card h2 {
-    color: #ffffff; /* Bright white for titles so they stand out */
-    text-shadow: 0 0 10px rgba(0, 210, 211, 0.3);
+    color: var(--neon-teal); /* Teal Title to match borders */
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    margin: 0;
+    text-transform: uppercase;
 }
 
 .purpose {
-    color: var(--text-dim); /* Dimmer text for the clinical notes */
+    color: var(--purpose-text); /* Different color for the clinical note */
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    margin-top: 10px;
+    letter-spacing: 1px;
+    opacity: 0.8;
 }
 
-/* Make the Warning Card actually look dangerous */
+/* Warning Overrides */
 .protocol-card.warning {
-    border-left-color: var(--warning-red);
-    background: linear-gradient(90deg, rgba(255, 71, 87, 0.05), var(--card-bg));
+    border-color: var(--warning-red);
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.1);
 }
+
+.protocol-card.warning h2 {
+    color: var(--warning-red);
+}
+ 
