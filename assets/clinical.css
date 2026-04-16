@@ -1,60 +1,89 @@
 :root {
-  --bg-dark: #05070a;
+  --bg-black: #05070a;
   --neon-teal: #00d2d3;
-  --purpose-text: #70a1ff; /* A soft, tech-blue for explanations */
+  --purpose-blue: #70a1ff;
   --warning-red: #ff4757;
+}
+
+body {
+    background-color: var(--bg-black);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
 }
 
 #dashboard {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centers the cards horizontally */
-    gap: 20px;
-    padding-top: 50px;
+    align-items: center; /* Forces cards to stay centered */
+    gap: 30px;
+    padding: 80px 20px;
+    width: 100%;
 }
 
 .protocol-card {
-    background: transparent; /* Makes the border the main feature */
-    border: 1.5px solid var(--neon-teal); /* Full Teal Border */
-    padding: 25px;
-    width: 85%; /* Sits centered on the tablet screen */
-    max-width: 400px;
-    text-align: center; /* Centers the text inside the card */
-    border-radius: 2px; /* Sharp, technical corners */
-    transition: 0.3s all ease-in-out;
-    box-shadow: 0 0 15px rgba(0, 210, 211, 0.1); /* Subtle outer glow */
+    background: rgba(0, 0, 0, 0.95);
+    border: 1.5px solid var(--neon-teal);
+    padding: 40px 20px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center; /* Centers all content inside the card */
+    border-radius: 4px;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 0 15px rgba(0, 210, 211, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .protocol-card:hover {
-    background: rgba(0, 210, 211, 0.05); /* Very faint teal fill on hover */
-    box-shadow: 0 0 25px rgba(0, 210, 211, 0.3);
-    transform: translateY(-2px);
+    background: rgba(0, 210, 211, 0.05);
+    box-shadow: 0 0 35px rgba(0, 210, 211, 0.3);
+    transform: translateY(-5px) scale(1.02);
 }
 
-.protocol-card h2 {
-    color: var(--neon-teal); /* Teal Title to match borders */
-    font-size: 1.1rem;
-    letter-spacing: 3px;
-    margin: 0;
+/* TOP: The Medical Term */
+.term {
+    font-size: 0.6rem;
+    letter-spacing: 4px;
+    color: rgba(0, 210, 211, 0.6);
+    margin: 0 0 12px 0;
     text-transform: uppercase;
 }
 
-.purpose {
-    color: var(--purpose-text); /* Different color for the clinical note */
-    font-family: 'Courier New', monospace;
-    font-size: 0.75rem;
-    margin-top: 10px;
-    letter-spacing: 1px;
-    opacity: 0.8;
+/* MIDDLE: The 3-Letter Call-sign */
+.callsign {
+    font-size: 3.2rem;
+    font-weight: 900;
+    letter-spacing: 12px;
+    margin: 0;
+    color: var(--neon-teal);
+    text-shadow: 0 0 15px rgba(0, 210, 211, 0.5);
+    padding-left: 12px; /* Offsets letter-spacing to keep it centered */
 }
 
-/* Warning Overrides */
+/* BOTTOM: The Practical Use Case */
+.purpose {
+    color: var(--purpose-blue);
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    margin-top: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-top: 1px solid rgba(112, 161, 255, 0.2);
+    padding-top: 15px;
+    width: 80%; /* Keeps the divider line clean and centered */
+}
+
+/* WARNING STATE: Kinetic Circuit Breaker */
 .protocol-card.warning {
     border-color: var(--warning-red);
-    box-shadow: 0 0 15px rgba(255, 71, 87, 0.1);
 }
-
-.protocol-card.warning h2 {
+.protocol-card.warning .callsign {
     color: var(--warning-red);
+    text-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
 }
- 
+.protocol-card.warning .term { color: rgba(255, 71, 87, 0.6); }
+.protocol-card.warning .purpose { color: #ff7f50; border-top-color: rgba(255, 127, 80, 0.2); }
