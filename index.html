@@ -1,50 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEFUSE | Momentum System v3.2</title>
-    <link rel="stylesheet" href="assets/clinical.css">
-    <script src="assets/defuse-protocol.js" defer></script>
-</head>
-<body>
+ <div id="dashboard">
 
-    <div id="app-container">
-        <header class="clinical-header">
-            <h1>DEFUSE SYSTEM v3.2</h1>
-            <p class="status">STATUS: SYSTEM_READY</p>
-        </header>
-
-        <div id="dashboard">
-            <div class="protocol-card" onclick="launchTriage()">
-                <h2>01: DIAGNOSTIC TRIAGE</h2>
-                <p class="purpose">Cognitive Lock / Logic Check</p>
-            </div>
-
-            <div class="protocol-card" onclick="startOBD()">
-                <h2>02: OCULAR BILATERAL DESENSITIZATION</h2>
-                <p class="purpose">Memory Load / Loop Disruption</p>
-            </div>
-
-            <div class="protocol-card" onclick="triggerCCD()">
-                <h2>03: CENTRIFUGAL COGNITIVE DISCHARGE</h2>
-                <p class="purpose">Thought Shatter / Tension Release</p>
-            </div>
-
-            <div class="protocol-card" onclick="startCAS()">
-                <h2>04: CENTRIPETAL AXIAL STABILIZATION</h2>
-                <p class="purpose">Focal Grounding / Landing</p>
-            </div>
-
-            <div class="protocol-card warning" onclick="launchCircuitBreaker()">
-                <h2>05: KINETIC CIRCUIT BREAKER</h2>
-                <p class="purpose">Emergency Amygdala Reset</p>
-            </div>
-        </div>
-
-        <main id="viewport" class="hidden"></main>
+    <div class="protocol-card" onclick="launchPDT()">
+        <p class="term">COGNITIVE PATTERN INTERRUPT</p>
+        <h2 class="callsign">CPI</h2>
+        <p class="purpose">USE THIS TO: BREAK AUTOPILOT & ENGAGE LOGIC</p>
     </div>
-    
-    <div class="scanlines"></div>
-</body>
-</html>
+
+    <div class="protocol-card" onclick="startOBD()">
+        <p class="term">OCULAR BILATERAL DESENSITIZATION</p>
+        <h2 class="callsign">OBD</h2>
+        <p class="purpose">USE THIS TO: UNSTICK LOOPS & LOWER DISTRESS</p>
+    </div>
+
+    <div class="protocol-card" onclick="triggerCCD()">
+        <p class="term">CENTRIFUGAL COGNITIVE DISCHARGE</p>
+        <h2 class="callsign">CCD</h2>
+        <p class="purpose">USE THIS TO: SHATTER FIXED INTENSE THOUGHTS</p>
+    </div>
+
+    <div class="protocol-card" onclick="startCAS()">
+        <p class="term">CENTRIPETAL AXIAL STABILIZATION</p>
+        <h2 class="callsign">CAS</h2>
+        <p class="purpose">USE THIS TO: RECENTER FOCUS & LAND Baseline</p>
+    </div>
+
+    <div class="protocol-card warning" onclick="launchKCB()">
+        <p class="term">KINETIC CIRCUIT BREAKER</p>
+        <h2 class="callsign">KCB</h2>
+        <p class="purpose">USE THIS FOR: ACUTE EMERGENCY SYSTEM RESET</p>
+    </div>
+
+</div>
