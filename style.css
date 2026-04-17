@@ -113,3 +113,18 @@ body {
     z-index: 9999;
 }
 #protocol-stage { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+/* THE ACTIVE STAGE - Ensures content is visible and centered */
+#protocol-stage {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Fix for the hidden class to ensure it overrides everything */
+.hidden { 
+    display: none !important; 
+    pointer-events: none;
+}
