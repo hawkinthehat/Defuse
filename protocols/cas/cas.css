@@ -1,0 +1,29 @@
+.cas-tunnel {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.cas-shape {
+    position: absolute;
+    border: 1.5px solid var(--teal);
+    opacity: 0;
+    animation: casInward 3s infinite linear;
+}
+
+.cas-circle { border-radius: 50%; }
+.cas-square { border-radius: 4px; }
+.cas-octagon { 
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+    border-radius: 0;
+}
+
+@keyframes casInward {
+    0% { width: 140vw; height: 140vw; opacity: 0; transform: rotate(0deg); }
+    15% { opacity: 0.5; }
+    100% { width: 0px; height: 0px; opacity: 0; transform: rotate(90deg); }
+}

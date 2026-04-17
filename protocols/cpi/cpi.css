@@ -1,0 +1,24 @@
+.cpi-container {
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.cpi-label {
+    font-family: monospace;
+    color: var(--blue);
+    letter-spacing: 3px;
+    font-size: 0.8rem;
+    margin-bottom: 20px;
+}
+
+.cpi-content {
+    font-size: 2.5rem;
+    color: white;
+    text-shadow: 0 0 15px var(--teal);
+    line-height: 1.4;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}

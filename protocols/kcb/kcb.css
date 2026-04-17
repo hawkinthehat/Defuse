@@ -1,0 +1,23 @@
+.kcb-overlay {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: emergencyPulse 0.15s infinite;
+}
+
+.kcb-status {
+    color: white;
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 12px;
+    text-shadow: 0 0 20px var(--alert);
+    z-index: 2;
+}
+
+@keyframes emergencyPulse {
+    0% { background: #000; }
+    50% { background: #440000; } /* Deep Alert Red */
+    100% { background: #000; }
+}

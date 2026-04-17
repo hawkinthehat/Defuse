@@ -1,0 +1,12 @@
+.shatter-word {
+    font-size: 4rem;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 0 20px var(--teal);
+    animation: wordShatter 1s forwards;
+}
+
+@keyframes wordShatter {
+    0% { transform: scale(0.8); opacity: 1; filter: blur(0); }
+    100% { transform: scale(5); opacity: 0; filter: blur(30px); letter-spacing: 50px; }
+}
