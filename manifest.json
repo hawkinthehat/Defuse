@@ -1,12 +1,12 @@
 {
-  "name": "DEFUSE | Momentum System",
-  "short_name": "DEFUSE",
-  "description": "Momentum system protocols",
+  "name": "DeFuse | Momentum System",
+  "short_name": "DeFuse",
+  "description": "Clinical momentum system protocols",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#121418",
+  "theme_color": "#58e1ff",
   "icons": [
     {
       "src": "./icon-192.png",
@@ -19,6 +19,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

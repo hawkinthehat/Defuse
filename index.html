@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEFUSE | Momentum System</title>
-    <meta name="theme-color" content="#000000">
+    <title>DeFuse | Momentum System</title>
+    <meta name="theme-color" content="#58e1ff">
+    <meta name="apple-mobile-web-app-title" content="DeFuse">
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="protocols/cas/cas.css">
     <link rel="stylesheet" href="protocols/ccd/ccd.css">
@@ -15,6 +18,9 @@
 </head>
 <body>
     <div id="dashboard">
+        <header class="app-brand">
+            <img src="logo.png" width="320" height="461" class="app-brand-logo" alt="DeFuse — Clinical System">
+        </header>
         <div class="protocol-card" onclick="launchCPI()">
             <p class="term">Phase 01 · HALT triage</p>
             <h2 class="callsign">CPI</h2>

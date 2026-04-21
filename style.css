@@ -26,8 +26,25 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    padding: 60px 20px;
+    padding: 40px 20px 60px;
     width: 100%;
+}
+
+.app-brand {
+    width: 100%;
+    max-width: 22rem;
+    margin: 0 auto 0.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.app-brand-logo {
+    width: min(72vw, 20rem);
+    height: auto;
+    display: block;
+    object-fit: contain;
+    user-select: none;
+    pointer-events: none;
 }
 
 .protocol-card {

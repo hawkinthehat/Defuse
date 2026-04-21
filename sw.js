@@ -1,4 +1,4 @@
-const CACHE_NAME = 'defuse-v1';
+const CACHE_NAME = 'defuse-v2';
 
 const PRECACHE_URLS = [
   '/',
@@ -6,6 +6,7 @@ const PRECACHE_URLS = [
   '/style.css',
   '/app.js',
   '/manifest.json',
+  '/logo.png',
   '/icon-192.png',
   '/icon-512.png',
   '/protocols/cas/cas.css',
