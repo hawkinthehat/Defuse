@@ -2,164 +2,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DEFUSE v3.2 | Longhouse</title>
-    <style>
-        :root {
-            --bg: #05070a;
-            --teal: #00d2d3;
-            --white: #ffffff;
-            --blue: #70a1ff;
-            --red: #ff4757;
-        }
-
-        body {
-            background-color: var(--bg);
-            margin: 0; padding: 0;
-            display: flex; justify-content: center;
-            font-family: -apple-system, sans-serif;
-            color: var(--teal);
-            overflow: hidden;
-            touch-action: manipulation;
-        }
-
-        /* DASHBOARD */
-        #dashboard {
-            display: flex; flex-direction: column;
-            align-items: center; gap: 15px;
-            padding: 50px 20px; width: 100%;
-            height: 100vh; overflow-y: auto;
-        }
-
-        .protocol-card {
-            background: #000;
-            border: 1.5px solid var(--teal);
-            padding: 30px 20px;
-            width: 85%; max-width: 400px;
-            text-align: center; border-radius: 4px;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .protocol-card.warning { border-color: var(--red); }
-        .callsign { font-size: 2.5rem; font-weight: 900; letter-spacing: 8px; margin: 0; color: var(--white); text-shadow: 0 0 10px var(--teal); }
-        .protocol-card.warning .callsign { text-shadow: 0 0 10px var(--red); }
-        .term { font-size: 0.6rem; letter-spacing: 2px; color: rgba(255, 255, 255, 0.5); text-transform: uppercase; margin-bottom: 8px; }
-        .purpose { color: var(--blue); font-family: monospace; font-size: 0.65rem; margin-top: 12px; border-top: 1px solid #222; padding-top: 8px; }
-
-        /* VIEWPORT STAGE */
-        #viewport {
-            position: fixed; top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: #000; display: none;
-            flex-direction: column; justify-content: center;
-            align-items: center; z-index: 1000;
-        }
-
-        .instruction-bar { position: fixed; top: 60px; color: var(--blue); font-family: monospace; font-size: 0.75rem; text-align: center; width: 80%; }
-        .exit-btn { position: fixed; top: 20px; right: 20px; border: 1px solid white; color: white; padding: 10px; font-size: 10px; z-index: 2000; border-radius: 4px; }
-
-        /* PROTOCOL ANIMATIONS */
-        #cpi-input { background: transparent; border: none; border-bottom: 2px solid var(--teal); color: white; font-family: monospace; font-size: 1.5rem; text-align: center; margin-top: 20px; outline: none; width: 80%; letter-spacing: 4px; }
-        .cpi-error { animation: shake 0.4s; border-bottom-color: var(--red) !important; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-
-        #feather { width: 30px; height: 30px; background: var(--teal); border-radius: 50%; position: absolute; box-shadow: 0 0 20px var(--teal); animation: sweep 2s infinite alternate ease-in-out; }
-        @keyframes sweep { from { left: 10%; } to { left: 90%; } }
-
-        .exploding-word { font-size: 3rem; font-weight: 900; color: white; animation: shatter 0.8s forwards; }
-        @keyframes shatter { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(4); filter: blur(20px); opacity: 0; letter-spacing: 40px; } }
-
-        .cas-shape { position: absolute; border: 1.5px solid var(--teal); animation: inward 3s infinite linear; opacity: 0; }
-        @keyframes inward { 0% { width: 130vw; height: 130vw; opacity: 0; } 15% { opacity: 0.5; } 100% { width: 0; height: 0; opacity: 0; } }
-
-        .kcb-strobe { width: 100%; height: 100%; animation: pulse 0.15s infinite; }
-        @keyframes pulse { 0% { background: #000; } 50% { background: #400; } 100% { background: #000; } }
-
-        .scanlines { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%); background-size: 100% 4px; pointer-events: none; z-index: 9999; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEFUSE | Momentum System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="protocols/cas/cas.css">
+    <link rel="stylesheet" href="protocols/ccd/ccd.css">
+    <link rel="stylesheet" href="protocols/cpi/cpi.css">
+    <link rel="stylesheet" href="protocols/kcb/kcb.css">
+    <link rel="stylesheet" href="protocols/obd/obd.css">
 </head>
 <body>
-
     <div id="dashboard">
-        <div class="protocol-card" onclick="runCPI()">
-            <p class="term">Cognitive Pattern Interrupt</p>
+        <div class="protocol-card" onclick="launchCPI()">
+            <p class="term">Phase 01 · HALT triage</p>
             <h2 class="callsign">CPI</h2>
-            <p class="purpose">BREAK AUTOPILOT & ENGAGE LOGIC</p>
+            <p class="purpose">Executive engagement &amp; validation</p>
         </div>
-
-        <div class="protocol-card" onclick="runOBD()">
-            <p class="term">Ocular Bilateral Desensitization</p>
-            <h2 class="callsign">OBD</h2>
-            <p class="purpose">FOLLOW THE FEATHER TO UNSTICK LOOPS</p>
-        </div>
-
-        <div class="protocol-card" onclick="runCCD()">
-            <p class="term">Centrifugal Cognitive Discharge</p>
-            <h2 class="callsign">CCD</h2>
-            <p class="purpose">WATCH THE THOUGHT SHATTER</p>
-        </div>
-
-        <div class="protocol-card" onclick="runCAS()">
-            <p class="term">Centripetal Axial Stabilization</p>
+        <div class="protocol-card" onclick="launchCAS()">
+            <p class="term">Phase 04 · Axial stabilize</p>
             <h2 class="callsign">CAS</h2>
-            <p class="purpose">FOCUS CENTER AS SHAPES PULL IN</p>
+            <p class="purpose">Optokinetic inward flow</p>
         </div>
-
-        <div class="protocol-card warning" onclick="runKCB()">
-            <p class="term">Kinetic Circuit Breaker</p>
+        <div class="protocol-card" onclick="launchOBD()">
+            <p class="term">Phase 02 · Ocular sweep</p>
+            <h2 class="callsign">OBD</h2>
+            <p class="purpose">Bilateral tracking &amp; saccades</p>
+        </div>
+        <div class="protocol-card" onclick="launchCCD()">
+            <p class="term">Phase 03 · White surge</p>
+            <h2 class="callsign">CCD</h2>
+            <p class="purpose">Cognitive load discharge</p>
+        </div>
+        <div class="protocol-card warning" onclick="launchKCB()">
+            <p class="term">Phase 05 · Circuit breaker</p>
             <h2 class="callsign">KCB</h2>
-            <p class="purpose">EMERGENCY SYSTEM RESET</p>
+            <p class="purpose">High-stimulation override</p>
+            <p class="protocol-warning-note">Photosensitive seizure risk — full warning appears before the sequence starts.</p>
         </div>
     </div>
 
-    <div id="viewport">
-        <div class="exit-btn" onclick="exit()">EXIT</div>
-        <div id="inst" class="instruction-bar"></div>
-        <div id="stage" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;"></div>
+    <div id="viewport" class="hidden" aria-hidden="true">
+        <p id="inst" class="instruction-bar" role="status"></p>
+        <button type="button" class="exit-btn" onclick="exitProtocol()">EXIT</button>
+        <div id="protocol-stage"></div>
     </div>
 
-    <div class="scanlines"></div>
+    <div class="scanlines" aria-hidden="true"></div>
 
-    <script>
-        const vp = document.getElementById('viewport');
-        const st = document.getElementById('stage');
-        const inst = document.getElementById('inst');
-
-        function open(txt) { vp.style.display = 'flex'; inst.innerText = txt; }
-        function exit() { vp.style.display = 'none'; st.innerHTML = ''; }
-
-        function runCPI() {
-            open('SOLVE TO STABILIZE');
-            const tasks = [
-                {q: 'REVERSE: "SXT\'EKW"', a: 'WKE\'TXS'},
-                {q: 'SEQUENCE: 3, 9, 27, ?', a: '81'},
-                {q: 'MATH: 15 + 25 - 6', a: '34'}
-            ];
-            const t = tasks[Math.floor(Math.random()*tasks.length)];
-            st.innerHTML = `<div style="text-align:center"><h2 style="color:white">${t.q}</h2><input type="text" id="cpi-input" placeholder="ENTER..."></div>`;
-            const i = document.getElementById('cpi-input');
-            i.focus();
-            i.onkeypress = (e) => {
-                if(e.key === 'Enter') {
-                    if(i.value.toUpperCase() === t.a.toString()) { exit(); }
-                    else { i.classList.add('cpi-error'); setTimeout(()=>i.classList.remove('cpi-error'), 400); i.value=''; }
-                }
-            };
-        }
-
-        function runOBD() { open('FOLLOW FEATHER'); st.innerHTML = '<div id="feather"></div>'; }
-        
-        function runCCD() { open('SHATTERING THOUGHT'); st.innerHTML = '<h1 class="exploding-word">ANXIETY</h1>'; setTimeout(exit, 1000); }
-
-        function runCAS() {
-            open('FOCUS CENTER');
-            let h = '';
-            for(let i=0; i<8; i++) { h += `<div class="cas-shape" style="animation-delay:${i*0.4}s; border-radius:${i%2==0?'50%':'4px'}"></div>`; }
-            st.innerHTML = h;
-        }
-
-        function runKCB() { open('SYSTEM RESET'); st.innerHTML = '<div class="kcb-strobe"></div>'; }
-    </script>
+    <script src="app.js"></script>
+    <script src="protocols/cas/cas.js"></script>
+    <script src="protocols/ccd/ccd.js"></script>
+    <script src="protocols/cpi/cpi.js"></script>
+    <script src="protocols/kcb/kcb.js"></script>
+    <script src="protocols/obd/obd.js"></script>
 </body>
 </html>

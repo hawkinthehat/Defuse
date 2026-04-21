@@ -1,29 +1,119 @@
-.cas-tunnel {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
+/* CAS — Progressive HTML layers, shared center, healing blues, bloom on obsidian */
+
+.cas-root {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    background: radial-gradient(ellipse at center, rgba(0, 36, 56, 0.45) 0%, #000000 72%);
 }
 
-.cas-shape {
+.cas-stack {
+    position: relative;
+    width: min(88vmin, 92vw);
+    height: min(88vmin, 92vw);
+    flex-shrink: 0;
+}
+
+.cas-layer {
     position: absolute;
-    border: 1.5px solid var(--teal);
-    opacity: 0;
-    animation: casInward 3s infinite linear;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-sizing: border-box;
+    pointer-events: none;
+    opacity: 0.9;
 }
 
-.cas-circle { border-radius: 50%; }
-.cas-square { border-radius: 4px; }
-.cas-octagon { 
-    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
-    border-radius: 0;
+/* Nested radii: centered overlap */
+.cas-stack .cas-layer:nth-child(1) {
+    width: 18vmin;
+    height: 18vmin;
 }
 
-@keyframes casInward {
-    0% { width: 140vw; height: 140vw; opacity: 0; transform: rotate(0deg); }
-    15% { opacity: 0.5; }
-    100% { width: 0px; height: 0px; opacity: 0; transform: rotate(90deg); }
+.cas-stack .cas-layer:nth-child(2) {
+    width: 28vmin;
+    height: 28vmin;
+}
+
+.cas-stack .cas-layer:nth-child(3) {
+    width: 38vmin;
+    height: 38vmin;
+}
+
+.cas-stack .cas-layer:nth-child(4) {
+    width: 48vmin;
+    height: 48vmin;
+}
+
+.cas-stack .cas-layer:nth-child(5) {
+    width: 58vmin;
+    height: 58vmin;
+}
+
+/* Circle — #00d2d3 */
+.cas-layer--circle {
+    border-radius: 50%;
+    border: 3px solid #00d2d3;
+    background: radial-gradient(circle at 40% 35%, rgba(0, 210, 211, 0.35), transparent 65%);
+    filter: drop-shadow(0 0 14px rgba(0, 210, 211, 0.75)) drop-shadow(0 0 32px rgba(0, 210, 211, 0.4));
+    box-shadow:
+        0 0 18px rgba(0, 210, 211, 0.95),
+        0 0 40px rgba(0, 210, 211, 0.55),
+        0 0 64px rgba(0, 210, 211, 0.25),
+        inset 0 0 24px rgba(255, 255, 255, 0.1);
+}
+
+/* Triangle — #00cec9 */
+.cas-layer--triangle {
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    border: none;
+    background: linear-gradient(165deg, rgba(0, 206, 201, 0.4), rgba(0, 206, 201, 0.08));
+    filter: drop-shadow(0 0 12px rgba(0, 206, 201, 0.7)) drop-shadow(0 0 30px rgba(0, 206, 201, 0.38));
+    box-shadow:
+        0 0 0 2px #00cec9,
+        0 0 20px rgba(0, 206, 201, 0.95),
+        0 0 44px rgba(0, 206, 201, 0.5),
+        0 0 72px rgba(0, 206, 201, 0.22);
+}
+
+/* Square — #74b9ff */
+.cas-layer--square {
+    border-radius: 4px;
+    border: 3px solid #74b9ff;
+    background: linear-gradient(135deg, rgba(116, 185, 255, 0.28), transparent);
+    filter: drop-shadow(0 0 12px rgba(116, 185, 255, 0.72)) drop-shadow(0 0 30px rgba(116, 185, 255, 0.4));
+    box-shadow:
+        0 0 20px rgba(116, 185, 255, 0.95),
+        0 0 46px rgba(116, 185, 255, 0.52),
+        0 0 70px rgba(116, 185, 255, 0.22),
+        inset 0 0 20px rgba(255, 255, 255, 0.08);
+}
+
+/* Pentagon — #81ecec */
+.cas-layer--pentagon {
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    border: none;
+    background: linear-gradient(185deg, rgba(129, 236, 236, 0.38), rgba(129, 236, 236, 0.07));
+    filter: drop-shadow(0 0 12px rgba(129, 236, 236, 0.72)) drop-shadow(0 0 32px rgba(129, 236, 236, 0.38));
+    box-shadow:
+        0 0 0 2px #81ecec,
+        0 0 22px rgba(129, 236, 236, 0.95),
+        0 0 48px rgba(129, 236, 236, 0.48),
+        0 0 76px rgba(129, 236, 236, 0.2);
+}
+
+/* Hexagon — #a29bfe */
+.cas-layer--hexagon {
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    border: none;
+    background: linear-gradient(200deg, rgba(162, 155, 254, 0.36), rgba(162, 155, 254, 0.08));
+    filter: drop-shadow(0 0 12px rgba(162, 155, 254, 0.72)) drop-shadow(0 0 34px rgba(162, 155, 254, 0.4));
+    box-shadow:
+        0 0 0 2px #a29bfe,
+        0 0 24px rgba(162, 155, 254, 0.95),
+        0 0 52px rgba(162, 155, 254, 0.5),
+        0 0 80px rgba(162, 155, 254, 0.22);
 }

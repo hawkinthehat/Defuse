@@ -4,6 +4,10 @@
     --glow-white: #ffffff;
     --purpose-blue: #70a1ff;
     --warning-red: #ff4757;
+    /* Aliases used by protocol stylesheets */
+    --teal: var(--neon-teal);
+    --blue: var(--purpose-blue);
+    --alert: var(--warning-red);
 }
 
 body {
@@ -26,7 +30,6 @@ body {
     width: 100%;
 }
 
-/* THE CARDS */
 .protocol-card {
     background: rgba(0, 0, 0, 0.95);
     border: 1.5px solid var(--neon-teal);
@@ -40,40 +43,52 @@ body {
 
 .protocol-card.warning { border-color: var(--warning-red); }
 
-.callsign { 
-    font-size: 2.8rem; 
-    font-weight: 900; 
-    letter-spacing: 8px; 
-    margin: 0; 
-    color: var(--glow-white); 
-    text-shadow: 0 0 15px var(--neon-teal); 
+.protocol-warning-note {
+    font-size: 0.58rem;
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+    color: rgba(255, 71, 87, 0.9);
+    margin: 14px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 71, 87, 0.2);
+    text-transform: none;
 }
 
-.term { 
-    font-size: 0.6rem; 
-    letter-spacing: 3px; 
-    color: rgba(255, 255, 255, 0.6); 
-    text-transform: uppercase; 
+.callsign {
+    font-size: 2.8rem;
+    font-weight: 900;
+    letter-spacing: 8px;
+    margin: 0;
+    color: var(--glow-white);
+    text-shadow: 0 0 15px var(--neon-teal);
+}
+
+.term {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
     margin-bottom: 10px;
 }
 
-.purpose { 
-    color: var(--purpose-blue); 
-    font-family: monospace; 
-    font-size: 0.7rem; 
-    margin-top: 15px; 
-    border-top: 1px solid rgba(255, 255, 255, 0.1); 
-    padding-top: 10px; 
+.purpose {
+    color: var(--purpose-blue);
+    font-family: monospace;
+    font-size: 0.7rem;
+    margin-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 10px;
 }
 
-/* THE VIEWPORT STAGE */
+/* Viewport shell: visibility is toggled with .hidden only */
 #viewport {
     position: fixed;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     width: 100vw;
     height: 100vh;
     background: #000;
-    display: none; /* Controlled by JS */
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -94,6 +109,7 @@ body {
     top: 20px;
     right: 20px;
     border: 1px solid white;
+    background: transparent;
     color: white;
     padding: 10px;
     font-size: 10px;
@@ -101,30 +117,30 @@ body {
     cursor: pointer;
 }
 
-.hidden { display: none !important; }
+.hidden {
+    display: none !important;
+    pointer-events: none;
+}
 
-/* SCANLINES */
 .scanlines {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
     background-size: 100% 4px;
     pointer-events: none;
     z-index: 9999;
 }
-#protocol-stage { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
-/* THE ACTIVE STAGE - Ensures content is visible and centered */
+
 #protocol-stage {
+    flex: 1;
+    align-self: stretch;
     width: 100%;
-    height: 100%;
+    min-height: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
-}
-
-/* Fix for the hidden class to ensure it overrides everything */
-.hidden { 
-    display: none !important; 
-    pointer-events: none;
 }

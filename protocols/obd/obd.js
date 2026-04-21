@@ -1,6 +1,6 @@
 function launchOBD() {
     const stage = document.getElementById('protocol-stage');
-    document.getElementById('viewport').classList.remove('hidden');
+    showProtocolViewport();
     
     // Instructions for the user
     const inst = document.getElementById('inst');

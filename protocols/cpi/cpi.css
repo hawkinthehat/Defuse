@@ -1,21 +1,91 @@
 .cpi-container {
     text-align: center;
     animation: fadeIn 0.5s ease;
+    border: 2px solid var(--teal);
+    padding: clamp(1.75rem, 5vw, 2.75rem) clamp(1.25rem, 4vw, 2.5rem);
+    border-radius: 8px;
+    width: min(96vw, 40rem);
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-.cpi-label {
+.cpi-inst {
     font-family: monospace;
-    color: var(--blue);
-    letter-spacing: 3px;
-    font-size: 0.8rem;
-    margin-bottom: 20px;
+    font-size: clamp(0.85rem, 2.4vw, 1.1rem);
+    color: var(--purpose-blue);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0 0 0.75rem;
+    line-height: 1.35;
 }
 
 .cpi-content {
-    font-size: 2.5rem;
+    font-size: clamp(1.9rem, 5.5vw, 3rem);
     color: white;
-    text-shadow: 0 0 15px var(--teal);
-    line-height: 1.4;
+    margin: clamp(0.75rem, 2vw, 1.25rem) 0 clamp(1.25rem, 3vw, 1.75rem);
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.cpi-input {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-height: clamp(3rem, 10vw, 4rem);
+    padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 2.5vw, 1.35rem);
+    font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+    font-weight: 600;
+    color: #f0f8ff;
+    background: rgba(6, 10, 18, 0.92);
+    border: 2px solid rgba(0, 210, 211, 0.55);
+    border-radius: 6px;
+    outline: none;
+}
+
+.cpi-input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.cpi-input:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(0, 210, 211, 0.2);
+}
+
+#cpi-progress {
+    font-family: monospace;
+    font-size: clamp(0.8rem, 2.2vw, 1rem);
+    letter-spacing: 0.08em;
+    color: var(--teal);
+    margin-top: clamp(1.25rem, 3vw, 1.75rem);
+    opacity: 0.95;
+}
+
+.cpi-btn {
+    margin-top: clamp(0.75rem, 2vw, 1rem);
+    padding: clamp(0.85rem, 2.5vw, 1.1rem) clamp(1.5rem, 4vw, 2rem);
+    font-family: monospace;
+    font-size: clamp(0.85rem, 2.2vw, 1rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid var(--teal);
+    background: transparent;
+    color: var(--teal);
+}
+
+.cpi-btn:hover {
+    background: rgba(0, 210, 211, 0.12);
+}
+
+.cpi-error {
+    animation: shake 0.2s ease-in-out;
+    border-color: var(--warning-red) !important;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
 }
 
 @keyframes fadeIn {

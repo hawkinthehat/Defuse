@@ -1,23 +1,231 @@
-.kcb-overlay {
+/* KCB — pre-flight warning, rAF strobe, charge ramp, total white reset */
+
+.kcb-warning-screen {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1rem, 4vw, 2rem);
+    box-sizing: border-box;
+    background: radial-gradient(ellipse at 50% 30%, rgba(60, 20, 25, 0.35) 0%, #000000 65%);
+    z-index: 2;
+    overflow: auto;
+}
+
+.kcb-warning-panel {
+    width: min(100%, 32rem);
+    max-width: 100%;
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+    border: 1px solid rgba(255, 71, 87, 0.45);
+    border-radius: 10px;
+    background: rgba(8, 6, 10, 0.94);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 24px 48px rgba(0, 0, 0, 0.65);
+}
+
+.kcb-warning-kicker {
+    margin: 0 0 0.35rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 71, 87, 0.85);
+}
+
+.kcb-warning-title {
+    margin: 0 0 1rem;
+    font-size: clamp(1.35rem, 3.5vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: #f5f6fa;
+}
+
+.kcb-warning-text {
+    margin: 0 0 1rem;
+    font-size: clamp(0.9rem, 2.2vw, 1.05rem);
+    line-height: 1.55;
+    color: rgba(235, 238, 245, 0.92);
+}
+
+.kcb-warning-text:last-of-type {
+    margin-bottom: 1.5rem;
+}
+
+.kcb-warning-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.kcb-warn-btn {
+    padding: 0.65rem 1.15rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(22, 24, 32, 0.95);
+    color: #e8ecff;
+}
+
+.kcb-warn-btn-cancel {
+    border-color: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.kcb-warn-btn-ok {
+    border-color: rgba(255, 71, 87, 0.65);
+    color: #ff6b81;
+    font-weight: 600;
+}
+
+.kcb-warn-btn:hover {
+    filter: brightness(1.1);
+}
+
+.kcb-root {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #000000;
+}
+
+/* Full-viewport flash layer — color/alpha set in JS for ramp */
+.kcb-flash-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    z-index: 1001;
+    background: #000000;
+    pointer-events: none;
+    transition: none;
+    will-change: background;
+}
+
+.kcb-charge-ui {
+    position: fixed;
+    left: 50%;
+    bottom: max(1.25rem, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    width: min(92vw, 36rem);
+    z-index: 1003;
+    pointer-events: none;
+    padding: 0 0.5rem;
+    box-sizing: border-box;
+}
+
+.kcb-charge-ui.hidden {
+    display: none !important;
+}
+
+.kcb-circuit-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.45rem;
+}
+
+.kcb-circuit-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: 600;
+}
+
+.kcb-circuit-pct {
+    font-family: ui-monospace, monospace;
+    font-size: 0.75rem;
+    color: rgba(0, 210, 211, 0.95);
+}
+
+.kcb-progress-track {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    overflow: hidden;
+}
+
+.kcb-progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: inherit;
+    background: linear-gradient(
+        90deg,
+        rgba(0, 210, 211, 0.5),
+        rgba(255, 75, 87, 0.95) 55%,
+        #ffffff
+    );
+    transition: width 0.05s linear;
+    box-shadow: 0 0 12px rgba(255, 75, 87, 0.45);
+}
+
+.kcb-charge-hint {
+    margin: 0.5rem 0 0;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.38);
+    text-align: center;
+}
+
+.kcb-hud {
+    position: fixed;
+    inset: 0;
     width: 100vw;
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    animation: emergencyPulse 0.15s infinite;
+    z-index: 1002;
+    pointer-events: none;
+    transition: none;
+}
+
+.kcb-hud.hidden {
+    display: none !important;
 }
 
 .kcb-status {
-    color: white;
-    font-size: 3rem;
+    margin: 0;
+    padding: 0 1rem;
+    color: #ffffff;
+    font-size: clamp(1.75rem, 6vw, 3rem);
     font-weight: 900;
-    letter-spacing: 12px;
-    text-shadow: 0 0 20px var(--alert);
-    z-index: 2;
+    letter-spacing: 0.35em;
+    text-align: center;
+    text-transform: uppercase;
+    text-shadow: 0 0 18px rgba(255, 75, 87, 0.9);
+    transition: none;
 }
 
-@keyframes emergencyPulse {
-    0% { background: #000; }
-    50% { background: #440000; } /* Deep Alert Red */
-    100% { background: #000; }
+.kcb-status--onwhite {
+    color: #000000;
+    text-shadow: 0 0 14px rgba(255, 75, 87, 0.5);
+}
+
+/* Total reset: solid white, then app returns to dashboard */
+.kcb-total-reset {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10050;
+    background: #ffffff;
+    pointer-events: none;
+}
+
+.kcb-total-reset.hidden {
+    display: none !important;
 }
