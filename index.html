@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="protocols/cpi/cpi.css">
     <link rel="stylesheet" href="protocols/kcb/kcb.css">
     <link rel="stylesheet" href="protocols/obd/obd.css">
+    <link rel="stylesheet" href="protocols/obs/obs.css">
+    <link rel="stylesheet" href="protocols/abm/abm.css">
 </head>
 <body>
     <div id="dashboard">
@@ -41,6 +43,16 @@
             <h2 class="callsign">CCD</h2>
             <p class="purpose">Cognitive load discharge</p>
         </div>
+        <div class="protocol-card protocol-obs" onclick="launchOBS()">
+            <p class="term">Phase 06 · Forensic audit</p>
+            <h2 class="callsign">OBS</h2>
+            <p class="purpose">Observer shift · intense sensation triage</p>
+        </div>
+        <div class="protocol-card" onclick="launchABM()">
+            <p class="term">Phase 07 · Attention bias</p>
+            <h2 class="callsign">ABM</h2>
+            <p class="purpose">Stable-locus probe · 20-cycle training</p>
+        </div>
         <div class="protocol-card warning" onclick="launchKCB()">
             <p class="term">Phase 05 · Circuit breaker</p>
             <h2 class="callsign">KCB</h2>
@@ -63,6 +75,8 @@
     <script src="protocols/cpi/cpi.js"></script>
     <script src="protocols/kcb/kcb.js"></script>
     <script src="protocols/obd/obd.js"></script>
+    <script src="protocols/obs/obs.js"></script>
+    <script src="protocols/abm/abm.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {

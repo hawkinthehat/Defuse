@@ -1,0 +1,352 @@
+/* Observer Shift — clinical viewport chrome */
+#viewport.viewport-obs {
+    background: #0c0e11;
+}
+
+#viewport.viewport-obs .instruction-bar {
+    color: #94a3b8;
+    letter-spacing: 0.12em;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+}
+
+#viewport.viewport-obs .exit-btn {
+    border-color: #475569;
+    color: #e2e8f0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: 0.14em;
+}
+
+#viewport.viewport-obs .exit-btn:hover {
+    background: rgba(148, 163, 184, 0.12);
+    border-color: #64748b;
+}
+
+/* Dashboard card hint — slate, non-teal */
+.protocol-card.protocol-obs {
+    border-color: rgba(148, 163, 184, 0.45);
+    box-shadow: none;
+}
+
+.protocol-card.protocol-obs .callsign {
+    color: #f8fafc;
+    text-shadow: none;
+    letter-spacing: 10px;
+}
+
+.protocol-card.protocol-obs .term {
+    color: #64748b;
+}
+
+.protocol-card.protocol-obs .purpose {
+    color: #94a3b8;
+    border-top-color: rgba(148, 163, 184, 0.2);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Protocol stage */
+.obs-root {
+    width: 100%;
+    max-width: 28rem;
+    margin: 0 auto;
+    padding: 1.25rem 1.25rem 2rem;
+    box-sizing: border-box;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+    color: #e2e8f0;
+}
+
+.obs-header {
+    border-bottom: 1px solid rgba(71, 85, 105, 0.65);
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.obs-protocol-id {
+    margin: 0;
+    font-size: 0.58rem;
+    letter-spacing: 0.28em;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.obs-audit-title {
+    margin: 0.35rem 0 0.85rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: #f1f5f9;
+    text-transform: uppercase;
+}
+
+.obs-step-rail {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.obs-step-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #1e293b;
+    border: 1px solid #334155;
+    flex-shrink: 0;
+}
+
+.obs-step-dot.is-on {
+    background: #cbd5e1;
+    border-color: #94a3b8;
+}
+
+.obs-step-line {
+    flex: 1;
+    height: 1px;
+    background: #334155;
+    min-width: 1.5rem;
+}
+
+.obs-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.obs-step-title {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #cbd5e1;
+}
+
+.obs-step-body {
+    margin: 0 0 0.35rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: #94a3b8;
+}
+
+.obs-step-body strong {
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+.obs-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.78em;
+    color: #cbd5e1;
+}
+
+.obs-field-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-top: 0.25rem;
+}
+
+.obs-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: #111418;
+    border: 1px solid #334155;
+    color: #f1f5f9;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    padding: 0.65rem 0.75rem;
+    border-radius: 2px;
+    resize: vertical;
+    min-height: 2.75rem;
+}
+
+.obs-input::placeholder {
+    color: #475569;
+}
+
+.obs-input:focus {
+    outline: none;
+    border-color: #64748b;
+    box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.25);
+}
+
+.obs-textarea-tall {
+    min-height: 7rem;
+}
+
+.obs-field-error {
+    min-height: 1rem;
+    margin: 0;
+    font-size: 0.72rem;
+    color: #fca5a5;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.obs-btn {
+    margin-top: 0.35rem;
+    padding: 0.65rem 1rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    cursor: pointer;
+    border-radius: 2px;
+    border: 1px solid transparent;
+}
+
+.obs-btn-primary {
+    background: #1e293b;
+    border-color: #475569;
+    color: #f8fafc;
+}
+
+.obs-btn-primary:hover {
+    background: #334155;
+    border-color: #64748b;
+}
+
+.obs-btn-ghost {
+    background: transparent;
+    border-color: #334155;
+    color: #94a3b8;
+}
+
+.obs-btn-ghost:hover {
+    border-color: #475569;
+    color: #cbd5e1;
+}
+
+.obs-actions {
+    display: flex;
+    gap: 0.65rem;
+    margin-top: 0.5rem;
+}
+
+.obs-actions .obs-btn {
+    flex: 1;
+    margin-top: 0;
+}
+
+.obs-panel-readout .obs-readout-intro {
+    margin: 0 0 0.75rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #64748b;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.obs-readout {
+    margin: 0 0 1.25rem;
+    padding: 0;
+}
+
+.obs-readout-row {
+    border: 1px solid #334155;
+    border-bottom: none;
+    padding: 0.75rem 0.85rem;
+    background: rgba(15, 17, 20, 0.85);
+}
+
+.obs-readout-row:last-of-type {
+    border-bottom: 1px solid #334155;
+}
+
+.obs-readout-row dt {
+    margin: 0 0 0.35rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #64748b;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.obs-readout-row dd {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: #e2e8f0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+@keyframes obs-shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    20%,
+    60% {
+        transform: translateX(-4px);
+    }
+    40%,
+    80% {
+        transform: translateX(4px);
+    }
+}
+
+.obs-shake {
+    animation: obs-shake 0.38s ease;
+}
+
+/* Recent audits — session log below steps */
+.obs-recent {
+    margin-top: 1.35rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(51, 65, 85, 0.75);
+}
+
+.obs-recent-title {
+    margin: 0 0 0.65rem;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.obs-recent-empty {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: #475569;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.obs-recent-list {
+    margin: 0;
+    padding: 0 0 0 1.15rem;
+    max-height: 11rem;
+    overflow-y: auto;
+    list-style-position: outside;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.obs-recent-item {
+    margin: 0 0 0.65rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.45);
+}
+
+.obs-recent-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.obs-recent-time {
+    display: block;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    color: #64748b;
+    margin-bottom: 0.3rem;
+}
+
+.obs-recent-preview {
+    margin: 0;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: #cbd5e1;
+    word-break: break-word;
+}

@@ -1,0 +1,148 @@
+/* ABM — obsidian field, CAS healing blue probe, high-contrast words */
+
+.abm-root {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 1rem 1.25rem 2rem;
+    background: #05070a;
+    color: #f8fafc;
+}
+
+.abm-trial-label {
+    margin: 0 0 1.25rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.abm-field {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 36rem;
+    min-height: 42vmin;
+    gap: 0.5rem;
+}
+
+.abm-slot {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42vmin;
+    border-radius: 4px;
+    box-sizing: border-box;
+    padding: 0.75rem;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.abm-slot--stress {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.abm-slot--neutral {
+    border: 1px solid rgba(0, 210, 211, 0.2);
+    background: rgba(0, 210, 211, 0.04);
+}
+
+.abm-slot--empty {
+    border-color: rgba(255, 255, 255, 0.06);
+    background: transparent;
+}
+
+.abm-word {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 800;
+    font-size: clamp(1.35rem, 5.5vw, 2.1rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1.15;
+    user-select: none;
+}
+
+.abm-slot--stress .abm-word {
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.35);
+}
+
+.abm-slot--neutral .abm-word {
+    color: #e2e8f0;
+    text-shadow: 0 0 16px rgba(0, 210, 211, 0.25);
+}
+
+/* Probe — CAS circle blue (#00d2d3), bright, touch-friendly target */
+.abm-probe {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    background: radial-gradient(circle at 35% 30%, #b8fff8 0%, #00d2d3 42%, #00939b 100%);
+    box-shadow:
+        0 0 12px rgba(0, 210, 211, 1),
+        0 0 28px rgba(0, 210, 211, 0.75),
+        0 0 48px rgba(0, 210, 211, 0.45),
+        inset 0 0 12px rgba(255, 255, 255, 0.35);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.abm-probe:active {
+    transform: scale(0.94);
+}
+
+.abm-root--summary {
+    text-align: center;
+    max-width: 22rem;
+}
+
+.abm-summary-line {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    line-height: 1.55;
+    font-weight: 600;
+    color: #f1f5f9;
+}
+
+.abm-summary-meta {
+    margin: 0 0 1.5rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: rgba(148, 163, 184, 0.95);
+}
+
+.abm-done-btn {
+    cursor: pointer;
+    padding: 12px 20px;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #dff9fb;
+    background: rgba(0, 60, 72, 0.6);
+    border: 1px solid rgba(0, 210, 211, 0.55);
+    border-radius: 4px;
+    box-shadow: 0 0 18px rgba(0, 210, 211, 0.25);
+}
+
+.abm-done-btn:hover {
+    border-color: #00d2d3;
+    background: rgba(0, 90, 100, 0.65);
+}

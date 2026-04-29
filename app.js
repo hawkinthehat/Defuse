@@ -23,8 +23,15 @@ function exitProtocol() {
     if (typeof clearKcbStrobe === 'function') {
         clearKcbStrobe();
     }
+    if (typeof stopCAS === 'function') {
+        stopCAS();
+    }
+    if (typeof stopABM === 'function') {
+        stopABM();
+    }
     const vp = document.getElementById('viewport');
     if (vp) {
+        vp.classList.remove('viewport-obs');
         vp.classList.add('hidden');
         vp.setAttribute('aria-hidden', 'true');
         vp.style.removeProperty('display');
