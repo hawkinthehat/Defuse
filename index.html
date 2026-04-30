@@ -23,47 +23,123 @@
         <header class="app-brand">
             <img src="logo.png" width="320" height="461" class="app-brand-logo" alt="DeFuse — Clinical System">
         </header>
-        <div class="protocol-card" onclick="launchCPI()">
-            <p class="term">Phase 01 · HALT triage</p>
-            <h2 class="callsign">CPI</h2>
-            <p class="purpose">Executive engagement &amp; validation</p>
+
+        <section class="symptom-primary" aria-labelledby="diag-hero">
+            <p class="help-me-choose-banner">Help Me Choose</p>
+            <h1 id="diag-hero" class="diagnostic-hero">SYSTEM DIAGNOSTIC: SELECT PRIMARY SYMPTOM</h1>
+            <ul class="symptom-grid">
+                <li>
+                    <button type="button" class="symptom-tile" data-symptom="abm">
+                        <span class="symptom-tile-label">My thoughts are racing</span>
+                        <span class="symptom-tile-meta">ABM · Attention bias</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="symptom-tile" data-symptom="discharge">
+                        <span class="symptom-tile-label">I feel restless / agitated</span>
+                        <span class="symptom-tile-meta">Kinetic discharge · CCD or KCB</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="symptom-tile" data-symptom="cas">
+                        <span class="symptom-tile-label">I feel dizzy / disconnected</span>
+                        <span class="symptom-tile-meta">CAS · Ocular sweep</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="symptom-tile" data-symptom="obd">
+                        <span class="symptom-tile-label">I&rsquo;m stuck on a specific thought</span>
+                        <span class="symptom-tile-meta">OBD · Bilateral sync</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="symptom-tile" data-symptom="obs">
+                        <span class="symptom-tile-label">I&rsquo;m taking this personally</span>
+                        <span class="symptom-tile-meta">OBS · Observer shift</span>
+                    </button>
+                </li>
+            </ul>
+        </section>
+
+        <button type="button" class="manual-override-btn" id="manual-override-btn" aria-expanded="false" aria-controls="protocol-manual">
+            Manual Override (Show All Protocols)
+        </button>
+
+        <div id="protocol-manual" class="protocol-manual hidden" aria-hidden="true">
+            <p class="protocol-manual-heading">All protocols</p>
+            <div class="protocol-card" onclick="launchWithIntro('cpi')">
+                <p class="term">Phase 01 · HALT triage</p>
+                <h2 class="callsign">CPI</h2>
+                <p class="purpose">Executive engagement &amp; validation</p>
+                <p class="protocol-indicator">Check mental bandwidth</p>
+                <p class="protocol-best">Best for: HALT confusion—hungry, angry, lonely, tired.</p>
+            </div>
+            <div class="protocol-card" onclick="launchWithIntro('cas')">
+                <p class="term">Phase 04 · Axial stabilize</p>
+                <h2 class="callsign">CAS</h2>
+                <p class="purpose">Optokinetic inward flow</p>
+                <p class="protocol-indicator">Stabilize visual field</p>
+                <p class="protocol-best">Best for: Dizziness, dissociation, visual blur.</p>
+            </div>
+            <div class="protocol-card" onclick="launchWithIntro('obd')">
+                <p class="term">Phase 02 · Ocular sweep</p>
+                <h2 class="callsign">OBD</h2>
+                <p class="purpose">Bilateral tracking &amp; saccades</p>
+                <p class="protocol-indicator">Break stuck ideas</p>
+                <p class="protocol-best">Best for: Obsessive thoughts, mental &ldquo;loops.&rdquo;</p>
+            </div>
+            <div class="protocol-card" onclick="launchWithIntro('ccd')">
+                <p class="term">Phase 03 · White surge</p>
+                <h2 class="callsign">CCD</h2>
+                <p class="purpose">Cognitive load discharge</p>
+                <p class="protocol-indicator">Discharge physical energy</p>
+                <p class="protocol-best">Best for: Restlessness, &ldquo;jitters,&rdquo; flight response.</p>
+            </div>
+            <div class="protocol-card protocol-obs" onclick="launchWithIntro('obs')">
+                <p class="term">Phase 06 · Forensic audit</p>
+                <h2 class="callsign">OBS</h2>
+                <p class="purpose">Observer shift · intense sensation triage</p>
+                <p class="protocol-indicator">Forensic self-audit</p>
+                <p class="protocol-best">Best for: Personalizing stress, emotional overwhelm.</p>
+            </div>
+            <div class="protocol-card" onclick="launchWithIntro('abm')">
+                <p class="term">Phase 07 · Attention bias</p>
+                <h2 class="callsign">ABM</h2>
+                <p class="purpose">Stable-locus probe · 20-cycle training</p>
+                <p class="protocol-indicator">Filter racing thoughts</p>
+                <p class="protocol-best">Best for: Overthinking, anxiety loops, &ldquo;noise.&rdquo;</p>
+            </div>
+            <div class="protocol-card protocol-card--warning" onclick="launchWithIntro('kcb')">
+                <p class="term">Phase 05 · Circuit breaker</p>
+                <h2 class="callsign">KCB</h2>
+                <p class="purpose">High-stimulation override</p>
+                <p class="protocol-indicator">Discharge physical energy</p>
+                <p class="protocol-best">Best for: Restlessness, &ldquo;jitters,&rdquo; flight response.</p>
+                <p class="protocol-warning-note">Photosensitive seizure risk — full warning appears before the sequence starts.</p>
+            </div>
         </div>
-        <div class="protocol-card" onclick="launchCAS()">
-            <p class="term">Phase 04 · Axial stabilize</p>
-            <h2 class="callsign">CAS</h2>
-            <p class="purpose">Optokinetic inward flow</p>
+    </div>
+
+    <div id="discharge-choice-overlay" class="discharge-choice-overlay hidden" aria-hidden="true">
+        <div class="discharge-choice-card" role="dialog" aria-labelledby="discharge-choice-title" aria-modal="true">
+            <p id="discharge-choice-title" class="discharge-choice-title">Kinetic discharge — select protocol</p>
+            <p class="discharge-choice-sub">CCD: cognitive load discharge · KCB: high-stimulation circuit breaker (strobe)</p>
+            <button type="button" class="symptom-tile symptom-tile--compact" data-discharge-pick="ccd">CCD · White surge</button>
+            <button type="button" class="symptom-tile symptom-tile--compact symptom-tile--warn" data-discharge-pick="kcb">KCB · Circuit breaker</button>
+            <button type="button" class="discharge-choice-cancel" id="discharge-choice-cancel">Cancel</button>
         </div>
-        <div class="protocol-card" onclick="launchOBD()">
-            <p class="term">Phase 02 · Ocular sweep</p>
-            <h2 class="callsign">OBD</h2>
-            <p class="purpose">Bilateral tracking &amp; saccades</p>
-        </div>
-        <div class="protocol-card" onclick="launchCCD()">
-            <p class="term">Phase 03 · White surge</p>
-            <h2 class="callsign">CCD</h2>
-            <p class="purpose">Cognitive load discharge</p>
-        </div>
-        <div class="protocol-card protocol-obs" onclick="launchOBS()">
-            <p class="term">Phase 06 · Forensic audit</p>
-            <h2 class="callsign">OBS</h2>
-            <p class="purpose">Observer shift · intense sensation triage</p>
-        </div>
-        <div class="protocol-card" onclick="launchABM()">
-            <p class="term">Phase 07 · Attention bias</p>
-            <h2 class="callsign">ABM</h2>
-            <p class="purpose">Stable-locus probe · 20-cycle training</p>
-        </div>
-        <div class="protocol-card warning" onclick="launchKCB()">
-            <p class="term">Phase 05 · Circuit breaker</p>
-            <h2 class="callsign">KCB</h2>
-            <p class="purpose">High-stimulation override</p>
-            <p class="protocol-warning-note">Photosensitive seizure risk — full warning appears before the sequence starts.</p>
+    </div>
+
+    <div id="protocol-intro-overlay" class="protocol-intro-overlay hidden" aria-hidden="true">
+        <div class="protocol-intro-card">
+            <p id="protocol-intro-body" class="protocol-intro-body" role="status"></p>
+            <p class="protocol-intro-foot">Engaging&hellip;</p>
         </div>
     </div>
 
     <div id="viewport" class="hidden" aria-hidden="true">
         <p id="inst" class="instruction-bar" role="status"></p>
-        <button type="button" class="exit-btn" onclick="exitProtocol()">EXIT</button>
+        <button type="button" class="exit-btn" onclick="exitProtocol()" title="Return to dashboard">EXIT</button>
         <div id="protocol-stage"></div>
     </div>
 

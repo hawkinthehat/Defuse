@@ -1,10 +1,23 @@
-#obd-track {
+#obd-track,
+.obd-track {
     width: 100vw;
     height: 2px;
     background: rgba(0, 210, 211, 0.1);
     position: relative;
     display: flex;
     align-items: center;
+    /* Shared with JS haptics: must match feather animation-duration */
+    --obd-sweep-duration: 2000ms;
+}
+
+.obd-root {
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0;
 }
 
 #feather {
@@ -17,14 +30,59 @@
 }
 
 .sweep-standard {
-    animation: sweep 2s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
+    animation: sweep var(--obd-sweep-duration, 2s) infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
 }
 
 .sweep-saccadic {
-    animation: sweep 1.1s infinite alternate steps(20); /* Steps make it "jittery" for higher friction */
+    animation: sweep var(--obd-sweep-duration, 1.1s) infinite alternate steps(20);
 }
 
 @keyframes sweep {
-    from { left: 5%; }
-    to { left: 95%; }
+    from {
+        left: 5%;
+    }
+    to {
+        left: 95%;
+    }
+}
+
+/* OBD settings — physical feedback toggle */
+.obd-settings {
+    margin-top: auto;
+    padding: 1rem 1.25rem 1.5rem;
+    width: 100%;
+    max-width: 28rem;
+    align-self: center;
+    box-sizing: border-box;
+    border-top: 1px solid rgba(0, 210, 211, 0.15);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
+}
+
+.obd-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    cursor: pointer;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.88);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    user-select: none;
+}
+
+.obd-toggle {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--neon-teal, #00d2d3);
+    cursor: pointer;
+}
+
+.obd-settings-note {
+    margin: 0.55rem 0 0;
+    padding-left: 1.75rem;
+    font-size: 0.62rem;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 0.04em;
 }
