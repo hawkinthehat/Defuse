@@ -211,6 +211,9 @@ function exitProtocol() {
     if (typeof stopOBD === 'function') {
         stopOBD();
     }
+    if (typeof stopOBS === 'function') {
+        stopOBS();
+    }
     const vp = document.getElementById('viewport');
     if (vp) {
         vp.classList.remove('viewport-obs');

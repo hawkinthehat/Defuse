@@ -226,13 +226,13 @@ body {
 
 .diagnostic-hero {
     margin: 0 0 1.1rem;
-    font-size: clamp(0.72rem, 2.8vw, 0.88rem);
-    font-weight: 800;
-    line-height: 1.35;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    font-size: clamp(0.95rem, 3.4vw, 1.12rem);
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: 0.02em;
+    text-transform: none;
     text-align: center;
-    color: #ffffff;
+    color: #e8eef5;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 

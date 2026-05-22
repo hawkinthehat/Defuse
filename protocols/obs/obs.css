@@ -176,6 +176,174 @@
     background: rgba(8, 10, 14, 0.92);
 }
 
+.obs-step-title--gentle {
+    text-transform: none;
+    letter-spacing: 0.04em;
+    font-size: 1rem;
+    color: #e2e8f0;
+}
+
+.obs-buffer .obs-step-body {
+    color: #cbd5e1;
+}
+
+.obs-intensity-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin: 0.25rem 0 0.5rem;
+}
+
+.obs-intensity-slider {
+    flex: 1;
+    accent-color: #94a3b8;
+    height: 0.35rem;
+}
+
+.obs-intensity-value {
+    min-width: 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.obs-buffer-countdown {
+    margin: 0.75rem 0 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #94a3b8;
+    text-align: center;
+    letter-spacing: 0.02em;
+}
+
+.obs-haptics-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 0.85rem;
+    font-size: 0.78rem;
+    color: #cbd5e1;
+    cursor: pointer;
+}
+
+.obs-haptics-toggle {
+    accent-color: #94a3b8;
+}
+
+.obs-haptics-note {
+    margin: 0.35rem 0 0;
+    font-size: 0.68rem;
+    line-height: 1.45;
+    color: #64748b;
+}
+
+/* Mood Shifter — entrainment circle */
+.obs-root--mood {
+    max-width: 100%;
+    padding-top: 0.5rem;
+}
+
+.obs-mood-phase-label {
+    margin: 0 0 0.75rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    text-align: center;
+    color: #64748b;
+}
+
+.obs-mood-shifter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: min(52vh, 22rem);
+    padding: 0.5rem 0 1.5rem;
+}
+
+.obs-mood-prompt {
+    margin: 0 0 1.75rem;
+    max-width: 16rem;
+    font-size: clamp(0.92rem, 3.2vw, 1.05rem);
+    line-height: 1.5;
+    font-weight: 500;
+    text-align: center;
+    color: #e2e8f0;
+    letter-spacing: 0.02em;
+}
+
+.obs-entrain-stage {
+    position: relative;
+    width: min(220px, 72vw);
+    height: min(220px, 72vw);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.obs-entrain-ring {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    border-radius: 50%;
+    border: 3px solid rgba(112, 161, 255, 0.45);
+    box-shadow: 0 0 20px rgba(112, 161, 255, 0.2);
+    animation: obs-entrain-pulse var(--obs-pulse-duration, 545ms) ease-in-out infinite;
+    will-change: transform, opacity;
+}
+
+.obs-entrain-core {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(203, 213, 225, 0.55);
+    box-shadow: 0 0 12px rgba(148, 163, 184, 0.35);
+    z-index: 1;
+}
+
+@keyframes obs-entrain-pulse {
+    0%,
+    100% {
+        transform: scale(0.86);
+        opacity: 0.32;
+        border-color: rgba(112, 161, 255, 0.3);
+        box-shadow: 0 0 16px rgba(112, 161, 255, 0.15);
+    }
+    50% {
+        transform: scale(1.14);
+        opacity: 1;
+        border-color: rgba(148, 197, 255, 0.95);
+        box-shadow: 0 0 40px rgba(112, 161, 255, 0.5);
+    }
+}
+
+.obs-mood-progress {
+    margin: 1.5rem 0 0;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #64748b;
+    text-align: center;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .obs-entrain-ring {
+        animation: obs-entrain-pulse-reduced 2s ease-in-out infinite;
+    }
+}
+
+@keyframes obs-entrain-pulse-reduced {
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 0.85;
+    }
+}
+
 .obs-step-body strong {
     color: #e2e8f0;
     font-weight: 600;
