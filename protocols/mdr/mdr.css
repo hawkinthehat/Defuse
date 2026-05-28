@@ -11,8 +11,8 @@
     justify-content: center;
     box-sizing: border-box;
     padding: 1.5rem 1.25rem 2.5rem;
-    background: #030405;
-    color: rgba(226, 232, 240, 0.88);
+    background: var(--bg-page, #f8fafc);
+    color: var(--text-primary, #0f172a);
 }
 
 .mdr-root--complete {
@@ -26,7 +26,7 @@
     font-size: clamp(2.5rem, 12vw, 3.5rem);
     font-weight: 300;
     letter-spacing: 0.06em;
-    color: rgba(112, 161, 255, 0.75);
+    color: var(--healing-blue, #2563eb);
     font-variant-numeric: tabular-nums;
 }
 
@@ -36,12 +36,12 @@
     font-size: 0.88rem;
     line-height: 1.55;
     text-align: center;
-    color: rgba(148, 163, 184, 0.85);
+    color: var(--text-secondary, #475569);
     font-weight: 400;
 }
 
 .mdr-instruct--active {
-    color: rgba(0, 210, 211, 0.75);
+    color: var(--healing-blue, #2563eb);
 }
 
 .mdr-interrupt {
@@ -65,10 +65,11 @@
     width: min(88vw, 280px);
     min-height: min(42vw, 160px);
     padding: 1.5rem 1.25rem;
-    border: 1.5px solid rgba(112, 161, 255, 0.25);
+    border: 1.5px solid var(--border-strong, #cbd5e1);
     border-radius: 12px;
-    background: rgba(8, 12, 18, 0.95);
-    color: rgba(226, 232, 240, 0.92);
+    background: var(--bg-surface, #ffffff);
+    color: var(--text-primary, #0f172a);
+    box-shadow: var(--shadow-md);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: clamp(0.62rem, 2.8vw, 0.72rem);
     font-weight: 700;
@@ -85,10 +86,10 @@
 }
 
 .mdr-hold-btn--active {
-    border-color: rgba(0, 210, 211, 0.45);
-    background: rgba(0, 40, 48, 0.5);
-    box-shadow: 0 0 40px rgba(0, 210, 211, 0.12);
-    color: #f8fafc;
+    border-color: var(--healing-blue, #2563eb);
+    background: var(--healing-blue-soft, rgba(37, 99, 235, 0.08));
+    box-shadow: var(--shadow-md), 0 0 0 2px var(--healing-blue-soft);
+    color: var(--healing-blue, #2563eb);
 }
 
 .mdr-complete-line {
@@ -96,7 +97,7 @@
     font-size: 1rem;
     line-height: 1.55;
     font-weight: 600;
-    color: #e2e8f0;
+    color: var(--text-primary, #0f172a);
 }
 
 .mdr-done-btn {
@@ -114,6 +115,6 @@
 }
 
 .mdr-done-btn:hover {
-    border-color: #00d2d3;
-    background: rgba(0, 90, 100, 0.65);
+    border-color: var(--healing-blue-bright, #3b82f6);
+    background: var(--healing-blue-bright, #3b82f6);
 }

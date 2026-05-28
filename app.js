@@ -72,6 +72,7 @@ function runProtocol(protocolKey) {
  */
 function launchWithIntro(protocolKey) {
     closeDischargeChoice();
+    closeMemoryChoice();
     cancelProtocolIntro();
 
     const meta = PROTOCOL_ENGAGE[protocolKey];
@@ -95,6 +96,22 @@ function launchWithIntro(protocolKey) {
     }, PROTOCOL_INTRO_MS);
 }
 
+function closeMemoryChoice() {
+    const el = document.getElementById('memory-choice-overlay');
+    if (el) {
+        el.classList.add('hidden');
+        el.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function openMemoryChoice() {
+    const el = document.getElementById('memory-choice-overlay');
+    if (el) {
+        el.classList.remove('hidden');
+        el.setAttribute('aria-hidden', 'false');
+    }
+}
+
 function closeDischargeChoice() {
     const el = document.getElementById('discharge-choice-overlay');
     if (el) {
@@ -113,68 +130,73 @@ function openDischargeChoice() {
 
 function launchWMDSession() {
     closeDischargeChoice();
+    closeMemoryChoice();
     cancelProtocolIntro();
     if (typeof launchWMD === 'function') launchWMD();
 }
 
 function launchCRESession() {
     closeDischargeChoice();
+    closeMemoryChoice();
     cancelProtocolIntro();
     if (typeof launchCRE === 'function') launchCRE();
 }
 
 function launchMDRSession() {
     closeDischargeChoice();
+    closeMemoryChoice();
     cancelProtocolIntro();
     if (typeof launchMDR === 'function') launchMDR();
 }
 
 function launchAudioSession() {
     closeDischargeChoice();
+    closeMemoryChoice();
     cancelProtocolIntro();
     if (typeof launchAudio === 'function') launchAudio();
 }
 
 function launchVSDSession() {
     closeDischargeChoice();
+    closeMemoryChoice();
     cancelProtocolIntro();
     if (typeof launchVSD === 'function') launchVSD();
 }
 
+/** Direct-launch modules (custom intro / no engage splash). */
+const DIRECT_SESSION_LAUNCHERS = {
+    cre: launchCRESession,
+    mdr: launchMDRSession,
+    audio: launchAudioSession
+};
+
+/** Standard engage-splash protocols. */
+const INTRO_SESSION_KEYS = {
+    abm: 'abm',
+    cas: 'cas',
+    obd: 'obd',
+    obs: 'obs'
+};
+
 function onPrimarySymptom(symptom) {
     selectionTapHaptic();
+    if (symptom === 'memory') {
+        openMemoryChoice();
+        return;
+    }
     if (symptom === 'discharge') {
         openDischargeChoice();
         return;
     }
-    if (symptom === 'wmd') {
-        launchWMDSession();
+    const direct = DIRECT_SESSION_LAUNCHERS[symptom];
+    if (direct) {
+        direct();
         return;
     }
-    if (symptom === 'cre') {
-        launchCRESession();
-        return;
+    const introKey = INTRO_SESSION_KEYS[symptom];
+    if (introKey) {
+        launchWithIntro(introKey);
     }
-    if (symptom === 'mdr') {
-        launchMDRSession();
-        return;
-    }
-    if (symptom === 'audio') {
-        launchAudioSession();
-        return;
-    }
-    if (symptom === 'vsd') {
-        launchVSDSession();
-        return;
-    }
-    const map = {
-        abm: 'abm',
-        cas: 'cas',
-        obd: 'obd',
-        obs: 'obs'
-    };
-    const key = map[symptom];
-    if (key) launchWithIntro(key);
 }
 
 function toggleProtocolManual() {
@@ -217,6 +239,24 @@ function initDashboardPrimary() {
         });
     });
 
+    document.querySelectorAll('[data-memory-pick]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            selectionTapHaptic();
+            const key = btn.getAttribute('data-memory-pick');
+            closeMemoryChoice();
+            if (key === 'vsd') launchVSDSession();
+            else if (key === 'wmd') launchWMDSession();
+        });
+    });
+
+    const cancelMemory = document.getElementById('memory-choice-cancel');
+    if (cancelMemory) {
+        cancelMemory.addEventListener('click', () => {
+            selectionTapHaptic();
+            closeMemoryChoice();
+        });
+    }
+
     const cancelDischarge = document.getElementById('discharge-choice-cancel');
     if (cancelDischarge) {
         cancelDischarge.addEventListener('click', () => {
@@ -234,6 +274,13 @@ function initDashboardPrimary() {
     if (dischargeOverlay) {
         dischargeOverlay.addEventListener('click', (e) => {
             if (e.target === dischargeOverlay) closeDischargeChoice();
+        });
+    }
+
+    const memoryOverlay = document.getElementById('memory-choice-overlay');
+    if (memoryOverlay) {
+        memoryOverlay.addEventListener('click', (e) => {
+            if (e.target === memoryOverlay) closeMemoryChoice();
         });
     }
 }
@@ -259,6 +306,7 @@ function openSession(message) {
 function exitProtocol() {
     cancelProtocolIntro();
     closeDischargeChoice();
+    closeMemoryChoice();
     if (typeof clearKcbStrobe === 'function') {
         clearKcbStrobe();
     }

@@ -109,7 +109,7 @@
             /** Subtle gravity while settling so sand falls gently and stacks */
             const gSettle = 395;
 
-            ctx.fillStyle = '#000000';
+            ctx.fillStyle = '#f8fafc';
             ctx.fillRect(0, 0, ccdW, ccdH);
 
             const colorT = Math.min(1, ccdElapsed / ccdTotalDur);

@@ -131,7 +131,7 @@
         const cycles = 2.5 + (1 - beatHz / BEAT_START) * 2;
         const speed = beatHz * 0.35;
 
-        ctx.strokeStyle = 'rgba(112, 161, 255, 0.85)';
+        ctx.strokeStyle = 'rgba(37, 99, 235, 0.75)';
         ctx.lineWidth = 2;
         ctx.lineCap = 'round';
         ctx.beginPath();
@@ -145,7 +145,7 @@
         }
         ctx.stroke();
 
-        ctx.strokeStyle = 'rgba(0, 210, 211, 0.35)';
+        ctx.strokeStyle = 'rgba(59, 130, 246, 0.35)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         for (let x = 0; x <= w; x += 2) {

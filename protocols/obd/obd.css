@@ -1,88 +1,111 @@
-#obd-track,
-.obd-track {
-    width: 100vw;
-    height: 2px;
-    background: rgba(0, 210, 211, 0.1);
-    position: relative;
-    display: flex;
-    align-items: center;
-    /* Shared with JS haptics: must match feather animation-duration */
-    --obd-sweep-duration: 2000ms;
-}
+/* OBD — EMDR infinity loop + optokinetic field + grounding pad */
 
 .obd-root {
     width: 100%;
+    height: 100%;
     min-height: 100%;
+    align-self: stretch;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    justify-content: center;
-    gap: 0;
-}
-
-#feather {
-    width: 35px;
-    height: 35px;
-    background: var(--teal);
-    border-radius: 50%;
-    box-shadow: 0 0 25px var(--teal);
-    position: absolute;
-}
-
-.sweep-standard {
-    animation: sweep var(--obd-sweep-duration, 2s) infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
-}
-
-.sweep-saccadic {
-    animation: sweep var(--obd-sweep-duration, 1.1s) infinite alternate steps(20);
-}
-
-@keyframes sweep {
-    from {
-        left: 5%;
-    }
-    to {
-        left: 95%;
-    }
-}
-
-/* OBD settings — physical feedback toggle */
-.obd-settings {
-    margin-top: auto;
-    padding: 1rem 1.25rem 1.5rem;
-    width: 100%;
-    max-width: 28rem;
-    align-self: center;
     box-sizing: border-box;
-    border-top: 1px solid rgba(0, 210, 211, 0.15);
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
+    background: var(--bg-page, #f8fafc);
+    color: var(--text-primary, #0f172a);
 }
 
-.obd-toggle-label {
+.obd-instruct {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0.65rem 1.1rem 0.5rem;
+    font-size: clamp(0.78rem, 3vw, 0.88rem);
+    line-height: 1.5;
+    text-align: center;
+    color: var(--text-secondary, #475569);
+    border-bottom: 1px solid var(--border-subtle, #e2e8f0);
+    background: var(--bg-surface, #ffffff);
+}
+
+.obd-stage {
+    flex: 1;
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 0.65rem;
-    cursor: pointer;
-    font-size: 0.72rem;
+    justify-content: center;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--bg-page, #f8fafc);
+}
+
+.obd-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
+
+.obd-paused-banner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    padding: 0.5rem 0.85rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.62rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.88);
+    color: var(--warning-red, #dc2626);
+    border: 1px solid rgba(220, 38, 38, 0.35);
+    border-radius: 6px;
+    background: var(--bg-surface, #ffffff);
+    box-shadow: var(--shadow-md);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.obd-paused-banner--visible {
+    opacity: 1;
+}
+
+.obd-pad-wrap {
+    flex-shrink: 0;
+    padding: 0.75rem 1rem 1.25rem;
+    display: flex;
+    justify-content: center;
+    perspective: 420px;
+    background: var(--bg-surface, #ffffff);
+    border-top: 1px solid var(--border-subtle, #e2e8f0);
+}
+
+.obd-ground-pad {
+    width: min(92vw, 320px);
+    min-height: 4.25rem;
+    padding: 1rem 1.1rem;
+    border: 1.5px solid var(--border-strong, #cbd5e1);
+    border-radius: 8px;
+    background: linear-gradient(165deg, #ffffff 0%, var(--bg-subtle, #f1f5f9) 100%);
+    color: var(--text-primary, #0f172a);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    user-select: none;
-}
-
-.obd-toggle {
-    width: 1.1rem;
-    height: 1.1rem;
-    accent-color: var(--neon-teal, #00d2d3);
+    font-size: clamp(0.58rem, 2.6vw, 0.68rem);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    text-align: center;
     cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transform: rotateX(14deg);
+    transform-style: preserve-3d;
+    box-shadow: var(--shadow-md);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-.obd-settings-note {
-    margin: 0.55rem 0 0;
-    padding-left: 1.75rem;
-    font-size: 0.62rem;
-    line-height: 1.45;
-    color: rgba(255, 255, 255, 0.45);
-    letter-spacing: 0.04em;
+.obd-ground-pad--active {
+    border-color: var(--healing-blue, #2563eb);
+    box-shadow: var(--shadow-md), 0 0 0 2px var(--healing-blue-soft, rgba(37, 99, 235, 0.12));
+    transform: rotateX(8deg) scale(0.99);
+    color: var(--healing-blue, #2563eb);
 }

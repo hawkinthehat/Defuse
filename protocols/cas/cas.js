@@ -11,12 +11,12 @@
 
     /** Healing blues: distinct per geometry */
     const SHAPE_STYLE = {
-        circle: { stroke: '#00d2d3', fill: 'rgba(0, 210, 211, 0.22)' },
-        triangle: { stroke: '#00cec9', fill: 'rgba(0, 206, 201, 0.2)' },
-        square: { stroke: '#74b9ff', fill: 'rgba(116, 185, 255, 0.2)' },
-        pentagon: { stroke: '#81ecec', fill: 'rgba(129, 236, 236, 0.22)' },
-        hexagon: { stroke: '#5dade2', fill: 'rgba(93, 173, 226, 0.2)' },
-        octagon: { stroke: '#0984e3', fill: 'rgba(9, 132, 227, 0.2)' }
+        circle: { stroke: '#2563eb', fill: 'rgba(37, 99, 235, 0.18)' },
+        triangle: { stroke: '#3b82f6', fill: 'rgba(59, 130, 246, 0.16)' },
+        square: { stroke: '#1d4ed8', fill: 'rgba(29, 78, 216, 0.16)' },
+        pentagon: { stroke: '#2563eb', fill: 'rgba(37, 99, 235, 0.15)' },
+        hexagon: { stroke: '#3b82f6', fill: 'rgba(59, 130, 246, 0.15)' },
+        octagon: { stroke: '#1d4ed8', fill: 'rgba(29, 78, 216, 0.15)' }
     };
 
     let casRunning = false;

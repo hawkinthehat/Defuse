@@ -12,16 +12,16 @@
 
     /** CAS healing blues */
     const HEAL = {
-        fill: 'rgba(0, 210, 211, 0.52)',
-        stroke: '#00d2d3',
-        glow: 'rgba(116, 185, 255, 0.45)',
-        selected: 'rgba(116, 185, 255, 0.38)',
-        selectedStroke: '#74b9ff'
+        fill: 'rgba(37, 99, 235, 0.45)',
+        stroke: '#2563eb',
+        glow: 'rgba(37, 99, 235, 0.35)',
+        selected: 'rgba(37, 99, 235, 0.22)',
+        selectedStroke: '#3b82f6'
     };
 
     const IDLE = {
-        fill: 'rgba(12, 18, 28, 0.95)',
-        stroke: 'rgba(112, 161, 255, 0.18)'
+        fill: 'rgba(248, 250, 252, 0.98)',
+        stroke: '#e2e8f0'
     };
 
     let vsdRunning = false;
@@ -170,7 +170,7 @@
         const rects = cellRects();
         const now = performance.now();
 
-        ctx.fillStyle = '#030508';
+        ctx.fillStyle = '#f8fafc';
         ctx.fillRect(0, 0, vsdCssSize, vsdCssSize);
 
         rects.forEach((r) => {

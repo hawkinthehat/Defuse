@@ -11,11 +11,11 @@
 
     /** Blues aligned with CAS healing palette */
     const SHAPE_STYLE = {
-        triangle: { stroke: '#00cec9', fill: 'rgba(0, 206, 201, 0.28)' },
-        square: { stroke: '#74b9ff', fill: 'rgba(116, 185, 255, 0.28)' },
-        pentagon: { stroke: '#81ecec', fill: 'rgba(129, 236, 236, 0.28)' },
-        hexagon: { stroke: '#5dade2', fill: 'rgba(93, 173, 226, 0.28)' },
-        chevron: { stroke: '#70a1ff', fill: 'rgba(112, 161, 255, 0.28)' }
+        triangle: { stroke: '#2563eb', fill: 'rgba(37, 99, 235, 0.22)' },
+        square: { stroke: '#3b82f6', fill: 'rgba(59, 130, 246, 0.22)' },
+        pentagon: { stroke: '#1d4ed8', fill: 'rgba(29, 78, 216, 0.2)' },
+        hexagon: { stroke: '#2563eb', fill: 'rgba(37, 99, 235, 0.18)' },
+        chevron: { stroke: '#3b82f6', fill: 'rgba(59, 130, 246, 0.2)' }
     };
 
     const SHAPE_PATHS = {

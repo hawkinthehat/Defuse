@@ -21,7 +21,7 @@
 
 .cpi-content {
     font-size: clamp(1.9rem, 5.5vw, 3rem);
-    color: white;
+    color: var(--text-primary, #0f172a);
     margin: clamp(0.75rem, 2vw, 1.25rem) 0 clamp(1.25rem, 3vw, 1.75rem);
     line-height: 1.2;
     font-weight: 700;
@@ -35,20 +35,20 @@
     padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 2.5vw, 1.35rem);
     font-size: clamp(1.25rem, 3.5vw, 1.75rem);
     font-weight: 600;
-    color: #f0f8ff;
-    background: rgba(6, 10, 18, 0.92);
-    border: 2px solid rgba(0, 210, 211, 0.55);
+    color: var(--text-primary, #0f172a);
+    background: var(--bg-surface, #ffffff);
+    border: 2px solid var(--healing-blue-ring, rgba(37, 99, 235, 0.35));
     border-radius: 6px;
     outline: none;
 }
 
 .cpi-input::placeholder {
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--text-muted, #94a3b8);
 }
 
 .cpi-input:focus {
     border-color: var(--teal);
-    box-shadow: 0 0 0 3px rgba(0, 210, 211, 0.2);
+    box-shadow: 0 0 0 3px var(--healing-blue-soft, rgba(37, 99, 235, 0.15));
 }
 
 #cpi-progress {
@@ -74,7 +74,7 @@
 }
 
 .cpi-btn:hover {
-    background: rgba(0, 210, 211, 0.12);
+    background: var(--healing-blue-soft, rgba(37, 99, 235, 0.1));
 }
 
 .cpi-error {

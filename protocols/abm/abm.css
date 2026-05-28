@@ -11,8 +11,8 @@
     justify-content: center;
     box-sizing: border-box;
     padding: 1rem 1.25rem 2rem;
-    background: #05070a;
-    color: #f8fafc;
+    background: var(--bg-page, #f8fafc);
+    color: var(--text-primary, #0f172a);
 }
 
 .abm-trial-label {
@@ -48,13 +48,13 @@
 }
 
 .abm-slot--stress {
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle, #e2e8f0);
+    background: var(--bg-subtle, #f1f5f9);
 }
 
 .abm-slot--neutral {
-    border: 1px solid rgba(0, 210, 211, 0.2);
-    background: rgba(0, 210, 211, 0.04);
+    border: 1px solid var(--healing-blue-ring, rgba(37, 99, 235, 0.25));
+    background: var(--healing-blue-soft, rgba(37, 99, 235, 0.06));
 }
 
 .abm-slot--empty {
@@ -73,13 +73,13 @@
 }
 
 .abm-slot--stress .abm-word {
-    color: #ffffff;
+    color: var(--text-primary, #0f172a);
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.35);
 }
 
 .abm-slot--neutral .abm-word {
-    color: #e2e8f0;
-    text-shadow: 0 0 16px rgba(0, 210, 211, 0.25);
+    color: var(--text-primary, #0f172a);
+    text-shadow: none;
 }
 
 /* Probe — CAS circle blue (#00d2d3), bright, touch-friendly target */
@@ -93,11 +93,11 @@
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    background: radial-gradient(circle at 35% 30%, #b8fff8 0%, #00d2d3 42%, #00939b 100%);
+    background: radial-gradient(circle at 35% 30%, #93c5fd 0%, #2563eb 48%, #1d4ed8 100%);
     box-shadow:
-        0 0 12px rgba(0, 210, 211, 1),
-        0 0 28px rgba(0, 210, 211, 0.75),
-        0 0 48px rgba(0, 210, 211, 0.45),
+        0 0 12px rgba(37, 99, 235, 0.55),
+        0 0 28px rgba(37, 99, 235, 0.35),
+        0 4px 16px rgba(15, 23, 42, 0.12),
         inset 0 0 12px rgba(255, 255, 255, 0.35);
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
@@ -117,7 +117,7 @@
     font-size: 1rem;
     line-height: 1.55;
     font-weight: 600;
-    color: #f1f5f9;
+    color: var(--text-primary, #0f172a);
 }
 
 .abm-summary-meta {
@@ -135,14 +135,14 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    color: #dff9fb;
-    background: rgba(0, 60, 72, 0.6);
-    border: 1px solid rgba(0, 210, 211, 0.55);
-    border-radius: 4px;
-    box-shadow: 0 0 18px rgba(0, 210, 211, 0.25);
+    color: #ffffff;
+    background: var(--healing-blue, #2563eb);
+    border: 1px solid var(--healing-blue, #2563eb);
+    border-radius: 6px;
+    box-shadow: var(--shadow-sm);
 }
 
 .abm-done-btn:hover {
-    border-color: #00d2d3;
-    background: rgba(0, 90, 100, 0.65);
+    border-color: var(--healing-blue-bright, #3b82f6);
+    background: var(--healing-blue-bright, #3b82f6);
 }

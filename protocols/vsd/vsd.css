@@ -11,8 +11,8 @@
     justify-content: center;
     box-sizing: border-box;
     padding: 0.75rem 1rem 1.5rem;
-    background: #05070a;
-    color: #f8fafc;
+    background: var(--bg-page, #f8fafc);
+    color: var(--text-primary, #0f172a);
 }
 
 .vsd-root--complete {
@@ -61,7 +61,7 @@
 .vsd-timer-fill {
     height: 100%;
     width: 100%;
-    background: linear-gradient(90deg, #70a1ff, #00d2d3);
+    background: linear-gradient(90deg, var(--healing-blue-bright, #3b82f6), var(--healing-blue, #2563eb));
     transform-origin: left center;
     transition: width 0.15s linear;
 }
@@ -85,7 +85,7 @@
     -webkit-tap-highlight-color: transparent;
     border: 1px solid rgba(112, 161, 255, 0.2);
     border-radius: 8px;
-    background: #030508;
+    background: var(--bg-surface, #ffffff);
 }
 
 .vsd-hint {
@@ -102,7 +102,7 @@
     font-size: 1rem;
     line-height: 1.55;
     font-weight: 600;
-    color: #f1f5f9;
+    color: var(--text-primary, #0f172a);
 }
 
 .vsd-complete-meta {
@@ -120,14 +120,14 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    color: #dff9fb;
-    background: rgba(0, 60, 72, 0.6);
-    border: 1px solid rgba(0, 210, 211, 0.55);
+    color: #ffffff;
+    background: var(--healing-blue, #2563eb);
+    border: 1px solid var(--healing-blue, #2563eb);
     border-radius: 4px;
     box-shadow: 0 0 18px rgba(0, 210, 211, 0.25);
 }
 
 .vsd-done-btn:hover {
-    border-color: #00d2d3;
-    background: rgba(0, 90, 100, 0.65);
+    border-color: var(--healing-blue-bright, #3b82f6);
+    background: var(--healing-blue-bright, #3b82f6);
 }

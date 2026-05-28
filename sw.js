@@ -1,4 +1,4 @@
-const CACHE_NAME = 'defuse-v6';
+const CACHE_NAME = 'defuse-v7';
 
 const PRECACHE_URLS = [
   '/',
