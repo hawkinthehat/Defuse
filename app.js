@@ -17,7 +17,9 @@ const PROTOCOL_ENGAGE = {
     abm: { name: 'ABM', rhythm: 'HAPTIC AND VISUAL' },
     kcb: { name: 'KCB', rhythm: 'HIGH-CONTRAST VISUAL' },
     wmd: { name: 'WMD', rhythm: 'VISUAL' },
-    cre: { name: 'CRE', rhythm: 'HAPTIC AND VISUAL' }
+    cre: { name: 'CRE', rhythm: 'HAPTIC AND VISUAL' },
+    mdr: { name: 'MDR', rhythm: 'HAPTIC' },
+    audio: { name: 'AUDIO', rhythm: 'AUDITORY' }
 };
 
 let protocolIntroTimeoutId = 0;
@@ -54,7 +56,9 @@ function runProtocol(protocolKey) {
         abm: () => typeof launchABM === 'function' && launchABM(),
         kcb: () => typeof launchKCB === 'function' && launchKCB(),
         wmd: () => typeof launchWMD === 'function' && launchWMD(),
-        cre: () => typeof launchCRE === 'function' && launchCRE()
+        cre: () => typeof launchCRE === 'function' && launchCRE(),
+        mdr: () => typeof launchMDR === 'function' && launchMDR(),
+        audio: () => typeof launchAudio === 'function' && launchAudio()
     };
     const fn = runners[protocolKey];
     if (fn) fn();
@@ -117,6 +121,18 @@ function launchCRESession() {
     if (typeof launchCRE === 'function') launchCRE();
 }
 
+function launchMDRSession() {
+    closeDischargeChoice();
+    cancelProtocolIntro();
+    if (typeof launchMDR === 'function') launchMDR();
+}
+
+function launchAudioSession() {
+    closeDischargeChoice();
+    cancelProtocolIntro();
+    if (typeof launchAudio === 'function') launchAudio();
+}
+
 function onPrimarySymptom(symptom) {
     selectionTapHaptic();
     if (symptom === 'discharge') {
@@ -129,6 +145,14 @@ function onPrimarySymptom(symptom) {
     }
     if (symptom === 'cre') {
         launchCRESession();
+        return;
+    }
+    if (symptom === 'mdr') {
+        launchMDRSession();
+        return;
+    }
+    if (symptom === 'audio') {
+        launchAudioSession();
         return;
     }
     const map = {
@@ -243,6 +267,12 @@ function exitProtocol() {
     }
     if (typeof stopCRE === 'function') {
         stopCRE();
+    }
+    if (typeof stopMDR === 'function') {
+        stopMDR();
+    }
+    if (typeof stopAudio === 'function') {
+        stopAudio();
     }
     const vp = document.getElementById('viewport');
     if (vp) {

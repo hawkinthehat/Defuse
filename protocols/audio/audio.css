@@ -1,0 +1,139 @@
+/* Audio entrainment — binaural beat session */
+
+.audio-root {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 1rem 1.25rem 2rem;
+    background: #05070a;
+    color: #f8fafc;
+}
+
+.audio-root--complete {
+    text-align: center;
+    max-width: 22rem;
+}
+
+.audio-warning {
+    margin: 0 0 1rem;
+    padding: 0.65rem 0.85rem;
+    width: 100%;
+    max-width: 20rem;
+    border: 1.5px solid rgba(255, 193, 7, 0.55);
+    border-radius: 6px;
+    background: rgba(255, 193, 7, 0.08);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+    color: #fcd34d;
+    line-height: 1.45;
+}
+
+.audio-wave-wrap {
+    width: 100%;
+    max-width: 22rem;
+    height: min(28vh, 140px);
+    margin: 0 0 1rem;
+    border: 1px solid rgba(112, 161, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(3, 6, 12, 0.9);
+    overflow: hidden;
+}
+
+.audio-wave-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.audio-meta {
+    margin: 0 0 0.35rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(112, 161, 255, 0.85);
+}
+
+.audio-beat {
+    margin: 0 0 1rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(1.4rem, 6vw, 1.85rem);
+    font-weight: 300;
+    color: #00d2d3;
+    font-variant-numeric: tabular-nums;
+}
+
+.audio-progress {
+    width: 100%;
+    max-width: 20rem;
+    height: 3px;
+    margin: 0 0 1.25rem;
+    border-radius: 2px;
+    background: rgba(112, 161, 255, 0.15);
+    overflow: hidden;
+}
+
+.audio-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #70a1ff, #00d2d3);
+    transition: width 0.2s linear;
+}
+
+.audio-sub {
+    margin: 0 0 1rem;
+    max-width: 18rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    text-align: center;
+    color: rgba(148, 163, 184, 0.9);
+}
+
+.audio-start-btn {
+    cursor: pointer;
+    padding: 14px 22px;
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #dff9fb;
+    background: rgba(0, 60, 72, 0.6);
+    border: 1px solid rgba(0, 210, 211, 0.55);
+    border-radius: 4px;
+    box-shadow: 0 0 18px rgba(0, 210, 211, 0.25);
+}
+
+.audio-start-btn.hidden {
+    display: none;
+}
+
+.audio-complete-line {
+    margin: 0 0 1.5rem;
+    font-size: 1rem;
+    line-height: 1.55;
+    font-weight: 600;
+    color: #f1f5f9;
+}
+
+.audio-done-btn {
+    cursor: pointer;
+    padding: 12px 20px;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #dff9fb;
+    background: rgba(0, 60, 72, 0.6);
+    border: 1px solid rgba(0, 210, 211, 0.55);
+    border-radius: 4px;
+}

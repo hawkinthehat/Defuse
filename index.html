@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="protocols/abm/abm.css">
     <link rel="stylesheet" href="protocols/wmd/wmd.css">
     <link rel="stylesheet" href="protocols/cre/cre.css">
+    <link rel="stylesheet" href="protocols/mdr/mdr.css">
+    <link rel="stylesheet" href="protocols/audio/audio.css">
 </head>
 <body>
     <div id="dashboard">
@@ -70,6 +72,18 @@
                     <button type="button" class="symptom-tile" data-symptom="cre">
                         <span class="symptom-tile-label">I am caught in an overthinking loop / worry stream</span>
                         <span class="symptom-tile-meta">CRE · Cognitive re-coder</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="symptom-tile" data-symptom="mdr">
+                        <span class="symptom-tile-label">My body is in a physical panic spike</span>
+                        <span class="symptom-tile-meta">MDR · Mammalian dive reflex</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="symptom-tile" data-symptom="audio">
+                        <span class="symptom-tile-label">My brain feels overstimulated / loud</span>
+                        <span class="symptom-tile-meta">Audio · Binaural entrainment</span>
                     </button>
                 </li>
             </ul>
@@ -130,6 +144,20 @@
                 <p class="protocol-indicator">Loop-breaking re-code</p>
                 <p class="protocol-best">Best for: Worry streams, catastrophizing loops, rumination.</p>
             </div>
+            <div class="protocol-card" onclick="launchMDRSession()">
+                <p class="term">Phase 10 · Dive reflex</p>
+                <h2 class="callsign">MDR</h2>
+                <p class="purpose">Hold calibration · cold compress vagal reset</p>
+                <p class="protocol-indicator">Mammalian dive reflex</p>
+                <p class="protocol-best">Best for: Physical panic spikes, autonomic surge.</p>
+            </div>
+            <div class="protocol-card" onclick="launchAudioSession()">
+                <p class="term">Phase 11 · Binaural entrainment</p>
+                <h2 class="callsign">AUDIO</h2>
+                <p class="purpose">Beta-to-Theta differential · 90 second drift</p>
+                <p class="protocol-indicator">Headphones required</p>
+                <p class="protocol-best">Best for: Overstimulated, loud, hyper-aroused mental state.</p>
+            </div>
             <div class="protocol-card" onclick="launchWithIntro('abm')">
                 <p class="term">Phase 07 · Attention bias</p>
                 <h2 class="callsign">ABM</h2>
@@ -183,6 +211,8 @@
     <script src="protocols/abm/abm.js"></script>
     <script src="protocols/wmd/wmd.js"></script>
     <script src="protocols/cre/cre.js"></script>
+    <script src="protocols/mdr/mdr.js"></script>
+    <script src="protocols/audio/audio.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
