@@ -19,7 +19,8 @@ const PROTOCOL_ENGAGE = {
     wmd: { name: 'WMD', rhythm: 'VISUAL' },
     cre: { name: 'CRE', rhythm: 'HAPTIC AND VISUAL' },
     mdr: { name: 'MDR', rhythm: 'HAPTIC' },
-    audio: { name: 'AUDIO', rhythm: 'AUDITORY' }
+    audio: { name: 'AUDIO', rhythm: 'AUDITORY' },
+    vsd: { name: 'VSD', rhythm: 'HAPTIC AND VISUAL' }
 };
 
 let protocolIntroTimeoutId = 0;
@@ -58,7 +59,8 @@ function runProtocol(protocolKey) {
         wmd: () => typeof launchWMD === 'function' && launchWMD(),
         cre: () => typeof launchCRE === 'function' && launchCRE(),
         mdr: () => typeof launchMDR === 'function' && launchMDR(),
-        audio: () => typeof launchAudio === 'function' && launchAudio()
+        audio: () => typeof launchAudio === 'function' && launchAudio(),
+        vsd: () => typeof launchVSD === 'function' && launchVSD()
     };
     const fn = runners[protocolKey];
     if (fn) fn();
@@ -133,6 +135,12 @@ function launchAudioSession() {
     if (typeof launchAudio === 'function') launchAudio();
 }
 
+function launchVSDSession() {
+    closeDischargeChoice();
+    cancelProtocolIntro();
+    if (typeof launchVSD === 'function') launchVSD();
+}
+
 function onPrimarySymptom(symptom) {
     selectionTapHaptic();
     if (symptom === 'discharge') {
@@ -153,6 +161,10 @@ function onPrimarySymptom(symptom) {
     }
     if (symptom === 'audio') {
         launchAudioSession();
+        return;
+    }
+    if (symptom === 'vsd') {
+        launchVSDSession();
         return;
     }
     const map = {
@@ -273,6 +285,9 @@ function exitProtocol() {
     }
     if (typeof stopAudio === 'function') {
         stopAudio();
+    }
+    if (typeof stopVSD === 'function') {
+        stopVSD();
     }
     const vp = document.getElementById('viewport');
     if (vp) {

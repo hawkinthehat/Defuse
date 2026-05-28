@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="protocols/cre/cre.css">
     <link rel="stylesheet" href="protocols/mdr/mdr.css">
     <link rel="stylesheet" href="protocols/audio/audio.css">
+    <link rel="stylesheet" href="protocols/vsd/vsd.css">
 </head>
 <body>
     <div id="dashboard">
@@ -84,6 +85,12 @@
                     <button type="button" class="symptom-tile" data-symptom="audio">
                         <span class="symptom-tile-label">My brain feels overstimulated / loud</span>
                         <span class="symptom-tile-meta">Audio · Binaural entrainment</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="symptom-tile" data-symptom="vsd">
+                        <span class="symptom-tile-label">I am stuck on an intense memory / flashback</span>
+                        <span class="symptom-tile-meta">VSD · Visuospatial deflector</span>
                     </button>
                 </li>
             </ul>
@@ -158,6 +165,13 @@
                 <p class="protocol-indicator">Headphones required</p>
                 <p class="protocol-best">Best for: Overstimulated, loud, hyper-aroused mental state.</p>
             </div>
+            <div class="protocol-card" onclick="launchVSDSession()">
+                <p class="term">Phase 12 · Visuospatial load</p>
+                <h2 class="callsign">VSD</h2>
+                <p class="purpose">3×3 pattern flash · shuffled coordinate recall</p>
+                <p class="protocol-indicator">Memory saturation grid</p>
+                <p class="protocol-best">Best for: Intense memory intrusions, flashback loops.</p>
+            </div>
             <div class="protocol-card" onclick="launchWithIntro('abm')">
                 <p class="term">Phase 07 · Attention bias</p>
                 <h2 class="callsign">ABM</h2>
@@ -213,6 +227,7 @@
     <script src="protocols/cre/cre.js"></script>
     <script src="protocols/mdr/mdr.js"></script>
     <script src="protocols/audio/audio.js"></script>
+    <script src="protocols/vsd/vsd.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
