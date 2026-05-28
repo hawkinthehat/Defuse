@@ -1,4 +1,4 @@
-const CACHE_NAME = 'defuse-v3';
+const CACHE_NAME = 'defuse-v4';
 
 const PRECACHE_URLS = [
   '/',
@@ -21,6 +21,8 @@ const PRECACHE_URLS = [
   '/protocols/obd/obd.js',
   '/protocols/wmd/wmd.css',
   '/protocols/wmd/wmd.js',
+  '/protocols/cre/cre.css',
+  '/protocols/cre/cre.js',
 ];
 
 self.addEventListener('install', (event) => {
