@@ -15,7 +15,8 @@ const PROTOCOL_ENGAGE = {
     ccd: { name: 'CCD', rhythm: 'VISUAL' },
     obs: { name: 'OBS', rhythm: 'VISUAL' },
     abm: { name: 'ABM', rhythm: 'HAPTIC AND VISUAL' },
-    kcb: { name: 'KCB', rhythm: 'HIGH-CONTRAST VISUAL' }
+    kcb: { name: 'KCB', rhythm: 'HIGH-CONTRAST VISUAL' },
+    wmd: { name: 'WMD', rhythm: 'VISUAL' }
 };
 
 let protocolIntroTimeoutId = 0;
@@ -50,7 +51,8 @@ function runProtocol(protocolKey) {
         ccd: () => typeof launchCCD === 'function' && launchCCD(),
         obs: () => typeof launchOBS === 'function' && launchOBS(),
         abm: () => typeof launchABM === 'function' && launchABM(),
-        kcb: () => typeof launchKCB === 'function' && launchKCB()
+        kcb: () => typeof launchKCB === 'function' && launchKCB(),
+        wmd: () => typeof launchWMD === 'function' && launchWMD()
     };
     const fn = runners[protocolKey];
     if (fn) fn();
@@ -101,10 +103,20 @@ function openDischargeChoice() {
     }
 }
 
+function launchWMDSession() {
+    closeDischargeChoice();
+    cancelProtocolIntro();
+    if (typeof launchWMD === 'function') launchWMD();
+}
+
 function onPrimarySymptom(symptom) {
     selectionTapHaptic();
     if (symptom === 'discharge') {
         openDischargeChoice();
+        return;
+    }
+    if (symptom === 'wmd') {
+        launchWMDSession();
         return;
     }
     const map = {
@@ -213,6 +225,9 @@ function exitProtocol() {
     }
     if (typeof stopOBS === 'function') {
         stopOBS();
+    }
+    if (typeof stopWMD === 'function') {
+        stopWMD();
     }
     const vp = document.getElementById('viewport');
     if (vp) {

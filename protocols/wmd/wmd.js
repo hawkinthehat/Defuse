@@ -1,0 +1,273 @@
+/**
+ * WMD — Working Memory Deflector: visuospatial rotation match, 45s timed session.
+ */
+(function () {
+    const SESSION_MS = 45000;
+    const INTRO_MS = 2000;
+    const ANGLE_STEP = 30;
+    const ANGLE_COUNT = 12;
+
+    const SHAPES = ['triangle', 'square', 'pentagon', 'hexagon', 'chevron'];
+
+    /** Blues aligned with CAS healing palette */
+    const SHAPE_STYLE = {
+        triangle: { stroke: '#00cec9', fill: 'rgba(0, 206, 201, 0.28)' },
+        square: { stroke: '#74b9ff', fill: 'rgba(116, 185, 255, 0.28)' },
+        pentagon: { stroke: '#81ecec', fill: 'rgba(129, 236, 236, 0.28)' },
+        hexagon: { stroke: '#5dade2', fill: 'rgba(93, 173, 226, 0.28)' },
+        chevron: { stroke: '#70a1ff', fill: 'rgba(112, 161, 255, 0.28)' }
+    };
+
+    const SHAPE_PATHS = {
+        triangle: 'M50 14 L86 82 L14 82 Z',
+        square: 'M24 24 L76 24 L76 76 L24 76 Z',
+        pentagon: 'M50 10 L90 38 L74 88 L26 88 L10 38 Z',
+        hexagon: 'M50 8 L86 28 L86 72 L50 92 L14 72 L14 28 Z',
+        chevron: 'M18 50 L42 22 L68 50 L42 78 Z'
+    };
+
+    let wmdRunning = false;
+    let wmdIntroTimeoutId = 0;
+    let wmdTimerIntervalId = 0;
+    let wmdSessionEndAt = 0;
+    let score = 0;
+    let currentShape = '';
+    let currentAngle = 0;
+    let roundLocked = false;
+
+    function pick(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i -= 1) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function stopWMD() {
+        wmdRunning = false;
+        roundLocked = false;
+        if (wmdIntroTimeoutId) {
+            clearTimeout(wmdIntroTimeoutId);
+            wmdIntroTimeoutId = 0;
+        }
+        if (wmdTimerIntervalId) {
+            clearInterval(wmdTimerIntervalId);
+            wmdTimerIntervalId = 0;
+        }
+    }
+
+    function setInst(text) {
+        const inst = document.getElementById('inst');
+        if (inst) inst.textContent = text;
+    }
+
+    function successHaptic() {
+        if (typeof navigator === 'undefined' || !navigator.vibrate) return;
+        try {
+            navigator.vibrate(20);
+        } catch {
+            /* ignore */
+        }
+    }
+
+    function shapeSvg(shape, angleDeg) {
+        const st = SHAPE_STYLE[shape] || SHAPE_STYLE.square;
+        const d = SHAPE_PATHS[shape] || SHAPE_PATHS.square;
+        const rot = typeof angleDeg === 'number' ? angleDeg : 0;
+        return `
+            <svg class="wmd-shape" viewBox="0 0 100 100" aria-hidden="true">
+                <g transform="rotate(${rot} 50 50)">
+                    <path d="${d}" fill="${st.fill}" stroke="${st.stroke}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+                </g>
+            </svg>
+        `;
+    }
+
+    function pickAngle() {
+        return Math.floor(Math.random() * ANGLE_COUNT) * ANGLE_STEP;
+    }
+
+    function pickWrongAngles(correct) {
+        const pool = [];
+        for (let i = 0; i < ANGLE_COUNT; i += 1) {
+            const a = i * ANGLE_STEP;
+            if (a !== correct) pool.push(a);
+        }
+        return shuffle(pool).slice(0, 2);
+    }
+
+    function formatTimeLeft(ms) {
+        const s = Math.max(0, Math.ceil(ms / 1000));
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        return `${m}:${r < 10 ? '0' : ''}${r}`;
+    }
+
+    function updateInstTimer() {
+        const left = wmdSessionEndAt - Date.now();
+        setInst(`WMD · ${formatTimeLeft(left)} · ${score} match${score === 1 ? '' : 'es'}`);
+        const fill = document.getElementById('wmd-timer-fill');
+        if (fill) {
+            const pct = Math.max(0, Math.min(100, (left / SESSION_MS) * 100));
+            fill.style.width = `${pct}%`;
+        }
+        if (left <= 0 && wmdRunning) {
+            endSession();
+        }
+    }
+
+    function renderIntro() {
+        const stage = document.getElementById('protocol-stage');
+        if (!stage) return;
+        setInst('WMD · ENGAGING');
+        stage.innerHTML = `
+            <div class="wmd-root wmd-root--intro">
+                <p class="wmd-intro-line">ENGAGING WORKING MEMORY DEFLECTOR. Flooding visuospatial architecture to block intrusive signals.</p>
+                <p class="wmd-intro-sub">Preparing field&hellip;</p>
+            </div>
+        `;
+    }
+
+    function renderComplete() {
+        setInst('WMD · SESSION COMPLETE');
+        const stage = document.getElementById('protocol-stage');
+        if (!stage) return;
+        stage.innerHTML = `
+            <div class="wmd-root wmd-root--complete">
+                <p class="wmd-complete-line">Cognitive workspace successfully occupied. System cleared.</p>
+                <p class="wmd-complete-score">${score} correct match${score === 1 ? '' : 'es'} in 45 seconds</p>
+                <button type="button" class="wmd-done-btn" id="wmd-done">RETURN TO MAIN SCREEN</button>
+            </div>
+        `;
+        const done = document.getElementById('wmd-done');
+        if (done) {
+            done.addEventListener('click', () => {
+                stopWMD();
+                exitProtocol();
+            });
+        }
+    }
+
+    function endSession() {
+        if (!wmdRunning) return;
+        wmdRunning = false;
+        roundLocked = true;
+        if (wmdTimerIntervalId) {
+            clearInterval(wmdTimerIntervalId);
+            wmdTimerIntervalId = 0;
+        }
+        renderComplete();
+    }
+
+    function onOptionPick(angle) {
+        if (!wmdRunning || roundLocked) return;
+        if (Date.now() >= wmdSessionEndAt) {
+            endSession();
+            return;
+        }
+        if (angle !== currentAngle) return;
+
+        roundLocked = true;
+        successHaptic();
+        score += 1;
+        updateInstTimer();
+
+        const target = document.getElementById('wmd-target-wrap');
+        if (target) {
+            target.classList.remove('wmd-flash');
+            void target.offsetWidth;
+            target.classList.add('wmd-flash');
+        }
+
+        window.setTimeout(() => {
+            if (!wmdRunning) return;
+            if (Date.now() >= wmdSessionEndAt) {
+                endSession();
+                return;
+            }
+            roundLocked = false;
+            renderRound();
+        }, 120);
+    }
+
+    function renderRound() {
+        const stage = document.getElementById('protocol-stage');
+        if (!stage || !wmdRunning) return;
+
+        currentShape = pick(SHAPES);
+        currentAngle = pickAngle();
+        const wrong = pickWrongAngles(currentAngle);
+        const options = shuffle([currentAngle, wrong[0], wrong[1]]);
+
+        stage.innerHTML = `
+            <div class="wmd-root">
+                <div class="wmd-game">
+                    <div class="wmd-timer-bar" aria-hidden="true"><div class="wmd-timer-fill" id="wmd-timer-fill"></div></div>
+                    <p class="wmd-score">Match the rotation</p>
+                    <div class="wmd-target-wrap" id="wmd-target-wrap">
+                        ${shapeSvg(currentShape, currentAngle)}
+                    </div>
+                    <div class="wmd-options" role="group" aria-label="Rotation choices">
+                        ${options
+                            .map(
+                                (ang, i) => `
+                            <button type="button" class="wmd-option" data-wmd-angle="${ang}" data-wmd-idx="${i}">
+                                ${shapeSvg(currentShape, ang)}
+                            </button>
+                        `
+                            )
+                            .join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        updateInstTimer();
+
+        stage.querySelectorAll('.wmd-option').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const raw = btn.getAttribute('data-wmd-angle');
+                const ang = raw !== null ? Number(raw) : NaN;
+                if (!Number.isNaN(ang)) onOptionPick(ang);
+            });
+        });
+    }
+
+    function startSession() {
+        if (!wmdRunning) return;
+        wmdSessionEndAt = Date.now() + SESSION_MS;
+        score = 0;
+        roundLocked = false;
+        renderRound();
+        updateInstTimer();
+        wmdTimerIntervalId = window.setInterval(updateInstTimer, 200);
+    }
+
+    function launchWMD() {
+        stopWMD();
+        wmdRunning = true;
+        score = 0;
+
+        if (typeof showProtocolViewport === 'function') {
+            showProtocolViewport();
+        } else if (typeof openSession === 'function') {
+            openSession('WMD · ENGAGING');
+        }
+
+        renderIntro();
+        wmdIntroTimeoutId = window.setTimeout(() => {
+            wmdIntroTimeoutId = 0;
+            if (!wmdRunning) return;
+            startSession();
+        }, INTRO_MS);
+    }
+
+    window.launchWMD = launchWMD;
+    window.stopWMD = stopWMD;
+})();

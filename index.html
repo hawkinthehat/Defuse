@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="protocols/obd/obd.css">
     <link rel="stylesheet" href="protocols/obs/obs.css">
     <link rel="stylesheet" href="protocols/abm/abm.css">
+    <link rel="stylesheet" href="protocols/wmd/wmd.css">
 </head>
 <body>
     <div id="dashboard">
@@ -56,6 +57,12 @@
                     <button type="button" class="symptom-tile" data-symptom="obs">
                         <span class="symptom-tile-label">Shift My View</span>
                         <span class="symptom-tile-meta">OBS · Observer shift</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="symptom-tile" data-symptom="wmd">
+                        <span class="symptom-tile-label">My brain needs a hard reset / distraction</span>
+                        <span class="symptom-tile-meta">WMD · Memory deflector</span>
                     </button>
                 </li>
             </ul>
@@ -101,6 +108,13 @@
                 <p class="purpose">Step back and notice sensation with distance</p>
                 <p class="protocol-indicator">Shift my view</p>
                 <p class="protocol-best">Best for: Personalizing stress, emotional overwhelm.</p>
+            </div>
+            <div class="protocol-card" onclick="launchWMDSession()">
+                <p class="term">Phase 08 · Working memory</p>
+                <h2 class="callsign">WMD</h2>
+                <p class="purpose">Visuospatial deflector · rotation match</p>
+                <p class="protocol-indicator">Memory deflector puzzle</p>
+                <p class="protocol-best">Best for: Intrusive loops, needing a cognitive hard reset.</p>
             </div>
             <div class="protocol-card" onclick="launchWithIntro('abm')">
                 <p class="term">Phase 07 · Attention bias</p>
@@ -153,6 +167,7 @@
     <script src="protocols/obd/obd.js"></script>
     <script src="protocols/obs/obs.js"></script>
     <script src="protocols/abm/abm.js"></script>
+    <script src="protocols/wmd/wmd.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
