@@ -3,6 +3,21 @@
  */
 
 const PROTOCOL_INTRO_MS = 1500;
+const GLOBAL_BINAURAL_CONFIG = {
+    leftHz: 200,
+    rightHz: 206,
+    gain: 0.05
+};
+
+const globalBinauralState = {
+    audioContext: null,
+    leftOscillator: null,
+    rightOscillator: null,
+    masterGain: null,
+    merger: null,
+    started: false,
+    unlocked: false
+};
 
 /**
  * Pre-session splash: PROTOCOL ENGAGED: [NAME]. FOCUS ON THE [RHYTHM TYPE] RHYTHM.
@@ -25,6 +40,143 @@ const PROTOCOL_ENGAGE = {
 
 let protocolIntroTimeoutId = 0;
 let dashboardPrimaryInited = false;
+let masterStartInited = false;
+
+function getGlobalBinauralAudioContext() {
+    if (typeof window === 'undefined') return null;
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+
+    if (!globalBinauralState.audioContext || globalBinauralState.audioContext.state === 'closed') {
+        try {
+            globalBinauralState.audioContext = new Ctx();
+            globalBinauralState.started = false;
+            globalBinauralState.unlocked = false;
+        } catch {
+            globalBinauralState.audioContext = null;
+        }
+    }
+
+    return globalBinauralState.audioContext;
+}
+
+function initializeGlobalBinauralEngine() {
+    const audioContext = getGlobalBinauralAudioContext();
+    if (!audioContext) return false;
+    if (globalBinauralState.started) return true;
+
+    try {
+        const leftOscillator = audioContext.createOscillator();
+        const rightOscillator = audioContext.createOscillator();
+        const leftGain = audioContext.createGain();
+        const rightGain = audioContext.createGain();
+        const merger = audioContext.createChannelMerger(2);
+        const masterGain = audioContext.createGain();
+
+        leftOscillator.type = 'sine';
+        rightOscillator.type = 'sine';
+        leftOscillator.frequency.value = GLOBAL_BINAURAL_CONFIG.leftHz;
+        rightOscillator.frequency.value = GLOBAL_BINAURAL_CONFIG.rightHz;
+        leftGain.gain.value = 1;
+        rightGain.gain.value = 1;
+        masterGain.gain.value = 0;
+
+        leftOscillator.connect(leftGain);
+        rightOscillator.connect(rightGain);
+        leftGain.connect(merger, 0, 0);
+        rightGain.connect(merger, 0, 1);
+        merger.connect(masterGain);
+        masterGain.connect(audioContext.destination);
+
+        const now = audioContext.currentTime;
+        leftOscillator.start(now);
+        rightOscillator.start(now);
+
+        globalBinauralState.leftOscillator = leftOscillator;
+        globalBinauralState.rightOscillator = rightOscillator;
+        globalBinauralState.masterGain = masterGain;
+        globalBinauralState.merger = merger;
+        globalBinauralState.started = true;
+        return true;
+    } catch {
+        globalBinauralState.started = false;
+        return false;
+    }
+}
+
+function setGlobalBinauralGain(value) {
+    const { audioContext, masterGain } = globalBinauralState;
+    if (!audioContext || !masterGain) return;
+
+    try {
+        masterGain.gain.cancelScheduledValues(audioContext.currentTime);
+        masterGain.gain.setTargetAtTime(value, audioContext.currentTime, 0.03);
+    } catch {
+        masterGain.gain.value = value;
+    }
+}
+
+function resumeGlobalBinauralEngine() {
+    if (!initializeGlobalBinauralEngine()) return Promise.resolve(false);
+
+    const audioContext = globalBinauralState.audioContext;
+    if (!audioContext || audioContext.state !== 'suspended') {
+        globalBinauralState.unlocked = !!audioContext;
+        if (globalBinauralState.unlocked) setGlobalBinauralGain(GLOBAL_BINAURAL_CONFIG.gain);
+        return Promise.resolve(!!audioContext);
+    }
+
+    return audioContext
+        .resume()
+        .then(() => {
+            globalBinauralState.unlocked = true;
+            setGlobalBinauralGain(GLOBAL_BINAURAL_CONFIG.gain);
+            return true;
+        })
+        .catch(() => false);
+}
+
+function initializationHapticTap() {
+    if (typeof navigator === 'undefined' || !navigator.vibrate) return;
+    try {
+        navigator.vibrate(40);
+    } catch {
+        /* ignore */
+    }
+}
+
+function fadeOutMasterStartOverlay() {
+    const overlay = document.getElementById('master-start-overlay');
+    if (!overlay || overlay.classList.contains('hidden')) return;
+
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.classList.add('master-start-overlay--exiting');
+
+    const hideOverlay = () => {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('master-start-overlay--exiting');
+    };
+
+    overlay.addEventListener('transitionend', hideOverlay, { once: true });
+    window.setTimeout(hideOverlay, 700);
+}
+
+function initMasterStartOverlay() {
+    if (masterStartInited) return;
+    masterStartInited = true;
+    initializeGlobalBinauralEngine();
+
+    const button = document.getElementById('master-start-button');
+    if (!button) return;
+
+    button.addEventListener('click', () => {
+        button.disabled = true;
+        initializationHapticTap();
+        resumeGlobalBinauralEngine().finally(() => {
+            fadeOutMasterStartOverlay();
+        });
+    });
+}
 
 function selectionTapHaptic() {
     if (typeof navigator === 'undefined' || !navigator.vibrate) return;
