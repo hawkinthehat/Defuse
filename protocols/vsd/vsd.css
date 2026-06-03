@@ -26,26 +26,30 @@
     max-width: 22rem;
     margin: 0 0 0.65rem;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    padding-right: 5.5rem;
+    box-sizing: border-box;
 }
 
 .vsd-phase {
     margin: 0;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.58rem;
-    letter-spacing: 0.14em;
+    font-size: clamp(0.72rem, 3.4vw, 0.85rem);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(112, 161, 255, 0.85);
+    color: #0f172a;
+    font-weight: 600;
 }
 
 .vsd-score {
     margin: 0;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.1em;
-    color: rgba(0, 210, 211, 0.9);
+    font-size: clamp(0.78rem, 3.6vw, 0.92rem);
+    letter-spacing: 0.08em;
+    color: #0f172a;
+    font-weight: 600;
 }
 
 .vsd-timer-bar {
@@ -91,10 +95,11 @@
 .vsd-hint {
     margin: 0.65rem 0 0;
     max-width: 18rem;
-    font-size: 0.78rem;
+    font-size: clamp(0.9rem, 4vw, 1.02rem);
     line-height: 1.45;
     text-align: center;
-    color: rgba(148, 163, 184, 0.88);
+    color: #0f172a;
+    font-weight: 600;
 }
 
 .vsd-complete-line {

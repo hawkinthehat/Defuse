@@ -3,7 +3,6 @@
  */
 (function () {
     const SESSION_MS = 45000;
-    const INTRO_MS = 2000;
     const ANGLE_STEP = 30;
     const ANGLE_COUNT = 12;
 
@@ -27,7 +26,6 @@
     };
 
     let wmdRunning = false;
-    let wmdIntroTimeoutId = 0;
     let wmdTimerIntervalId = 0;
     let wmdSessionEndAt = 0;
     let score = 0;
@@ -51,10 +49,6 @@
     function stopWMD() {
         wmdRunning = false;
         roundLocked = false;
-        if (wmdIntroTimeoutId) {
-            clearTimeout(wmdIntroTimeoutId);
-            wmdIntroTimeoutId = 0;
-        }
         if (wmdTimerIntervalId) {
             clearInterval(wmdTimerIntervalId);
             wmdTimerIntervalId = 0;
@@ -121,16 +115,30 @@
         }
     }
 
-    function renderIntro() {
+    function renderPreflight() {
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
-        setInst('WMD · ENGAGING');
+        setInst('WMD · READ INSTRUCTIONS');
         stage.innerHTML = `
-            <div class="wmd-root wmd-root--intro">
-                <p class="wmd-intro-line">ENGAGING WORKING MEMORY DEFLECTOR. Flooding visuospatial architecture to block intrusive signals.</p>
-                <p class="wmd-intro-sub">Preparing field&hellip;</p>
+            <div class="wmd-root wmd-root--preflight">
+                <div class="protocol-preflight-overlay">
+                    <div class="protocol-preflight-card">
+                        <h2 class="protocol-preflight-title">HOW TO STABILIZE</h2>
+                        <ol class="protocol-preflight-steps">
+                            <li>Watch the grid. Three blocks will flash Blue.</li>
+                            <li>The grid will shuffle.</li>
+                            <li>Tap the exact blocks where the Blue patterns originally appeared.</li>
+                            <li>Focus entirely on the shapes to occupy your working memory.</li>
+                        </ol>
+                        <button type="button" class="protocol-preflight-start" id="wmd-preflight-start">[ START TASK ]</button>
+                    </div>
+                </div>
             </div>
         `;
+        document.getElementById('wmd-preflight-start')?.addEventListener('click', () => {
+            if (!wmdRunning) return;
+            startSession();
+        });
     }
 
     function renderComplete() {
@@ -260,12 +268,7 @@
             openSession('WMD · ENGAGING');
         }
 
-        renderIntro();
-        wmdIntroTimeoutId = window.setTimeout(() => {
-            wmdIntroTimeoutId = 0;
-            if (!wmdRunning) return;
-            startSession();
-        }, INTRO_MS);
+        renderPreflight();
     }
 
     window.launchWMD = launchWMD;

@@ -9,7 +9,7 @@
     flex-direction: column;
     box-sizing: border-box;
     background: var(--bg-page, #f8fafc);
-    color: var(--text-primary, #0f172a);
+    color: #0f172a;
     position: relative;
     overflow: hidden;
 }
@@ -21,24 +21,31 @@
     text-align: center;
 }
 
+.cre-root--preflight {
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
+}
+
 .cre-stability-wrap {
     flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 0.65rem;
-    padding: 0.65rem 1rem 0.5rem;
+    padding: 0.65rem 5.5rem 0.5rem 1rem;
     border-bottom: 1px solid rgba(112, 161, 255, 0.2);
-    background: rgba(5, 7, 10, 0.95);
+    background: var(--bg-surface, #ffffff);
     z-index: 4;
 }
 
 .cre-stability-label {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.58rem;
-    letter-spacing: 0.16em;
+    font-size: clamp(0.68rem, 3.2vw, 0.78rem);
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: rgba(112, 161, 255, 0.85);
+    color: #0f172a;
     white-space: nowrap;
+    font-weight: 600;
 }
 
 .cre-stability-track {
@@ -63,11 +70,12 @@
 
 .cre-stability-pct {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.08em;
-    color: #e2e8f0;
-    min-width: 2.5rem;
+    font-size: clamp(0.72rem, 3.4vw, 0.85rem);
+    letter-spacing: 0.06em;
+    color: #0f172a;
+    min-width: 2.75rem;
     text-align: right;
+    font-weight: 600;
 }
 
 .cre-field {
@@ -120,8 +128,8 @@
 
 .cre-thought-text {
     margin: 0;
-    font-size: clamp(0.82rem, 3.2vw, 0.95rem);
-    line-height: 1.4;
+    font-size: clamp(0.95rem, 4.2vw, 1.08rem);
+    line-height: 1.45;
     font-weight: 600;
     color: #fecaca;
     text-align: center;
@@ -196,18 +204,19 @@
 .cre-choice-prompt {
     margin: 0 0 0.75rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.58rem;
-    letter-spacing: 0.14em;
+    font-size: clamp(0.72rem, 3.4vw, 0.82rem);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(112, 161, 255, 0.9);
+    color: #0f172a;
     text-align: center;
+    font-weight: 600;
 }
 
 .cre-choice-threat {
     margin: 0 0 1rem;
-    font-size: 0.88rem;
+    font-size: clamp(0.95rem, 4.2vw, 1.08rem);
     line-height: 1.45;
-    color: #fca5a5;
+    color: #0f172a;
     text-align: center;
     font-weight: 600;
 }
@@ -223,23 +232,24 @@
 
 .cre-choice-btn {
     width: 100%;
-    padding: 0.7rem 0.85rem;
+    padding: 0.85rem 1rem;
     text-align: left;
-    font-size: 0.8rem;
-    line-height: 1.4;
-    color: #e2e8f0;
-    background: rgba(112, 161, 255, 0.06);
-    border: 1px solid rgba(112, 161, 255, 0.28);
-    border-radius: 4px;
+    font-size: clamp(0.95rem, 4.2vw, 1.08rem);
+    line-height: 1.45;
+    color: #0f172a;
+    background: var(--bg-surface, #ffffff);
+    border: 1.5px solid var(--border-subtle, #e2e8f0);
+    border-radius: 6px;
     cursor: pointer;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    font-weight: 600;
     transition: border-color 0.12s ease, background 0.12s ease;
 }
 
 .cre-choice-btn:hover {
-    border-color: rgba(0, 210, 211, 0.5);
-    background: rgba(0, 210, 211, 0.08);
+    border-color: var(--healing-blue, #2563eb);
+    background: var(--healing-blue-soft, rgba(37, 99, 235, 0.1));
 }
 
 .cre-choice-btn:active {
@@ -266,19 +276,20 @@
 
 .cre-complete-line {
     margin: 0 0 1rem;
-    font-size: 1rem;
+    font-size: clamp(1rem, 4.2vw, 1.12rem);
     line-height: 1.55;
     font-weight: 600;
-    color: var(--text-primary, #0f172a);
+    color: #0f172a;
     max-width: 20rem;
 }
 
 .cre-complete-meta {
     margin: 0 0 1.5rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.72rem;
+    font-size: clamp(0.82rem, 3.6vw, 0.95rem);
     letter-spacing: 0.06em;
-    color: rgba(0, 210, 211, 0.9);
+    color: #0f172a;
+    font-weight: 600;
 }
 
 .cre-complete-line--lose {

@@ -6,7 +6,6 @@
     const STABILITY_DRAIN = 15;
     const SPAWN_MS = 2600;
     const FALL_PX_PER_SEC = 72;
-    const INTRO_MS = 1800;
 
     /** threat + neutral third-person reframe + two catastrophizing traps */
     const SCRIPT_MATRIX = [
@@ -109,7 +108,6 @@
     ];
 
     let creRunning = false;
-    let creIntroTimeoutId = 0;
     let creSpawnId = 0;
     let creTimerId = 0;
     let creRafId = 0;
@@ -144,10 +142,6 @@
         choiceOpen = false;
         sessionEnded = false;
         thoughts = [];
-        if (creIntroTimeoutId) {
-            clearTimeout(creIntroTimeoutId);
-            creIntroTimeoutId = 0;
-        }
         if (creSpawnId) {
             clearInterval(creSpawnId);
             creSpawnId = 0;
@@ -263,16 +257,30 @@
         updateStabilityUI();
     }
 
-    function renderIntro() {
+    function renderPreflight() {
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
-        setInst('CRE · ENGAGING');
+        setInst('CRE · READ INSTRUCTIONS');
         stage.innerHTML = `
-            <div class="cre-root cre-root--complete">
-                <p class="cre-complete-line">Engaging Cognitive Re-Coder. Intercept anxious streams and install neutral third-person frames.</p>
-                <p class="cre-complete-meta">Hold stability for 60 seconds</p>
+            <div class="cre-root cre-root--preflight">
+                <div class="protocol-preflight-overlay">
+                    <div class="protocol-preflight-card">
+                        <h2 class="protocol-preflight-title">HOW TO RE-CODE</h2>
+                        <ol class="protocol-preflight-steps">
+                            <li>Anxious thought loops will drift down the screen.</li>
+                            <li>Tap a moving block to freeze it and open the filter.</li>
+                            <li>Select the most neutral, objective, and realistic re-code option at the bottom to neutralize the threat.</li>
+                            <li>Avoid choosing catastrophizing options to keep your stability at 100%.</li>
+                        </ol>
+                        <button type="button" class="protocol-preflight-start" id="cre-preflight-start">[ START TASK ]</button>
+                    </div>
+                </div>
             </div>
         `;
+        document.getElementById('cre-preflight-start')?.addEventListener('click', () => {
+            if (!creRunning) return;
+            startSession();
+        });
     }
 
     function spawnThought() {
@@ -528,12 +536,7 @@
             showProtocolViewport();
         }
 
-        renderIntro();
-        creIntroTimeoutId = window.setTimeout(() => {
-            creIntroTimeoutId = 0;
-            if (!creRunning) return;
-            startSession();
-        }, INTRO_MS);
+        renderPreflight();
     }
 
     window.launchCRE = launchCRE;

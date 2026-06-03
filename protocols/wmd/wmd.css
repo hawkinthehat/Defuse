@@ -12,7 +12,8 @@
     box-sizing: border-box;
     padding: 1rem 1.25rem 2rem;
     background: var(--bg-page, #f8fafc);
-    color: var(--text-primary, #0f172a);
+    color: #0f172a;
+    position: relative;
 }
 
 .wmd-root--intro,
@@ -22,16 +23,23 @@
     padding: 2rem 1.5rem;
 }
 
+.wmd-root--preflight {
+    max-width: none;
+    width: 100%;
+    padding: 0;
+    justify-content: stretch;
+}
+
 .wmd-intro-line,
 .wmd-complete-line {
     margin: 0 0 1rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(0.82rem, 3.2vw, 0.95rem);
+    font-size: clamp(0.95rem, 4vw, 1.08rem);
     line-height: 1.55;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--text-primary, #0f172a);
-    font-weight: 700;
+    color: #0f172a;
+    font-weight: 600;
 }
 
 .wmd-intro-sub {
@@ -72,10 +80,11 @@
 .wmd-score {
     margin: 0;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.18em;
+    font-size: clamp(0.78rem, 3.6vw, 0.92rem);
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: rgba(112, 161, 255, 0.9);
+    color: #0f172a;
+    font-weight: 600;
 }
 
 .wmd-target-wrap {
@@ -152,15 +161,16 @@
     font-weight: 600;
     text-transform: none;
     letter-spacing: 0.02em;
-    color: #e2e8f0;
+    color: #0f172a;
 }
 
 .wmd-complete-score {
     margin: 0 0 1.5rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    color: rgba(0, 210, 211, 0.9);
+    font-size: clamp(0.82rem, 3.6vw, 0.95rem);
+    letter-spacing: 0.06em;
+    color: #0f172a;
+    font-weight: 600;
 }
 
 .wmd-done-btn {
