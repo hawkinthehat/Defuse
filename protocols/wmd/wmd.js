@@ -3,7 +3,6 @@
  */
 (function () {
     const SESSION_MS = 45000;
-    const INTRO_MS = 2000;
     const ANGLE_STEP = 30;
     const ANGLE_COUNT = 12;
 
@@ -121,16 +120,33 @@
         }
     }
 
-    function renderIntro() {
+    function renderPreflight() {
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
-        setInst('WMD · ENGAGING');
+        setInst('WMD · READY');
         stage.innerHTML = `
-            <div class="wmd-root wmd-root--intro">
-                <p class="wmd-intro-line">ENGAGING WORKING MEMORY DEFLECTOR. Flooding visuospatial architecture to block intrusive signals.</p>
-                <p class="wmd-intro-sub">Preparing field&hellip;</p>
+            <div class="wmd-root wmd-root--preflight">
+                <section class="wmd-preflight-card" role="dialog" aria-labelledby="wmd-preflight-title" aria-describedby="wmd-preflight-steps">
+                    <p class="wmd-preflight-kicker">Visuospatial Deflector</p>
+                    <h2 class="wmd-preflight-title" id="wmd-preflight-title">HOW TO STABILIZE</h2>
+                    <ol class="wmd-preflight-steps" id="wmd-preflight-steps">
+                        <li>Watch the grid. Three blocks will flash Blue.</li>
+                        <li>The grid will shuffle.</li>
+                        <li>Tap the exact blocks where the Blue patterns originally appeared.</li>
+                        <li>Focus entirely on the shapes to occupy your working memory.</li>
+                    </ol>
+                    <button type="button" class="wmd-start-btn" id="wmd-start">[ START TASK ]</button>
+                </section>
             </div>
         `;
+        const start = document.getElementById('wmd-start');
+        if (start) {
+            start.addEventListener('click', () => {
+                successHaptic();
+                wmdRunning = true;
+                startSession();
+            });
+        }
     }
 
     function renderComplete() {
@@ -251,7 +267,6 @@
 
     function launchWMD() {
         stopWMD();
-        wmdRunning = true;
         score = 0;
 
         if (typeof showProtocolViewport === 'function') {
@@ -260,12 +275,7 @@
             openSession('WMD · ENGAGING');
         }
 
-        renderIntro();
-        wmdIntroTimeoutId = window.setTimeout(() => {
-            wmdIntroTimeoutId = 0;
-            if (!wmdRunning) return;
-            startSession();
-        }, INTRO_MS);
+        renderPreflight();
     }
 
     window.launchWMD = launchWMD;

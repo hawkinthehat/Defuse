@@ -6,7 +6,6 @@
     const STABILITY_DRAIN = 15;
     const SPAWN_MS = 2600;
     const FALL_PX_PER_SEC = 72;
-    const INTRO_MS = 1800;
 
     /** threat + neutral third-person reframe + two catastrophizing traps */
     const SCRIPT_MATRIX = [
@@ -263,16 +262,33 @@
         updateStabilityUI();
     }
 
-    function renderIntro() {
+    function renderPreflight() {
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
-        setInst('CRE · ENGAGING');
+        setInst('CRE · READY');
         stage.innerHTML = `
-            <div class="cre-root cre-root--complete">
-                <p class="cre-complete-line">Engaging Cognitive Re-Coder. Intercept anxious streams and install neutral third-person frames.</p>
-                <p class="cre-complete-meta">Hold stability for 60 seconds</p>
+            <div class="cre-root cre-root--preflight">
+                <section class="cre-preflight-card" role="dialog" aria-labelledby="cre-preflight-title" aria-describedby="cre-preflight-steps">
+                    <p class="cre-preflight-kicker">Cognitive Re-Coder</p>
+                    <h2 class="cre-preflight-title" id="cre-preflight-title">HOW TO RE-CODE</h2>
+                    <ol class="cre-preflight-steps" id="cre-preflight-steps">
+                        <li>Anxious thought loops will drift down the screen.</li>
+                        <li>Tap a moving block to freeze it and open the filter.</li>
+                        <li>Select the most neutral, objective, and realistic re-code option at the bottom to neutralize the threat.</li>
+                        <li>Avoid choosing catastrophizing options to keep your stability at 100%.</li>
+                    </ol>
+                    <button type="button" class="cre-start-btn" id="cre-start">[ START TASK ]</button>
+                </section>
             </div>
         `;
+        const start = document.getElementById('cre-start');
+        if (start) {
+            start.addEventListener('click', () => {
+                successHaptic();
+                creRunning = true;
+                startSession();
+            });
+        }
     }
 
     function spawnThought() {
@@ -522,18 +538,12 @@
 
     function launchCRE() {
         stopCRE();
-        creRunning = true;
 
         if (typeof showProtocolViewport === 'function') {
             showProtocolViewport();
         }
 
-        renderIntro();
-        creIntroTimeoutId = window.setTimeout(() => {
-            creIntroTimeoutId = 0;
-            if (!creRunning) return;
-            startSession();
-        }, INTRO_MS);
+        renderPreflight();
     }
 
     window.launchCRE = launchCRE;

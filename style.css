@@ -149,28 +149,37 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
+    min-height: 100vh;
     background: var(--bg-page);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 32px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .instruction-bar {
     position: fixed;
-    top: 60px;
+    top: calc(env(safe-area-inset-top, 0px) + 58px);
+    left: max(16px, env(safe-area-inset-left, 0px));
+    right: calc(max(20px, env(safe-area-inset-right, 0px)) + 5.75rem);
     color: var(--healing-blue);
     font-family: monospace;
-    font-size: 0.8rem;
+    font-size: clamp(0.74rem, 2.8vw, 0.88rem);
+    line-height: 1.35;
     letter-spacing: 1px;
-    font-weight: 600;
+    font-weight: 800;
+    text-align: center;
+    z-index: 12001;
 }
 
 .exit-btn {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: calc(env(safe-area-inset-top, 0px) + 16px);
+    right: max(20px, env(safe-area-inset-right, 0px));
     z-index: 12000;
     border: 1.5px solid var(--healing-blue);
     background: var(--bg-surface);
@@ -313,6 +322,8 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
+    box-sizing: border-box;
+    padding-top: 4.75rem;
 }
 
 .symptom-primary {

@@ -14,11 +14,69 @@
     overflow: hidden;
 }
 
+.cre-root input,
+.cre-root select,
+.cre-root textarea {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.cre-root--preflight,
 .cre-root--complete {
     align-items: center;
     justify-content: center;
-    padding: 2rem 1.5rem;
+    padding: 1.25rem;
     text-align: center;
+}
+
+.cre-preflight-card {
+    width: min(100%, 24rem);
+    padding: 1.35rem 1.15rem 1.2rem;
+    border: 1.5px solid var(--border-strong, #cbd5e1);
+    border-radius: 14px;
+    background: var(--bg-surface, #ffffff);
+    box-shadow: var(--shadow-md);
+    box-sizing: border-box;
+}
+
+.cre-preflight-kicker {
+    margin: 0 0 0.55rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(0.68rem, 2.8vw, 0.78rem);
+    line-height: 1.35;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--healing-blue, #2563eb);
+    font-weight: 800;
+}
+
+.cre-preflight-title {
+    margin: 0 0 1rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(1.25rem, 6vw, 1.72rem);
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #0f172a;
+    font-weight: 900;
+}
+
+.cre-preflight-steps {
+    margin: 0 0 1.25rem;
+    padding-left: 1.35rem;
+    text-align: left;
+    color: #0f172a;
+}
+
+.cre-preflight-steps li {
+    margin: 0 0 0.7rem;
+    font-size: clamp(0.98rem, 4vw, 1.12rem);
+    line-height: 1.42;
+    font-weight: 700;
+}
+
+.cre-preflight-steps li:last-child {
+    margin-bottom: 0;
 }
 
 .cre-stability-wrap {
@@ -26,18 +84,20 @@
     display: flex;
     align-items: center;
     gap: 0.65rem;
-    padding: 0.65rem 1rem 0.5rem;
-    border-bottom: 1px solid rgba(112, 161, 255, 0.2);
-    background: rgba(5, 7, 10, 0.95);
+    padding: 0.75rem 1rem 0.65rem;
+    border-bottom: 1px solid var(--border-subtle, #e2e8f0);
+    background: rgba(255, 255, 255, 0.96);
     z-index: 4;
+    box-shadow: var(--shadow-sm);
 }
 
 .cre-stability-label {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.58rem;
+    font-size: clamp(0.68rem, 2.8vw, 0.8rem);
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: rgba(112, 161, 255, 0.85);
+    color: #0f172a;
+    font-weight: 800;
     white-space: nowrap;
 }
 
@@ -63,11 +123,12 @@
 
 .cre-stability-pct {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.62rem;
+    font-size: clamp(0.72rem, 3vw, 0.84rem);
     letter-spacing: 0.08em;
-    color: #e2e8f0;
+    color: #0f172a;
     min-width: 2.5rem;
     text-align: right;
+    font-weight: 800;
 }
 
 .cre-field {
@@ -98,7 +159,7 @@
     padding: 0.75rem 1rem;
     border: 1.5px solid rgba(255, 71, 87, 0.45);
     border-radius: 6px;
-    background: rgba(20, 8, 12, 0.92);
+    background: #fff1f2;
     box-shadow: 0 4px 20px rgba(255, 71, 87, 0.12);
     cursor: pointer;
     touch-action: manipulation;
@@ -113,6 +174,7 @@
 
 .cre-thought--frozen {
     border-color: rgba(112, 161, 255, 0.65);
+    background: #eff6ff;
     box-shadow: 0 0 24px rgba(112, 161, 255, 0.25);
     cursor: default;
     z-index: 5;
@@ -120,15 +182,15 @@
 
 .cre-thought-text {
     margin: 0;
-    font-size: clamp(0.82rem, 3.2vw, 0.95rem);
+    font-size: clamp(0.95rem, 4vw, 1.08rem);
     line-height: 1.4;
-    font-weight: 600;
-    color: #fecaca;
+    font-weight: 700;
+    color: #0f172a;
     text-align: center;
 }
 
 .cre-thought--frozen .cre-thought-text {
-    color: #f8fafc;
+    color: #0f172a;
 }
 
 .cre-thought--vaporize {
@@ -196,20 +258,21 @@
 .cre-choice-prompt {
     margin: 0 0 0.75rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.58rem;
+    font-size: clamp(0.7rem, 2.8vw, 0.82rem);
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgba(112, 161, 255, 0.9);
+    color: #0f172a;
     text-align: center;
+    font-weight: 900;
 }
 
 .cre-choice-threat {
     margin: 0 0 1rem;
-    font-size: 0.88rem;
+    font-size: clamp(0.96rem, 3.8vw, 1.08rem);
     line-height: 1.45;
-    color: #fca5a5;
+    color: #0f172a;
     text-align: center;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .cre-choice-list {
@@ -223,14 +286,15 @@
 
 .cre-choice-btn {
     width: 100%;
-    padding: 0.7rem 0.85rem;
+    padding: 0.85rem 0.95rem;
     text-align: left;
-    font-size: 0.8rem;
+    font-size: clamp(0.92rem, 3.7vw, 1.04rem);
     line-height: 1.4;
-    color: #e2e8f0;
-    background: rgba(112, 161, 255, 0.06);
+    color: #0f172a;
+    background: var(--bg-surface, #ffffff);
     border: 1px solid rgba(112, 161, 255, 0.28);
     border-radius: 4px;
+    font-weight: 700;
     cursor: pointer;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
@@ -266,9 +330,9 @@
 
 .cre-complete-line {
     margin: 0 0 1rem;
-    font-size: 1rem;
+    font-size: clamp(0.98rem, 3.8vw, 1.12rem);
     line-height: 1.55;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-primary, #0f172a);
     max-width: 20rem;
 }
@@ -276,19 +340,23 @@
 .cre-complete-meta {
     margin: 0 0 1.5rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.72rem;
+    font-size: clamp(0.82rem, 3.4vw, 0.95rem);
     letter-spacing: 0.06em;
-    color: rgba(0, 210, 211, 0.9);
+    color: var(--healing-blue, #2563eb);
+    font-weight: 700;
 }
 
 .cre-complete-line--lose {
-    color: #fca5a5;
+    color: #991b1b;
 }
 
+.cre-start-btn,
 .cre-done-btn {
     cursor: pointer;
-    padding: 12px 20px;
-    font-size: 0.62rem;
+    min-height: 3.25rem;
+    padding: 14px 20px;
+    font-size: clamp(0.82rem, 3.4vw, 0.96rem);
+    font-weight: 900;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -297,8 +365,15 @@
     border: 1px solid var(--healing-blue, #2563eb);
     border-radius: 4px;
     box-shadow: 0 0 18px rgba(0, 210, 211, 0.25);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
+.cre-start-btn {
+    width: 100%;
+}
+
+.cre-start-btn:hover,
 .cre-done-btn:hover {
     border-color: var(--healing-blue-bright, #3b82f6);
     background: var(--healing-blue-bright, #3b82f6);
