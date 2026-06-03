@@ -508,10 +508,29 @@ function exitProtocol() {
     }
 }
 
+if (typeof window !== 'undefined') {
+    window.GlobalBinauralEngine = {
+        config: GLOBAL_BINAURAL_CONFIG,
+        initialize: initializeGlobalBinauralEngine,
+        resume: resumeGlobalBinauralEngine,
+        get audioContext() {
+            return globalBinauralState.audioContext;
+        },
+        get isActive() {
+            return globalBinauralState.started && globalBinauralState.unlocked;
+        }
+    };
+}
+
+function initAppShell() {
+    initMasterStartOverlay();
+    initDashboardPrimary();
+}
+
 if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initDashboardPrimary);
+        document.addEventListener('DOMContentLoaded', initAppShell);
     } else {
-        initDashboardPrimary();
+        initAppShell();
     }
 }
