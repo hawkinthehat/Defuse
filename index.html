@@ -24,7 +24,20 @@
     <link rel="stylesheet" href="protocols/vsd/vsd.css">
 </head>
 <body>
-    <div id="dashboard">
+    <div id="master-init-overlay" class="master-init-overlay" aria-hidden="false">
+        <section class="master-init-card" role="dialog" aria-modal="true" aria-labelledby="master-init-title" aria-describedby="master-init-headphones-sub">
+            <p id="master-init-title" class="master-init-kicker">Master Initialization</p>
+            <div class="headphone-required-notice" role="note" aria-labelledby="master-init-headphones-title" aria-describedby="master-init-headphones-sub">
+                <p id="master-init-headphones-title" class="headphone-required-title">🎧 HEADPHONES REQUIRED FOR BEST RESULTS</p>
+                <p id="master-init-headphones-sub" class="headphone-required-sub">Binaural audio entrainment requires independent left/right channels to safely calm the system&rsquo;s threat loops.</p>
+            </div>
+            <button type="button" class="master-init-btn" id="master-init-btn" aria-controls="dashboard">
+                [ INITIALIZE STABILIZATION PLATFORM ]
+            </button>
+        </section>
+    </div>
+
+    <div id="dashboard" class="hidden" aria-hidden="true">
         <header class="app-brand">
             <img src="logo.png" width="320" height="461" class="app-brand-logo" alt="DeFuse — Clinical System">
         </header>
