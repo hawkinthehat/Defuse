@@ -52,6 +52,7 @@ const PROTOCOL_ROUTES = {
 };
 
 let protocolIntroTimeoutId = 0;
+let masterInitializationInited = false;
 let dashboardPrimaryInited = false;
 let masterStartInited = false;
 
@@ -413,6 +414,48 @@ function toggleProtocolManual() {
     }
 }
 
+function revealDashboardFromMasterInit() {
+    selectionTapHaptic();
+
+    const overlay = document.getElementById('master-init-overlay');
+    const dash = document.getElementById('dashboard');
+
+    if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.setAttribute('aria-hidden', 'true');
+    }
+    if (dash) {
+        dash.classList.remove('hidden');
+        dash.setAttribute('aria-hidden', 'false');
+    }
+}
+
+function initMasterInitializationOverlay() {
+    if (masterInitializationInited) return;
+    masterInitializationInited = true;
+
+    const overlay = document.getElementById('master-init-overlay');
+    const btn = document.getElementById('master-init-btn');
+    const dash = document.getElementById('dashboard');
+
+    if (!overlay || !btn) {
+        if (dash) {
+            dash.classList.remove('hidden');
+            dash.setAttribute('aria-hidden', 'false');
+        }
+        return;
+    }
+
+    overlay.classList.remove('hidden');
+    overlay.setAttribute('aria-hidden', 'false');
+    if (dash) {
+        dash.classList.add('hidden');
+        dash.setAttribute('aria-hidden', 'true');
+    }
+
+    btn.addEventListener('click', revealDashboardFromMasterInit);
+}
+
 function initDashboardPrimary() {
     if (dashboardPrimaryInited) return;
     dashboardPrimaryInited = true;
@@ -572,8 +615,12 @@ function initAppShell() {
 
 if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAppShell);
+        document.addEventListener('DOMContentLoaded', () => {
+            initMasterInitializationOverlay();
+            initDashboardPrimary();
+        });
     } else {
-        initAppShell();
+        initMasterInitializationOverlay();
+        initDashboardPrimary();
     }
 }

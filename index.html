@@ -24,19 +24,20 @@
     <link rel="stylesheet" href="protocols/vsd/vsd.css">
 </head>
 <body>
-    <div id="master-start-overlay" class="master-start-overlay" aria-hidden="false">
-        <div class="master-start-card" role="dialog" aria-modal="true" aria-labelledby="master-start-title" aria-describedby="master-start-subtext">
-            <p id="master-start-title" class="master-start-kicker">Global stabilization layer</p>
-            <button type="button" id="master-start-button" class="master-start-button">
+    <div id="master-init-overlay" class="master-init-overlay" aria-hidden="false">
+        <section class="master-init-card" role="dialog" aria-modal="true" aria-labelledby="master-init-title" aria-describedby="master-init-headphones-sub">
+            <p id="master-init-title" class="master-init-kicker">Master Initialization</p>
+            <div class="headphone-required-notice" role="note" aria-labelledby="master-init-headphones-title" aria-describedby="master-init-headphones-sub">
+                <p id="master-init-headphones-title" class="headphone-required-title">🎧 HEADPHONES REQUIRED FOR BEST RESULTS</p>
+                <p id="master-init-headphones-sub" class="headphone-required-sub">Binaural audio entrainment requires independent left/right channels to safely calm the system&rsquo;s threat loops.</p>
+            </div>
+            <button type="button" class="master-init-btn" id="master-init-btn" aria-controls="dashboard">
                 [ INITIALIZE STABILIZATION PLATFORM ]
             </button>
-            <p id="master-start-subtext" class="master-start-subtext">
-                Tap to activate global acoustic entrainment and haptic sync.
-            </p>
-        </div>
+        </section>
     </div>
 
-    <div id="dashboard">
+    <div id="dashboard" class="hidden" aria-hidden="true">
         <header class="app-brand">
             <img src="logo.png" width="320" height="461" class="app-brand-logo" alt="DeFuse — Clinical System">
         </header>

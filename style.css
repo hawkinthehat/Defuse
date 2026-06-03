@@ -196,6 +196,101 @@ body {
     pointer-events: none;
 }
 
+.master-init-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 11000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: var(--overlay-scrim);
+    box-sizing: border-box;
+}
+
+.master-init-card {
+    width: 100%;
+    max-width: 27rem;
+    padding: 1.45rem 1.25rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-sizing: border-box;
+}
+
+.master-init-kicker {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-align: center;
+    text-transform: uppercase;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.headphone-required-notice {
+    padding: 14px 15px;
+    border: 1px solid var(--healing-blue-ring);
+    border-radius: 10px;
+    background: var(--healing-blue-soft);
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+
+.headphone-required-title {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: clamp(0.82rem, 3.4vw, 0.96rem);
+    font-weight: 900;
+    line-height: 1.35;
+    letter-spacing: 0.08em;
+    text-align: center;
+    text-transform: uppercase;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.headphone-required-sub {
+    margin: 8px 0 0;
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    line-height: 1.45;
+    text-align: center;
+}
+
+.master-init-btn {
+    width: 100%;
+    min-height: 3rem;
+    padding: 13px 16px;
+    border: 1.5px solid var(--healing-blue);
+    border-radius: 8px;
+    background: var(--bg-surface);
+    color: var(--healing-blue);
+    cursor: pointer;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    box-shadow: var(--shadow-sm);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.master-init-btn:hover {
+    border-color: var(--healing-blue-bright);
+    background: var(--healing-blue-soft);
+    color: var(--healing-blue);
+}
+
+.master-init-btn:active {
+    transform: scale(0.99);
+}
+
 .scanlines {
     position: fixed;
     top: 0;
