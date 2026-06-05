@@ -6,7 +6,9 @@ const PROTOCOL_INTRO_MS = 1500;
 const GLOBAL_BINAURAL_CONFIG = {
     leftHz: 200,
     rightHz: 206,
-    gain: 0.05
+    gain: 0.05,
+    clearFilterHz: 20000,
+    muffledFilterHz: 90
 };
 
 const globalBinauralState = {
@@ -14,6 +16,7 @@ const globalBinauralState = {
     leftOscillator: null,
     rightOscillator: null,
     masterGain: null,
+    lowPassFilter: null,
     merger: null,
     started: false,
     unlocked: false
@@ -38,7 +41,8 @@ const PROTOCOL_ENGAGE = {
     cre: { name: 'CRE', rhythm: 'HAPTIC AND VISUAL' },
     mdr: { name: 'MDR', rhythm: 'HAPTIC' },
     audio: { name: 'AUDIO', rhythm: 'AUDITORY' },
-    vsd: { name: 'VSD', rhythm: 'HAPTIC AND VISUAL' }
+    vsd: { name: 'VSD', rhythm: 'HAPTIC AND VISUAL' },
+    gcm: { name: 'GCM', rhythm: 'AUDITORY AND VISUAL' }
 };
 
 const PROTOCOL_ROUTES = {
@@ -50,7 +54,8 @@ const PROTOCOL_ROUTES = {
     mdr: { name: 'MDR', path: 'protocols/mdr/' },
     audio: { name: 'AUDIO', path: 'protocols/audio/' },
     cas: { name: 'CAS', path: 'protocols/cas/' },
-    obd: { name: 'OBD', path: 'protocols/obd/' }
+    obd: { name: 'OBD', path: 'protocols/obd/' },
+    gcm: { name: 'GCM', path: 'protocols/gcm/' }
 };
 
 let protocolIntroTimeoutId = 0;
@@ -88,6 +93,7 @@ function initializeGlobalBinauralEngine() {
         const rightGain = audioContext.createGain();
         const merger = audioContext.createChannelMerger(2);
         const masterGain = audioContext.createGain();
+        const lowPassFilter = audioContext.createBiquadFilter();
 
         leftOscillator.type = 'sine';
         rightOscillator.type = 'sine';
@@ -96,13 +102,17 @@ function initializeGlobalBinauralEngine() {
         leftGain.gain.value = 1;
         rightGain.gain.value = 1;
         masterGain.gain.value = 0;
+        lowPassFilter.type = 'lowpass';
+        lowPassFilter.frequency.value = GLOBAL_BINAURAL_CONFIG.clearFilterHz;
+        lowPassFilter.Q.value = 0.7;
 
         leftOscillator.connect(leftGain);
         rightOscillator.connect(rightGain);
         leftGain.connect(merger, 0, 0);
         rightGain.connect(merger, 0, 1);
         merger.connect(masterGain);
-        masterGain.connect(audioContext.destination);
+        masterGain.connect(lowPassFilter);
+        lowPassFilter.connect(audioContext.destination);
 
         const now = audioContext.currentTime;
         leftOscillator.start(now);
@@ -111,6 +121,7 @@ function initializeGlobalBinauralEngine() {
         globalBinauralState.leftOscillator = leftOscillator;
         globalBinauralState.rightOscillator = rightOscillator;
         globalBinauralState.masterGain = masterGain;
+        globalBinauralState.lowPassFilter = lowPassFilter;
         globalBinauralState.merger = merger;
         globalBinauralState.started = true;
         return true;
@@ -130,6 +141,23 @@ function setGlobalBinauralGain(value) {
     } catch {
         masterGain.gain.value = value;
     }
+}
+
+function setGlobalBinauralLowPass(frequencyHz) {
+    const { audioContext, lowPassFilter } = globalBinauralState;
+    if (!audioContext || !lowPassFilter) return;
+
+    const nextHz = Math.max(40, Math.min(22000, Number(frequencyHz) || GLOBAL_BINAURAL_CONFIG.clearFilterHz));
+    try {
+        lowPassFilter.frequency.cancelScheduledValues(audioContext.currentTime);
+        lowPassFilter.frequency.setTargetAtTime(nextHz, audioContext.currentTime, 0.018);
+    } catch {
+        lowPassFilter.frequency.value = nextHz;
+    }
+}
+
+function resetGlobalBinauralFilter() {
+    setGlobalBinauralLowPass(GLOBAL_BINAURAL_CONFIG.clearFilterHz);
 }
 
 function resumeGlobalBinauralEngine() {
@@ -256,7 +284,8 @@ function runProtocol(protocolKey) {
         cre: () => (typeof launchCRE === 'function' ? launchCRE() : showProtocolPending('cre')),
         mdr: () => (typeof launchMDR === 'function' ? launchMDR() : showProtocolPending('mdr')),
         audio: () => (typeof launchAudio === 'function' ? launchAudio() : showProtocolPending('audio')),
-        vsd: () => typeof launchVSD === 'function' && launchVSD()
+        vsd: () => typeof launchVSD === 'function' && launchVSD(),
+        gcm: () => (typeof launchGCM === 'function' ? launchGCM() : showProtocolPending('gcm'))
     };
     const fn = runners[protocolKey];
     if (fn) fn();
@@ -359,11 +388,19 @@ function launchVSDSession() {
     if (typeof launchVSD === 'function') launchVSD();
 }
 
+function launchGCMSession() {
+    closeDischargeChoice();
+    closeMemoryChoice();
+    cancelProtocolIntro();
+    if (typeof launchGCM === 'function') launchGCM();
+}
+
 /** Direct-launch modules (custom intro / no engage splash). */
 const DIRECT_SESSION_LAUNCHERS = {
     cre: launchCRESession,
     mdr: launchMDRSession,
-    audio: launchAudioSession
+    audio: launchAudioSession,
+    gcm: launchGCMSession
 };
 
 /** Standard engage-splash protocols. */
@@ -581,6 +618,9 @@ function exitProtocol() {
     if (typeof stopVSD === 'function') {
         stopVSD();
     }
+    if (typeof stopGCM === 'function') {
+        stopGCM();
+    }
     const vp = document.getElementById('viewport');
     if (vp) {
         vp.classList.remove('viewport-obs', 'viewport-ics');
@@ -605,6 +645,9 @@ if (typeof window !== 'undefined') {
         config: GLOBAL_BINAURAL_CONFIG,
         initialize: initializeGlobalBinauralEngine,
         resume: resumeGlobalBinauralEngine,
+        setGain: setGlobalBinauralGain,
+        setLowPassFrequency: setGlobalBinauralLowPass,
+        resetFilter: resetGlobalBinauralFilter,
         get audioContext() {
             return globalBinauralState.audioContext;
         },

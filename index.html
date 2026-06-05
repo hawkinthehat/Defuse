@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="protocols/ics/ics.css">
     <link rel="stylesheet" href="protocols/audio/audio.css">
     <link rel="stylesheet" href="protocols/vsd/vsd.css">
+    <link rel="stylesheet" href="protocols/gcm/gcm.css">
 </head>
 <body>
     <div id="master-init-overlay" class="master-init-overlay" aria-hidden="false">
@@ -87,6 +88,12 @@
                     <button type="button" class="symptom-tile" data-symptom="audio" data-protocol-path="protocols/audio/">
                         <span class="symptom-tile-label">I feel overstimulated / my brain feels loud</span>
                         <span class="symptom-tile-meta">AUDIO · Binaural Entrainment</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="symptom-tile" data-symptom="gcm" data-protocol-path="protocols/gcm/">
+                        <span class="symptom-tile-label">I am highly distracted / unable to focus my attention</span>
+                        <span class="symptom-tile-meta">GCM · Gaze-Contingent Music Segmentation</span>
                     </button>
                 </li>
                 <li>
@@ -202,6 +209,13 @@
                 <p class="protocol-indicator">Memory saturation grid</p>
                 <p class="protocol-best">Best for: Intense memory intrusions, flashback loops.</p>
             </div>
+            <div class="protocol-card" onclick="launchGCMSession()">
+                <p class="term">Phase 13 · Attention gating</p>
+                <h2 class="callsign">GCM</h2>
+                <p class="purpose">Moving target hold · binaural clarity reward</p>
+                <p class="protocol-indicator">Gaze-contingent audio</p>
+                <p class="protocol-best">Best for: Distracted, scattered, unable to sustain focus.</p>
+            </div>
         </div>
     </div>
 
@@ -254,6 +268,7 @@
     <script src="protocols/ics/ics.js"></script>
     <script src="protocols/audio/audio.js"></script>
     <script src="protocols/vsd/vsd.js"></script>
+    <script src="protocols/gcm/gcm.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
