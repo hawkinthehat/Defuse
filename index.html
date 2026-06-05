@@ -17,9 +17,10 @@
     <link rel="stylesheet" href="protocols/obd/obd.css">
     <link rel="stylesheet" href="protocols/obs/obs.css">
     <link rel="stylesheet" href="protocols/abm/abm.css">
+    <link rel="stylesheet" href="protocols/sam/sam.css">
+    <link rel="stylesheet" href="protocols/iec/iec.css">
     <link rel="stylesheet" href="protocols/wmd/wmd.css">
     <link rel="stylesheet" href="protocols/cre/cre.css">
-    <link rel="stylesheet" href="protocols/mdr/mdr.css">
     <link rel="stylesheet" href="protocols/audio/audio.css">
     <link rel="stylesheet" href="protocols/vsd/vsd.css">
 </head>
@@ -71,12 +72,6 @@
                     </button>
                 </li>
                 <li>
-                    <button type="button" class="symptom-tile" data-symptom="mdr" data-protocol-path="protocols/mdr/">
-                        <span class="symptom-tile-label">I feel restless / agitated / physical panic spike</span>
-                        <span class="symptom-tile-meta">MDR · Mammalian Dive Reflex</span>
-                    </button>
-                </li>
-                <li>
                     <button type="button" class="symptom-tile" data-symptom="audio" data-protocol-path="protocols/audio/">
                         <span class="symptom-tile-label">I feel overstimulated / my brain feels loud</span>
                         <span class="symptom-tile-meta">AUDIO · Binaural Entrainment</span>
@@ -96,99 +91,6 @@
                 </li>
             </ul>
         </section>
-
-        <button type="button" class="manual-override-btn" id="manual-override-btn" aria-expanded="false" aria-controls="protocol-manual">
-            Manual Override (Show All Protocols)
-        </button>
-
-        <div id="protocol-manual" class="protocol-manual hidden" aria-hidden="true">
-            <p class="protocol-manual-heading">Manual override — all protocols</p>
-            <div class="protocol-card" onclick="launchWithIntro('cpi')">
-                <p class="term">Phase 01 · HALT triage</p>
-                <h2 class="callsign">CPI</h2>
-                <p class="purpose">Executive engagement &amp; validation</p>
-                <p class="protocol-indicator">Check mental bandwidth</p>
-                <p class="protocol-best">Best for: HALT confusion—hungry, angry, lonely, tired.</p>
-            </div>
-            <div class="protocol-card" onclick="launchWithIntro('obd')">
-                <p class="term">Phase 02 · Bilateral infinity</p>
-                <h2 class="callsign">OBD</h2>
-                <p class="purpose">EMDR figure-eight · grounding pad</p>
-                <p class="protocol-indicator">Bilateral infinity loop</p>
-                <p class="protocol-best">Best for: Stuck on a specific thought, mental loops.</p>
-            </div>
-            <div class="protocol-card" onclick="launchWithIntro('ccd')">
-                <p class="term">Phase 03 · White surge</p>
-                <h2 class="callsign">CCD</h2>
-                <p class="purpose">Cognitive load discharge</p>
-                <p class="protocol-indicator">Kinetic discharge</p>
-                <p class="protocol-best">Best for: Restlessness, jitters, flight response.</p>
-            </div>
-            <div class="protocol-card" onclick="launchWithIntro('cas')">
-                <p class="term">Phase 04 · Axial stabilize</p>
-                <h2 class="callsign">CAS</h2>
-                <p class="purpose">Optokinetic inward flow</p>
-                <p class="protocol-indicator">Ocular sweep</p>
-                <p class="protocol-best">Best for: Dizziness, dissociation, visual blur.</p>
-            </div>
-            <div class="protocol-card protocol-card--warning" onclick="launchWithIntro('kcb')">
-                <p class="term">Phase 05 · Circuit breaker</p>
-                <h2 class="callsign">KCB</h2>
-                <p class="purpose">High-stimulation override</p>
-                <p class="protocol-indicator">Kinetic discharge (strobe)</p>
-                <p class="protocol-best">Best for: Restlessness, jitters, flight response.</p>
-                <p class="protocol-warning-note">Photosensitive seizure risk — full warning appears before the sequence starts.</p>
-            </div>
-            <div class="protocol-card protocol-obs" onclick="launchWithIntro('obs')">
-                <p class="term">Phase 06 · Observer shift</p>
-                <h2 class="callsign">OBS</h2>
-                <p class="purpose">Step back and notice sensation with distance</p>
-                <p class="protocol-indicator">Safer distance view</p>
-                <p class="protocol-best">Best for: Personalizing stress, emotional overwhelm.</p>
-            </div>
-            <div class="protocol-card" onclick="launchWithIntro('abm')">
-                <p class="term">Phase 07 · Attention bias</p>
-                <h2 class="callsign">ABM</h2>
-                <p class="purpose">Stable-locus probe · 20-cycle training</p>
-                <p class="protocol-indicator">Racing thoughts</p>
-                <p class="protocol-best">Best for: Overthinking, anxiety loops, noise.</p>
-            </div>
-            <div class="protocol-card" onclick="launchWMDSession()">
-                <p class="term">Phase 08 · Working memory</p>
-                <h2 class="callsign">WMD</h2>
-                <p class="purpose">Visuospatial rotation match · 45s load</p>
-                <p class="protocol-indicator">Memory deflector puzzle</p>
-                <p class="protocol-best">Best for: Intrusive loops, cognitive hard reset.</p>
-            </div>
-            <div class="protocol-card" onclick="launchCRESession()">
-                <p class="term">Phase 09 · Cognitive re-coder</p>
-                <h2 class="callsign">CRE</h2>
-                <p class="purpose">Thought intercept · structural reframing</p>
-                <p class="protocol-indicator">Loop-breaking re-code</p>
-                <p class="protocol-best">Best for: Worry streams, catastrophizing loops.</p>
-            </div>
-            <div class="protocol-card" onclick="launchMDRSession()">
-                <p class="term">Phase 10 · Dive reflex</p>
-                <h2 class="callsign">MDR</h2>
-                <p class="purpose">Hold calibration · cold compress vagal reset</p>
-                <p class="protocol-indicator">Mammalian dive reflex</p>
-                <p class="protocol-best">Best for: Physical panic spikes, autonomic surge.</p>
-            </div>
-            <div class="protocol-card" onclick="launchAudioSession()">
-                <p class="term">Phase 11 · Binaural entrainment</p>
-                <h2 class="callsign">AUDIO</h2>
-                <p class="purpose">Beta-to-Theta differential · 90 second drift</p>
-                <p class="protocol-indicator">Headphones required</p>
-                <p class="protocol-best">Best for: Overstimulated, loud mental state.</p>
-            </div>
-            <div class="protocol-card" onclick="launchVSDSession()">
-                <p class="term">Phase 12 · Visuospatial load</p>
-                <h2 class="callsign">VSD</h2>
-                <p class="purpose">3×3 pattern flash · shuffled coordinate recall</p>
-                <p class="protocol-indicator">Memory saturation grid</p>
-                <p class="protocol-best">Best for: Intense memory intrusions, flashback loops.</p>
-            </div>
-        </div>
     </div>
 
     <div id="memory-choice-overlay" class="discharge-choice-overlay hidden" aria-hidden="true">
@@ -234,9 +136,10 @@
     <script src="protocols/obd/obd.js"></script>
     <script src="protocols/obs/obs.js"></script>
     <script src="protocols/abm/abm.js"></script>
+    <script src="protocols/sam/sam.js"></script>
+    <script src="protocols/iec/iec.js"></script>
     <script src="protocols/wmd/wmd.js"></script>
     <script src="protocols/cre/cre.js"></script>
-    <script src="protocols/mdr/mdr.js"></script>
     <script src="protocols/audio/audio.js"></script>
     <script src="protocols/vsd/vsd.js"></script>
     <script>

@@ -1,0 +1,221 @@
+/* IEC — Imaginal Exposure Canvas */
+
+.iec-root {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: calc(env(safe-area-inset-top, 32px) + 1rem) 1.25rem calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+    background:
+        radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.08), transparent 24rem),
+        var(--bg-page, #f8fafc);
+    color: #0f172a;
+}
+
+.iec-root--preflight {
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
+}
+
+.iec-input-card {
+    width: min(100%, 28rem);
+    padding: 1.35rem;
+    border: 1.5px solid var(--healing-blue, #2563eb);
+    border-radius: 16px;
+    background: var(--bg-surface, #ffffff);
+    box-shadow: var(--shadow-md);
+    box-sizing: border-box;
+}
+
+.iec-input-label {
+    display: block;
+    margin: 0 0 1rem;
+    font-size: clamp(1.05rem, 4.6vw, 1.3rem);
+    line-height: 1.35;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+.iec-textarea {
+    width: 100%;
+    min-height: 9rem;
+    resize: vertical;
+    box-sizing: border-box;
+    padding: 1rem;
+    border: 2px solid var(--border-strong, #cbd5e1);
+    border-radius: 12px;
+    background: #ffffff;
+    color: #0f172a;
+    font: 800 clamp(1rem, 4vw, 1.15rem)/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.iec-textarea:focus {
+    border-color: var(--healing-blue, #2563eb);
+    outline: 3px solid var(--healing-blue-soft, rgba(37, 99, 235, 0.1));
+}
+
+.iec-input-help {
+    margin: 0.85rem 0 1rem;
+    color: #0f172a;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    font-weight: 700;
+}
+
+.iec-submit-btn,
+.iec-done-btn {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.95rem 1rem;
+    border: 2px solid var(--healing-blue, #2563eb);
+    border-radius: 10px;
+    background: #bfdbfe;
+    color: #0f172a;
+    cursor: pointer;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(0.78rem, 3.4vw, 0.92rem);
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    box-shadow: var(--shadow-sm);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.iec-submit-btn:active,
+.iec-done-btn:active {
+    transform: scale(0.985);
+}
+
+.iec-root--exposure {
+    justify-content: space-between;
+    gap: 1rem;
+    text-align: center;
+}
+
+.iec-timer {
+    width: min(100%, 30rem);
+    display: grid;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+}
+
+.iec-timer-label,
+.iec-lock-note,
+.iec-complete-kicker {
+    margin: 0;
+    color: #0f172a;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(0.68rem, 3vw, 0.82rem);
+    font-weight: 900;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.iec-timer-text {
+    color: #0f172a;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(1.65rem, 8vw, 3rem);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+}
+
+.iec-timer-bar {
+    display: block;
+    width: 100%;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: var(--bg-subtle, #f1f5f9);
+    overflow: hidden;
+    border: 1px solid var(--border-subtle, #e2e8f0);
+}
+
+.iec-timer-fill {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--healing-blue, #2563eb), var(--healing-blue-bright, #3b82f6));
+    transition: width 0.18s linear;
+}
+
+.iec-exposure-field {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0;
+    box-sizing: border-box;
+}
+
+.iec-exposure-text {
+    max-width: min(92vw, 42rem);
+    margin: 0;
+    padding: clamp(1.25rem, 5vw, 2.25rem);
+    border: 1.5px solid var(--healing-blue-ring, rgba(37, 99, 235, 0.35));
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.88);
+    color: #0f172a;
+    font-size: clamp(2rem, 10vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+    overflow-wrap: anywhere;
+    box-shadow:
+        0 20px 60px rgba(37, 99, 235, 0.12),
+        0 0 0 6px rgba(37, 99, 235, 0.06);
+    animation: iec-soft-pulse 3.2s ease-in-out infinite;
+}
+
+@keyframes iec-soft-pulse {
+    0%,
+    100% {
+        transform: scale(0.985);
+        box-shadow:
+            0 16px 42px rgba(37, 99, 235, 0.1),
+            0 0 0 4px rgba(37, 99, 235, 0.05);
+    }
+    50% {
+        transform: scale(1.015);
+        box-shadow:
+            0 24px 68px rgba(37, 99, 235, 0.18),
+            0 0 0 10px rgba(37, 99, 235, 0.08);
+    }
+}
+
+.iec-root--complete {
+    text-align: center;
+    gap: 1rem;
+}
+
+.iec-complete-line {
+    max-width: 24rem;
+    margin: 0;
+    color: #0f172a;
+    font-size: clamp(1rem, 4vw, 1.15rem);
+    line-height: 1.5;
+    font-weight: 800;
+}
+
+.iec-complete-quote {
+    width: min(100%, 30rem);
+    margin: 0 0 0.5rem;
+    padding: 1rem;
+    border-left: 4px solid var(--healing-blue, #2563eb);
+    border-radius: 10px;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: clamp(1.1rem, 4.8vw, 1.5rem);
+    line-height: 1.35;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+    box-shadow: var(--shadow-sm);
+}

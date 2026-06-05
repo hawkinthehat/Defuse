@@ -203,6 +203,13 @@ body {
     color: var(--healing-blue);
 }
 
+.exit-btn--locked,
+.exit-btn--locked:hover {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
 .hidden {
     display: none !important;
     pointer-events: none;
@@ -482,8 +489,8 @@ body {
     font-weight: 800;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #ffffff;
-    background: var(--healing-blue);
+    color: #0f172a;
+    background: #bfdbfe;
     border: 2px solid var(--healing-blue);
     border-radius: 6px;
     cursor: pointer;
@@ -510,12 +517,6 @@ body {
     background: var(--bg-surface);
     border: 1.5px solid var(--healing-blue);
     box-shadow: var(--shadow-md), 0 0 0 3px var(--healing-blue-soft);
-}
-
-.dashboard--manual-open .manual-override-btn {
-    border-color: var(--healing-blue);
-    color: var(--healing-blue);
-    background: var(--healing-blue-soft);
 }
 
 .help-me-choose-banner {
@@ -610,62 +611,6 @@ body {
     color: var(--healing-blue);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 800;
-}
-
-.manual-override-btn {
-    width: auto;
-    max-width: 26rem;
-    margin: 22px auto 8px;
-    padding: 8px 10px;
-    border: 0;
-    border-bottom: 1px solid var(--border-strong);
-    border-radius: 0;
-    background: transparent;
-    color: var(--text-secondary);
-    font-size: 0.54rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    box-shadow: none;
-}
-
-.manual-override-btn:hover {
-    color: var(--healing-blue);
-    border-color: var(--healing-blue-ring);
-    background: var(--bg-subtle);
-}
-
-.manual-override-btn[aria-expanded='true'] {
-    color: var(--healing-blue);
-    border-color: var(--healing-blue);
-    background: var(--healing-blue-soft);
-}
-
-.protocol-manual {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    padding: 8px 0 32px;
-}
-
-.protocol-manual.hidden {
-    display: none !important;
-}
-
-.protocol-manual-heading {
-    margin: 12px 0 0;
-    width: 85%;
-    max-width: 400px;
-    font-size: 0.52rem;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    text-align: center;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 .discharge-choice-overlay {

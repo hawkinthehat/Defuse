@@ -35,7 +35,6 @@ const PROTOCOL_ENGAGE = {
     kcb: { name: 'KCB', rhythm: 'HIGH-CONTRAST VISUAL' },
     wmd: { name: 'WMD', rhythm: 'VISUAL' },
     cre: { name: 'CRE', rhythm: 'HAPTIC AND VISUAL' },
-    mdr: { name: 'MDR', rhythm: 'HAPTIC' },
     audio: { name: 'AUDIO', rhythm: 'AUDITORY' },
     vsd: { name: 'VSD', rhythm: 'HAPTIC AND VISUAL' }
 };
@@ -45,7 +44,6 @@ const PROTOCOL_ROUTES = {
     sam: { name: 'SAM', path: 'protocols/sam/' },
     iec: { name: 'IEC', path: 'protocols/iec/' },
     cre: { name: 'CRE', path: 'protocols/cre/' },
-    mdr: { name: 'MDR', path: 'protocols/mdr/' },
     audio: { name: 'AUDIO', path: 'protocols/audio/' },
     cas: { name: 'CAS', path: 'protocols/cas/' },
     obd: { name: 'OBD', path: 'protocols/obd/' }
@@ -55,6 +53,25 @@ let protocolIntroTimeoutId = 0;
 let masterInitializationInited = false;
 let dashboardPrimaryInited = false;
 let masterStartInited = false;
+let protocolExitLocked = false;
+
+function setProtocolExitLocked(locked) {
+    protocolExitLocked = !!locked;
+    const exitBtn = document.querySelector('.exit-btn');
+    if (!exitBtn) return;
+
+    if (protocolExitLocked) {
+        exitBtn.classList.add('exit-btn--locked');
+        exitBtn.setAttribute('aria-disabled', 'true');
+        exitBtn.setAttribute('tabindex', '-1');
+        exitBtn.disabled = true;
+    } else {
+        exitBtn.classList.remove('exit-btn--locked');
+        exitBtn.removeAttribute('aria-disabled');
+        exitBtn.removeAttribute('tabindex');
+        exitBtn.disabled = false;
+    }
+}
 
 function getGlobalBinauralAudioContext() {
     if (typeof window === 'undefined') return null;
@@ -251,7 +268,6 @@ function runProtocol(protocolKey) {
         kcb: () => typeof launchKCB === 'function' && launchKCB(),
         wmd: () => typeof launchWMD === 'function' && launchWMD(),
         cre: () => (typeof launchCRE === 'function' ? launchCRE() : showProtocolPending('cre')),
-        mdr: () => (typeof launchMDR === 'function' ? launchMDR() : showProtocolPending('mdr')),
         audio: () => (typeof launchAudio === 'function' ? launchAudio() : showProtocolPending('audio')),
         vsd: () => typeof launchVSD === 'function' && launchVSD()
     };
@@ -335,13 +351,6 @@ function launchCRESession() {
     if (typeof launchCRE === 'function') launchCRE();
 }
 
-function launchMDRSession() {
-    closeDischargeChoice();
-    closeMemoryChoice();
-    cancelProtocolIntro();
-    if (typeof launchMDR === 'function') launchMDR();
-}
-
 function launchAudioSession() {
     closeDischargeChoice();
     closeMemoryChoice();
@@ -359,7 +368,6 @@ function launchVSDSession() {
 /** Direct-launch modules (custom intro / no engage splash). */
 const DIRECT_SESSION_LAUNCHERS = {
     cre: launchCRESession,
-    mdr: launchMDRSession,
     audio: launchAudioSession
 };
 
@@ -391,26 +399,6 @@ function onPrimarySymptom(symptom) {
     const introKey = INTRO_SESSION_KEYS[symptom];
     if (introKey) {
         launchWithIntro(introKey);
-    }
-}
-
-function toggleProtocolManual() {
-    const wrap = document.getElementById('protocol-manual');
-    const btn = document.getElementById('manual-override-btn');
-    const dash = document.getElementById('dashboard');
-    if (!wrap || !btn) return;
-    const opening = wrap.classList.contains('hidden');
-    selectionTapHaptic();
-    if (opening) {
-        wrap.classList.remove('hidden');
-        wrap.setAttribute('aria-hidden', 'false');
-        btn.setAttribute('aria-expanded', 'true');
-        if (dash) dash.classList.add('dashboard--manual-open');
-    } else {
-        wrap.classList.add('hidden');
-        wrap.setAttribute('aria-hidden', 'true');
-        btn.setAttribute('aria-expanded', 'false');
-        if (dash) dash.classList.remove('dashboard--manual-open');
     }
 }
 
@@ -502,11 +490,6 @@ function initDashboardPrimary() {
         });
     }
 
-    const manualBtn = document.getElementById('manual-override-btn');
-    if (manualBtn) {
-        manualBtn.addEventListener('click', () => toggleProtocolManual());
-    }
-
     const dischargeOverlay = document.getElementById('discharge-choice-overlay');
     if (dischargeOverlay) {
         dischargeOverlay.addEventListener('click', (e) => {
@@ -541,11 +524,20 @@ function openSession(message) {
 }
 
 function exitProtocol() {
+    if (protocolExitLocked) return;
+
     cancelProtocolIntro();
     closeDischargeChoice();
     closeMemoryChoice();
+    setProtocolExitLocked(false);
     if (typeof clearKcbStrobe === 'function') {
         clearKcbStrobe();
+    }
+    if (typeof stopSAM === 'function') {
+        stopSAM();
+    }
+    if (typeof stopIEC === 'function') {
+        stopIEC();
     }
     if (typeof stopCAS === 'function') {
         stopCAS();
@@ -564,9 +556,6 @@ function exitProtocol() {
     }
     if (typeof stopCRE === 'function') {
         stopCRE();
-    }
-    if (typeof stopMDR === 'function') {
-        stopMDR();
     }
     if (typeof stopAudio === 'function') {
         stopAudio();
@@ -606,6 +595,7 @@ if (typeof window !== 'undefined') {
         }
     };
     window.ProtocolRoutes = PROTOCOL_ROUTES;
+    window.setProtocolExitLocked = setProtocolExitLocked;
 }
 
 function initAppShell() {
