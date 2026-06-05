@@ -30,6 +30,7 @@ const PROTOCOL_ENGAGE = {
     ccd: { name: 'CCD', rhythm: 'VISUAL' },
     obs: { name: 'OBS', rhythm: 'VISUAL' },
     abm: { name: 'ABM', rhythm: 'HAPTIC AND VISUAL' },
+    ics: { name: 'ICS', rhythm: 'RESPIRATORY VISUAL' },
     sam: { name: 'SAM', rhythm: 'HAPTIC' },
     iec: { name: 'IEC', rhythm: 'VISUAL AND HAPTIC' },
     kcb: { name: 'KCB', rhythm: 'HIGH-CONTRAST VISUAL' },
@@ -42,6 +43,7 @@ const PROTOCOL_ENGAGE = {
 
 const PROTOCOL_ROUTES = {
     abm: { name: 'ABM', path: 'protocols/abm/' },
+    ics: { name: 'ICS', path: 'protocols/ics/' },
     sam: { name: 'SAM', path: 'protocols/sam/' },
     iec: { name: 'IEC', path: 'protocols/iec/' },
     cre: { name: 'CRE', path: 'protocols/cre/' },
@@ -246,6 +248,7 @@ function runProtocol(protocolKey) {
         ccd: () => typeof launchCCD === 'function' && launchCCD(),
         obs: () => typeof launchOBS === 'function' && launchOBS(),
         abm: () => (typeof launchABM === 'function' ? launchABM() : showProtocolPending('abm')),
+        ics: () => (typeof launchICS === 'function' ? launchICS() : showProtocolPending('ics')),
         sam: () => (typeof launchSAM === 'function' ? launchSAM() : showProtocolPending('sam')),
         iec: () => (typeof launchIEC === 'function' ? launchIEC() : showProtocolPending('iec')),
         kcb: () => typeof launchKCB === 'function' && launchKCB(),
@@ -366,6 +369,7 @@ const DIRECT_SESSION_LAUNCHERS = {
 /** Standard engage-splash protocols. */
 const INTRO_SESSION_KEYS = {
     abm: 'abm',
+    ics: 'ics',
     sam: 'sam',
     iec: 'iec',
     cas: 'cas',
@@ -553,6 +557,9 @@ function exitProtocol() {
     if (typeof stopABM === 'function') {
         stopABM();
     }
+    if (typeof stopICS === 'function') {
+        stopICS();
+    }
     if (typeof stopOBD === 'function') {
         stopOBD();
     }
@@ -576,7 +583,7 @@ function exitProtocol() {
     }
     const vp = document.getElementById('viewport');
     if (vp) {
-        vp.classList.remove('viewport-obs');
+        vp.classList.remove('viewport-obs', 'viewport-ics');
         vp.classList.add('hidden');
         vp.setAttribute('aria-hidden', 'true');
         vp.style.removeProperty('display');
