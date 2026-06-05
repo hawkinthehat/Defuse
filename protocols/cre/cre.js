@@ -108,7 +108,6 @@
     ];
 
     let creRunning = false;
-    let creIntroTimeoutId = 0;
     let creSpawnId = 0;
     let creTimerId = 0;
     let creRafId = 0;
@@ -143,10 +142,6 @@
         choiceOpen = false;
         sessionEnded = false;
         thoughts = [];
-        if (creIntroTimeoutId) {
-            clearTimeout(creIntroTimeoutId);
-            creIntroTimeoutId = 0;
-        }
         if (creSpawnId) {
             clearInterval(creSpawnId);
             creSpawnId = 0;
@@ -265,30 +260,29 @@
     function renderPreflight() {
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
-        setInst('CRE · READY');
+        setInst('CRE · READ INSTRUCTIONS');
         stage.innerHTML = `
             <div class="cre-root cre-root--preflight">
-                <section class="cre-preflight-card" role="dialog" aria-labelledby="cre-preflight-title" aria-describedby="cre-preflight-steps">
-                    <p class="cre-preflight-kicker">Cognitive Re-Coder</p>
-                    <h2 class="cre-preflight-title" id="cre-preflight-title">HOW TO RE-CODE</h2>
-                    <ol class="cre-preflight-steps" id="cre-preflight-steps">
-                        <li>Anxious thought loops will drift down the screen.</li>
-                        <li>Tap a moving block to freeze it and open the filter.</li>
-                        <li>Select the most neutral, objective, and realistic re-code option at the bottom to neutralize the threat.</li>
-                        <li>Avoid choosing catastrophizing options to keep your stability at 100%.</li>
-                    </ol>
-                    <button type="button" class="cre-start-btn" id="cre-start">[ START TASK ]</button>
-                </section>
+                <div class="protocol-preflight-overlay">
+                    <section class="protocol-preflight-card" role="dialog" aria-labelledby="cre-preflight-title" aria-describedby="cre-preflight-steps">
+                        <h2 class="protocol-preflight-title" id="cre-preflight-title">HOW TO RE-CODE</h2>
+                        <ol class="protocol-preflight-steps" id="cre-preflight-steps">
+                            <li>Anxious thought loops will drift down the screen.</li>
+                            <li>Tap a moving block to freeze it and open the filter.</li>
+                            <li>Select the most neutral, objective, and realistic re-code option at the bottom to neutralize the threat.</li>
+                            <li>Avoid choosing catastrophizing options to keep your stability at 100%.</li>
+                        </ol>
+                        <button type="button" class="protocol-preflight-start" id="cre-preflight-start">[ START TASK ]</button>
+                    </section>
+                </div>
             </div>
         `;
-        const start = document.getElementById('cre-start');
-        if (start) {
-            start.addEventListener('click', () => {
-                successHaptic();
-                creRunning = true;
-                startSession();
-            });
-        }
+        const start = document.getElementById('cre-preflight-start');
+        if (start) start.addEventListener('click', () => {
+            successHaptic();
+            creRunning = true;
+            startSession();
+        });
     }
 
     function spawnThought() {

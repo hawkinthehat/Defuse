@@ -9,7 +9,7 @@
     flex-direction: column;
     box-sizing: border-box;
     background: var(--bg-page, #f8fafc);
-    color: var(--text-primary, #0f172a);
+    color: #0f172a;
     position: relative;
     overflow: hidden;
 }
@@ -29,54 +29,10 @@
     text-align: center;
 }
 
-.cre-preflight-card {
-    width: min(100%, 24rem);
-    padding: 1.35rem 1.15rem 1.2rem;
-    border: 1.5px solid var(--border-strong, #cbd5e1);
-    border-radius: 14px;
-    background: var(--bg-surface, #ffffff);
-    box-shadow: var(--shadow-md);
-    box-sizing: border-box;
-}
-
-.cre-preflight-kicker {
-    margin: 0 0 0.55rem;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(0.68rem, 2.8vw, 0.78rem);
-    line-height: 1.35;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--healing-blue, #2563eb);
-    font-weight: 800;
-}
-
-.cre-preflight-title {
-    margin: 0 0 1rem;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(1.25rem, 6vw, 1.72rem);
-    line-height: 1.1;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #0f172a;
-    font-weight: 900;
-}
-
-.cre-preflight-steps {
-    margin: 0 0 1.25rem;
-    padding-left: 1.35rem;
-    text-align: left;
-    color: #0f172a;
-}
-
-.cre-preflight-steps li {
-    margin: 0 0 0.7rem;
-    font-size: clamp(0.98rem, 4vw, 1.12rem);
-    line-height: 1.42;
-    font-weight: 700;
-}
-
-.cre-preflight-steps li:last-child {
-    margin-bottom: 0;
+.cre-root--preflight {
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
 }
 
 .cre-stability-wrap {
@@ -84,21 +40,21 @@
     display: flex;
     align-items: center;
     gap: 0.65rem;
-    padding: 0.75rem 1rem 0.65rem;
-    border-bottom: 1px solid var(--border-subtle, #e2e8f0);
-    background: rgba(255, 255, 255, 0.96);
+    padding: 0.65rem 5.5rem 0.5rem 1rem;
+    border-bottom: 1px solid rgba(112, 161, 255, 0.2);
+    background: var(--bg-surface, #ffffff);
     z-index: 4;
     box-shadow: var(--shadow-sm);
 }
 
 .cre-stability-label {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(0.68rem, 2.8vw, 0.8rem);
-    letter-spacing: 0.16em;
+    font-size: clamp(0.68rem, 3.2vw, 0.78rem);
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: #0f172a;
-    font-weight: 800;
     white-space: nowrap;
+    font-weight: 800;
 }
 
 .cre-stability-track {
@@ -123,10 +79,10 @@
 
 .cre-stability-pct {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(0.72rem, 3vw, 0.84rem);
-    letter-spacing: 0.08em;
+    font-size: clamp(0.72rem, 3.4vw, 0.85rem);
+    letter-spacing: 0.06em;
     color: #0f172a;
-    min-width: 2.5rem;
+    min-width: 2.75rem;
     text-align: right;
     font-weight: 800;
 }
@@ -182,8 +138,8 @@
 
 .cre-thought-text {
     margin: 0;
-    font-size: clamp(0.95rem, 4vw, 1.08rem);
-    line-height: 1.4;
+    font-size: clamp(0.95rem, 4.2vw, 1.08rem);
+    line-height: 1.45;
     font-weight: 700;
     color: #0f172a;
     text-align: center;
@@ -258,8 +214,8 @@
 .cre-choice-prompt {
     margin: 0 0 0.75rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(0.7rem, 2.8vw, 0.82rem);
-    letter-spacing: 0.14em;
+    font-size: clamp(0.72rem, 3.4vw, 0.82rem);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #0f172a;
     text-align: center;
@@ -268,7 +224,7 @@
 
 .cre-choice-threat {
     margin: 0 0 1rem;
-    font-size: clamp(0.96rem, 3.8vw, 1.08rem);
+    font-size: clamp(0.95rem, 4.2vw, 1.08rem);
     line-height: 1.45;
     color: #0f172a;
     text-align: center;
@@ -286,24 +242,24 @@
 
 .cre-choice-btn {
     width: 100%;
-    padding: 0.85rem 0.95rem;
+    padding: 0.85rem 1rem;
     text-align: left;
-    font-size: clamp(0.92rem, 3.7vw, 1.04rem);
-    line-height: 1.4;
+    font-size: clamp(0.95rem, 4.2vw, 1.08rem);
+    line-height: 1.45;
     color: #0f172a;
     background: var(--bg-surface, #ffffff);
-    border: 1px solid rgba(112, 161, 255, 0.28);
-    border-radius: 4px;
-    font-weight: 700;
+    border: 1.5px solid var(--border-subtle, #e2e8f0);
+    border-radius: 6px;
     cursor: pointer;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    font-weight: 700;
     transition: border-color 0.12s ease, background 0.12s ease;
 }
 
 .cre-choice-btn:hover {
-    border-color: rgba(0, 210, 211, 0.5);
-    background: rgba(0, 210, 211, 0.08);
+    border-color: var(--healing-blue, #2563eb);
+    background: var(--healing-blue-soft, rgba(37, 99, 235, 0.1));
 }
 
 .cre-choice-btn:active {
@@ -330,19 +286,19 @@
 
 .cre-complete-line {
     margin: 0 0 1rem;
-    font-size: clamp(0.98rem, 3.8vw, 1.12rem);
+    font-size: clamp(1rem, 4.2vw, 1.12rem);
     line-height: 1.55;
     font-weight: 700;
-    color: var(--text-primary, #0f172a);
+    color: #0f172a;
     max-width: 20rem;
 }
 
 .cre-complete-meta {
     margin: 0 0 1.5rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(0.82rem, 3.4vw, 0.95rem);
+    font-size: clamp(0.82rem, 3.6vw, 0.95rem);
     letter-spacing: 0.06em;
-    color: var(--healing-blue, #2563eb);
+    color: #0f172a;
     font-weight: 700;
 }
 

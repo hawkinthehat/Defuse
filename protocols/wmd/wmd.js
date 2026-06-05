@@ -26,7 +26,6 @@
     };
 
     let wmdRunning = false;
-    let wmdIntroTimeoutId = 0;
     let wmdTimerIntervalId = 0;
     let wmdSessionEndAt = 0;
     let score = 0;
@@ -50,10 +49,6 @@
     function stopWMD() {
         wmdRunning = false;
         roundLocked = false;
-        if (wmdIntroTimeoutId) {
-            clearTimeout(wmdIntroTimeoutId);
-            wmdIntroTimeoutId = 0;
-        }
         if (wmdTimerIntervalId) {
             clearInterval(wmdTimerIntervalId);
             wmdTimerIntervalId = 0;
@@ -123,30 +118,29 @@
     function renderPreflight() {
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
-        setInst('WMD · READY');
+        setInst('WMD · READ INSTRUCTIONS');
         stage.innerHTML = `
             <div class="wmd-root wmd-root--preflight">
-                <section class="wmd-preflight-card" role="dialog" aria-labelledby="wmd-preflight-title" aria-describedby="wmd-preflight-steps">
-                    <p class="wmd-preflight-kicker">Visuospatial Deflector</p>
-                    <h2 class="wmd-preflight-title" id="wmd-preflight-title">HOW TO STABILIZE</h2>
-                    <ol class="wmd-preflight-steps" id="wmd-preflight-steps">
-                        <li>Watch the grid. Three blocks will flash Blue.</li>
-                        <li>The grid will shuffle.</li>
-                        <li>Tap the exact blocks where the Blue patterns originally appeared.</li>
-                        <li>Focus entirely on the shapes to occupy your working memory.</li>
-                    </ol>
-                    <button type="button" class="wmd-start-btn" id="wmd-start">[ START TASK ]</button>
-                </section>
+                <div class="protocol-preflight-overlay">
+                    <section class="protocol-preflight-card" role="dialog" aria-labelledby="wmd-preflight-title" aria-describedby="wmd-preflight-steps">
+                        <h2 class="protocol-preflight-title" id="wmd-preflight-title">HOW TO STABILIZE</h2>
+                        <ol class="protocol-preflight-steps" id="wmd-preflight-steps">
+                            <li>Watch the grid. Three blocks will flash Blue.</li>
+                            <li>The grid will shuffle.</li>
+                            <li>Tap the exact blocks where the Blue patterns originally appeared.</li>
+                            <li>Focus entirely on the shapes to occupy your working memory.</li>
+                        </ol>
+                        <button type="button" class="protocol-preflight-start" id="wmd-preflight-start">[ START TASK ]</button>
+                    </section>
+                </div>
             </div>
         `;
-        const start = document.getElementById('wmd-start');
-        if (start) {
-            start.addEventListener('click', () => {
-                successHaptic();
-                wmdRunning = true;
-                startSession();
-            });
-        }
+        const start = document.getElementById('wmd-preflight-start');
+        if (start) start.addEventListener('click', () => {
+            successHaptic();
+            wmdRunning = true;
+            startSession();
+        });
     }
 
     function renderComplete() {

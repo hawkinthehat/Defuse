@@ -12,13 +12,20 @@
     box-sizing: border-box;
     padding: 1rem 1.25rem 2rem;
     background: var(--bg-page, #f8fafc);
-    color: var(--text-primary, #0f172a);
+    color: #0f172a;
+    position: relative;
 }
 
-.wmd-root--preflight,
 .wmd-root--complete {
     text-align: center;
     padding: 1.25rem;
+}
+
+.wmd-root--preflight {
+    max-width: none;
+    width: 100%;
+    padding: 0;
+    justify-content: stretch;
 }
 
 .wmd-preflight-card {
@@ -74,11 +81,11 @@
 .wmd-complete-line {
     margin: 0 0 1rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(0.95rem, 3.8vw, 1.08rem);
+    font-size: clamp(0.95rem, 4vw, 1.08rem);
     line-height: 1.55;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--text-primary, #0f172a);
+    color: #0f172a;
     font-weight: 700;
 }
 
@@ -112,8 +119,8 @@
 .wmd-score {
     margin: 0;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(0.78rem, 3.2vw, 0.92rem);
-    letter-spacing: 0.18em;
+    font-size: clamp(0.78rem, 3.6vw, 0.92rem);
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: #0f172a;
     font-weight: 800;
@@ -192,7 +199,7 @@
 }
 
 .wmd-complete-line {
-    font-weight: 600;
+    font-weight: 700;
     text-transform: none;
     letter-spacing: 0.02em;
     color: #0f172a;
@@ -201,9 +208,9 @@
 .wmd-complete-score {
     margin: 0 0 1.5rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(0.82rem, 3.4vw, 0.95rem);
-    letter-spacing: 0.08em;
-    color: var(--healing-blue, #2563eb);
+    font-size: clamp(0.82rem, 3.6vw, 0.95rem);
+    letter-spacing: 0.06em;
+    color: #0f172a;
     font-weight: 700;
 }
 
