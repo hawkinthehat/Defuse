@@ -3,6 +3,21 @@
  */
 
 const PROTOCOL_INTRO_MS = 1500;
+const GLOBAL_BINAURAL_CONFIG = {
+    leftHz: 200,
+    rightHz: 206,
+    gain: 0.05
+};
+
+const globalBinauralState = {
+    audioContext: null,
+    leftOscillator: null,
+    rightOscillator: null,
+    masterGain: null,
+    merger: null,
+    started: false,
+    unlocked: false
+};
 
 /**
  * Pre-session splash: PROTOCOL ENGAGED: [NAME]. FOCUS ON THE [RHYTHM TYPE] RHYTHM.
@@ -15,6 +30,8 @@ const PROTOCOL_ENGAGE = {
     ccd: { name: 'CCD', rhythm: 'VISUAL' },
     obs: { name: 'OBS', rhythm: 'VISUAL' },
     abm: { name: 'ABM', rhythm: 'HAPTIC AND VISUAL' },
+    sam: { name: 'SAM', rhythm: 'HAPTIC' },
+    iec: { name: 'IEC', rhythm: 'VISUAL AND HAPTIC' },
     kcb: { name: 'KCB', rhythm: 'HIGH-CONTRAST VISUAL' },
     wmd: { name: 'WMD', rhythm: 'VISUAL' },
     cre: { name: 'CRE', rhythm: 'HAPTIC AND VISUAL' },
@@ -23,9 +40,157 @@ const PROTOCOL_ENGAGE = {
     vsd: { name: 'VSD', rhythm: 'HAPTIC AND VISUAL' }
 };
 
+const PROTOCOL_ROUTES = {
+    abm: { name: 'ABM', path: 'protocols/abm/' },
+    sam: { name: 'SAM', path: 'protocols/sam/' },
+    iec: { name: 'IEC', path: 'protocols/iec/' },
+    cre: { name: 'CRE', path: 'protocols/cre/' },
+    mdr: { name: 'MDR', path: 'protocols/mdr/' },
+    audio: { name: 'AUDIO', path: 'protocols/audio/' },
+    cas: { name: 'CAS', path: 'protocols/cas/' },
+    obd: { name: 'OBD', path: 'protocols/obd/' }
+};
+
 let protocolIntroTimeoutId = 0;
 let masterInitializationInited = false;
 let dashboardPrimaryInited = false;
+let masterStartInited = false;
+
+function getGlobalBinauralAudioContext() {
+    if (typeof window === 'undefined') return null;
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+
+    if (!globalBinauralState.audioContext || globalBinauralState.audioContext.state === 'closed') {
+        try {
+            globalBinauralState.audioContext = new Ctx();
+            globalBinauralState.started = false;
+            globalBinauralState.unlocked = false;
+        } catch {
+            globalBinauralState.audioContext = null;
+        }
+    }
+
+    return globalBinauralState.audioContext;
+}
+
+function initializeGlobalBinauralEngine() {
+    const audioContext = getGlobalBinauralAudioContext();
+    if (!audioContext) return false;
+    if (globalBinauralState.started) return true;
+
+    try {
+        const leftOscillator = audioContext.createOscillator();
+        const rightOscillator = audioContext.createOscillator();
+        const leftGain = audioContext.createGain();
+        const rightGain = audioContext.createGain();
+        const merger = audioContext.createChannelMerger(2);
+        const masterGain = audioContext.createGain();
+
+        leftOscillator.type = 'sine';
+        rightOscillator.type = 'sine';
+        leftOscillator.frequency.value = GLOBAL_BINAURAL_CONFIG.leftHz;
+        rightOscillator.frequency.value = GLOBAL_BINAURAL_CONFIG.rightHz;
+        leftGain.gain.value = 1;
+        rightGain.gain.value = 1;
+        masterGain.gain.value = 0;
+
+        leftOscillator.connect(leftGain);
+        rightOscillator.connect(rightGain);
+        leftGain.connect(merger, 0, 0);
+        rightGain.connect(merger, 0, 1);
+        merger.connect(masterGain);
+        masterGain.connect(audioContext.destination);
+
+        const now = audioContext.currentTime;
+        leftOscillator.start(now);
+        rightOscillator.start(now);
+
+        globalBinauralState.leftOscillator = leftOscillator;
+        globalBinauralState.rightOscillator = rightOscillator;
+        globalBinauralState.masterGain = masterGain;
+        globalBinauralState.merger = merger;
+        globalBinauralState.started = true;
+        return true;
+    } catch {
+        globalBinauralState.started = false;
+        return false;
+    }
+}
+
+function setGlobalBinauralGain(value) {
+    const { audioContext, masterGain } = globalBinauralState;
+    if (!audioContext || !masterGain) return;
+
+    try {
+        masterGain.gain.cancelScheduledValues(audioContext.currentTime);
+        masterGain.gain.setTargetAtTime(value, audioContext.currentTime, 0.03);
+    } catch {
+        masterGain.gain.value = value;
+    }
+}
+
+function resumeGlobalBinauralEngine() {
+    if (!initializeGlobalBinauralEngine()) return Promise.resolve(false);
+
+    const audioContext = globalBinauralState.audioContext;
+    if (!audioContext || audioContext.state !== 'suspended') {
+        globalBinauralState.unlocked = !!audioContext;
+        if (globalBinauralState.unlocked) setGlobalBinauralGain(GLOBAL_BINAURAL_CONFIG.gain);
+        return Promise.resolve(!!audioContext);
+    }
+
+    return audioContext
+        .resume()
+        .then(() => {
+            globalBinauralState.unlocked = true;
+            setGlobalBinauralGain(GLOBAL_BINAURAL_CONFIG.gain);
+            return true;
+        })
+        .catch(() => false);
+}
+
+function initializationHapticTap() {
+    if (typeof navigator === 'undefined' || !navigator.vibrate) return;
+    try {
+        navigator.vibrate(40);
+    } catch {
+        /* ignore */
+    }
+}
+
+function fadeOutMasterStartOverlay() {
+    const overlay = document.getElementById('master-start-overlay');
+    if (!overlay || overlay.classList.contains('hidden')) return;
+
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.classList.add('master-start-overlay--exiting');
+
+    const hideOverlay = () => {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('master-start-overlay--exiting');
+    };
+
+    overlay.addEventListener('transitionend', hideOverlay, { once: true });
+    window.setTimeout(hideOverlay, 700);
+}
+
+function initMasterStartOverlay() {
+    if (masterStartInited) return;
+    masterStartInited = true;
+    initializeGlobalBinauralEngine();
+
+    const button = document.getElementById('master-start-button');
+    if (!button) return;
+
+    button.addEventListener('click', () => {
+        button.disabled = true;
+        initializationHapticTap();
+        resumeGlobalBinauralEngine().finally(() => {
+            fadeOutMasterStartOverlay();
+        });
+    });
+}
 
 function selectionTapHaptic() {
     if (typeof navigator === 'undefined' || !navigator.vibrate) return;
@@ -48,19 +213,46 @@ function cancelProtocolIntro() {
     }
 }
 
+function showProtocolPending(protocolKey) {
+    const route = PROTOCOL_ROUTES[protocolKey];
+    const name = route ? route.name : String(protocolKey || '').toUpperCase();
+    const path = route ? route.path : 'protocols/';
+
+    if (typeof showProtocolViewport === 'function') {
+        showProtocolViewport();
+    }
+
+    const inst = document.getElementById('inst');
+    if (inst) inst.textContent = `${name} · PROTOCOL ROUTE READY`;
+
+    const stage = document.getElementById('protocol-stage');
+    if (!stage) return;
+    stage.innerHTML = `
+        <div class="protocol-pending-root">
+            <p class="protocol-pending-kicker">${name}</p>
+            <p class="protocol-pending-line">Protocol route linked to <span>${path}</span>.</p>
+            <p class="protocol-pending-sub">The dashboard entry is ready for the ${name} module launcher when this protocol subfolder is installed.</p>
+            <button type="button" class="protocol-pending-done" id="protocol-pending-done">RETURN TO DASHBOARD</button>
+        </div>
+    `;
+    document.getElementById('protocol-pending-done')?.addEventListener('click', () => exitProtocol());
+}
+
 function runProtocol(protocolKey) {
     const runners = {
         cpi: () => typeof launchCPI === 'function' && launchCPI(),
-        cas: () => typeof launchCAS === 'function' && launchCAS(),
-        obd: () => typeof launchOBD === 'function' && launchOBD(),
+        cas: () => (typeof launchCAS === 'function' ? launchCAS() : showProtocolPending('cas')),
+        obd: () => (typeof launchOBD === 'function' ? launchOBD() : showProtocolPending('obd')),
         ccd: () => typeof launchCCD === 'function' && launchCCD(),
         obs: () => typeof launchOBS === 'function' && launchOBS(),
-        abm: () => typeof launchABM === 'function' && launchABM(),
+        abm: () => (typeof launchABM === 'function' ? launchABM() : showProtocolPending('abm')),
+        sam: () => (typeof launchSAM === 'function' ? launchSAM() : showProtocolPending('sam')),
+        iec: () => (typeof launchIEC === 'function' ? launchIEC() : showProtocolPending('iec')),
         kcb: () => typeof launchKCB === 'function' && launchKCB(),
         wmd: () => typeof launchWMD === 'function' && launchWMD(),
-        cre: () => typeof launchCRE === 'function' && launchCRE(),
-        mdr: () => typeof launchMDR === 'function' && launchMDR(),
-        audio: () => typeof launchAudio === 'function' && launchAudio(),
+        cre: () => (typeof launchCRE === 'function' ? launchCRE() : showProtocolPending('cre')),
+        mdr: () => (typeof launchMDR === 'function' ? launchMDR() : showProtocolPending('mdr')),
+        audio: () => (typeof launchAudio === 'function' ? launchAudio() : showProtocolPending('audio')),
         vsd: () => typeof launchVSD === 'function' && launchVSD()
     };
     const fn = runners[protocolKey];
@@ -174,6 +366,8 @@ const DIRECT_SESSION_LAUNCHERS = {
 /** Standard engage-splash protocols. */
 const INTRO_SESSION_KEYS = {
     abm: 'abm',
+    sam: 'sam',
+    iec: 'iec',
     cas: 'cas',
     obd: 'obd',
     obs: 'obs'
@@ -397,6 +591,26 @@ function exitProtocol() {
         inst.textContent = '';
         inst.removeAttribute('style');
     }
+}
+
+if (typeof window !== 'undefined') {
+    window.GlobalBinauralEngine = {
+        config: GLOBAL_BINAURAL_CONFIG,
+        initialize: initializeGlobalBinauralEngine,
+        resume: resumeGlobalBinauralEngine,
+        get audioContext() {
+            return globalBinauralState.audioContext;
+        },
+        get isActive() {
+            return globalBinauralState.started && globalBinauralState.unlocked;
+        }
+    };
+    window.ProtocolRoutes = PROTOCOL_ROUTES;
+}
+
+function initAppShell() {
+    initMasterStartOverlay();
+    initDashboardPrimary();
 }
 
 if (typeof document !== 'undefined') {
