@@ -150,6 +150,7 @@ body {
     width: 100vw;
     height: 100vh;
     height: 100dvh;
+    min-height: 100vh;
     background: var(--bg-page);
     display: flex;
     flex-direction: column;
@@ -158,22 +159,24 @@ body {
     z-index: 1000;
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 32px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .instruction-bar {
     position: fixed;
     top: calc(env(safe-area-inset-top, 32px) + 52px);
-    left: 1rem;
-    right: 5.75rem;
+    left: max(16px, env(safe-area-inset-left, 0px));
+    right: calc(max(20px, env(safe-area-inset-right, 0px)) + 5.75rem);
     margin: 0;
-    text-align: center;
     color: var(--healing-blue);
     font-family: monospace;
-    font-size: clamp(0.72rem, 3.2vw, 0.85rem);
-    letter-spacing: 0.06em;
-    font-weight: 600;
+    font-size: clamp(0.74rem, 2.8vw, 0.88rem);
     line-height: 1.35;
+    letter-spacing: 1px;
+    font-weight: 800;
+    text-align: center;
     pointer-events: none;
+    z-index: 12001;
 }
 
 .exit-btn {
@@ -323,6 +326,7 @@ body {
     align-items: center;
     position: relative;
     box-sizing: border-box;
+    padding-top: 4.75rem;
 }
 
 /* Pre-flight instruction overlay — WMD, CRE, and shared protocol entry */

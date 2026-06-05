@@ -122,21 +122,23 @@
         stage.innerHTML = `
             <div class="wmd-root wmd-root--preflight">
                 <div class="protocol-preflight-overlay">
-                    <div class="protocol-preflight-card">
-                        <h2 class="protocol-preflight-title">HOW TO STABILIZE</h2>
-                        <ol class="protocol-preflight-steps">
+                    <section class="protocol-preflight-card" role="dialog" aria-labelledby="wmd-preflight-title" aria-describedby="wmd-preflight-steps">
+                        <h2 class="protocol-preflight-title" id="wmd-preflight-title">HOW TO STABILIZE</h2>
+                        <ol class="protocol-preflight-steps" id="wmd-preflight-steps">
                             <li>Watch the grid. Three blocks will flash Blue.</li>
                             <li>The grid will shuffle.</li>
                             <li>Tap the exact blocks where the Blue patterns originally appeared.</li>
                             <li>Focus entirely on the shapes to occupy your working memory.</li>
                         </ol>
                         <button type="button" class="protocol-preflight-start" id="wmd-preflight-start">[ START TASK ]</button>
-                    </div>
+                    </section>
                 </div>
             </div>
         `;
-        document.getElementById('wmd-preflight-start')?.addEventListener('click', () => {
-            if (!wmdRunning) return;
+        const start = document.getElementById('wmd-preflight-start');
+        if (start) start.addEventListener('click', () => {
+            successHaptic();
+            wmdRunning = true;
             startSession();
         });
     }
@@ -259,7 +261,6 @@
 
     function launchWMD() {
         stopWMD();
-        wmdRunning = true;
         score = 0;
 
         if (typeof showProtocolViewport === 'function') {
