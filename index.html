@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="protocols/wmd/wmd.css">
     <link rel="stylesheet" href="protocols/cre/cre.css">
     <link rel="stylesheet" href="protocols/mdr/mdr.css">
+    <link rel="stylesheet" href="protocols/ics/ics.css">
     <link rel="stylesheet" href="protocols/audio/audio.css">
     <link rel="stylesheet" href="protocols/vsd/vsd.css">
 </head>
@@ -46,6 +47,12 @@
             <p class="help-me-choose-banner">Shift My View</p>
             <h1 id="diag-hero" class="diagnostic-hero">Take a breath. Choose the protocol that fits this moment.</h1>
             <ul class="symptom-grid">
+                <li>
+                    <button type="button" class="symptom-tile" data-symptom="ics" data-protocol-path="protocols/ics/">
+                        <span class="symptom-tile-label">I feel a sudden physical shift or panic sensation in my body</span>
+                        <span class="symptom-tile-meta">ICS · Interoceptive Conditioning Sandbox</span>
+                    </button>
+                </li>
                 <li>
                     <button type="button" class="symptom-tile" data-symptom="abm" data-protocol-path="protocols/abm/">
                         <span class="symptom-tile-label">My thoughts are racing / attention keeps snapping to threat</span>
@@ -174,15 +181,22 @@
                 <p class="protocol-indicator">Mammalian dive reflex</p>
                 <p class="protocol-best">Best for: Physical panic spikes, autonomic surge.</p>
             </div>
+            <div class="protocol-card" onclick="launchWithIntro('ics')">
+                <p class="term">Phase 11 · Interoceptive conditioning</p>
+                <h2 class="callsign">ICS</h2>
+                <p class="purpose">Respiratory rhythm calibration · 40s sandbox</p>
+                <p class="protocol-indicator">Panic sensation retraining</p>
+                <p class="protocol-best">Best for: Sudden physical shifts, panic sensations, body alarms.</p>
+            </div>
             <div class="protocol-card" onclick="launchAudioSession()">
-                <p class="term">Phase 11 · Binaural entrainment</p>
+                <p class="term">Phase 12 · Binaural entrainment</p>
                 <h2 class="callsign">AUDIO</h2>
                 <p class="purpose">Beta-to-Theta differential · 90 second drift</p>
                 <p class="protocol-indicator">Headphones required</p>
                 <p class="protocol-best">Best for: Overstimulated, loud mental state.</p>
             </div>
             <div class="protocol-card" onclick="launchVSDSession()">
-                <p class="term">Phase 12 · Visuospatial load</p>
+                <p class="term">Phase 13 · Visuospatial load</p>
                 <h2 class="callsign">VSD</h2>
                 <p class="purpose">3×3 pattern flash · shuffled coordinate recall</p>
                 <p class="protocol-indicator">Memory saturation grid</p>
@@ -237,6 +251,7 @@
     <script src="protocols/wmd/wmd.js"></script>
     <script src="protocols/cre/cre.js"></script>
     <script src="protocols/mdr/mdr.js"></script>
+    <script src="protocols/ics/ics.js"></script>
     <script src="protocols/audio/audio.js"></script>
     <script src="protocols/vsd/vsd.js"></script>
     <script>
