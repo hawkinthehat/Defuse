@@ -1,4 +1,4 @@
-const CACHE_NAME = 'defuse-v8';
+const CACHE_NAME = 'defuse-v9';
 
 const PRECACHE_URLS = [
   '/',
@@ -33,6 +33,10 @@ const PRECACHE_URLS = [
   '/protocols/vsd/vsd.js',
   '/protocols/gcm/gcm.css',
   '/protocols/gcm/gcm.js',
+  '/protocols/sam/sam.css',
+  '/protocols/sam/app.js',
+  '/protocols/iec/iec.css',
+  '/protocols/iec/app.js',
 ];
 
 self.addEventListener('install', (event) => {
