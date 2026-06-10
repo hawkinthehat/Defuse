@@ -621,9 +621,15 @@ function exitProtocol() {
     if (typeof stopGCM === 'function') {
         stopGCM();
     }
+    if (typeof stopSAM === 'function') {
+        stopSAM();
+    }
+    if (typeof stopIEC === 'function') {
+        stopIEC();
+    }
     const vp = document.getElementById('viewport');
     if (vp) {
-        vp.classList.remove('viewport-obs', 'viewport-ics');
+        vp.classList.remove('viewport-obs', 'viewport-ics', 'viewport-sam', 'viewport-iec');
         vp.classList.add('hidden');
         vp.setAttribute('aria-hidden', 'true');
         vp.style.removeProperty('display');
