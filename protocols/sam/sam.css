@@ -1,0 +1,182 @@
+/* SAM — sustained attention and signal detection */
+
+.sam-root {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    align-self: stretch;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: calc(env(safe-area-inset-top, 32px) + 5rem) 1rem calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+    background:
+        radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.1), transparent 32rem),
+        #f8fafc;
+    color: #0f172a;
+}
+
+.sam-canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #f8fafc;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.sam-root--onboarding,
+.sam-root--complete {
+    overflow-y: auto;
+}
+
+.sam-card {
+    width: min(100%, 24rem);
+    padding: clamp(1.35rem, 5vw, 1.85rem);
+    border: 1.5px solid rgba(37, 99, 235, 0.42);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow:
+        0 24px 70px rgba(15, 23, 42, 0.13),
+        0 0 0 5px rgba(37, 99, 235, 0.06);
+    box-sizing: border-box;
+}
+
+.sam-kicker {
+    margin: 0 0 0.7rem;
+    color: #2563eb;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.62rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    line-height: 1.35;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.sam-title {
+    margin: 0;
+    color: #0f172a;
+    font-size: clamp(1.55rem, 7vw, 2.35rem);
+    font-weight: 950;
+    letter-spacing: -0.045em;
+    line-height: 1.06;
+    text-align: center;
+}
+
+.sam-steps {
+    margin: 1.25rem 0 1.45rem;
+    padding-left: 1.25rem;
+    color: #0f172a;
+    display: flex;
+    flex-direction: column;
+    gap: 0.72rem;
+}
+
+.sam-steps li {
+    font-size: clamp(0.94rem, 4vw, 1.05rem);
+    font-weight: 720;
+    line-height: 1.46;
+}
+
+.sam-start-btn,
+.sam-done-btn {
+    width: 100%;
+    min-height: 3.18rem;
+    border: 1.5px solid #2563eb;
+    border-radius: 12px;
+    background: #2563eb;
+    color: #ffffff;
+    cursor: pointer;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.76rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    box-shadow: 0 14px 32px rgba(37, 99, 235, 0.24);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.sam-start-btn:hover,
+.sam-start-btn:focus-visible,
+.sam-done-btn:hover,
+.sam-done-btn:focus-visible {
+    outline: none;
+    background: #3b82f6;
+    border-color: #3b82f6;
+    box-shadow:
+        0 16px 36px rgba(37, 99, 235, 0.28),
+        0 0 0 4px rgba(37, 99, 235, 0.14);
+}
+
+.sam-start-btn:active,
+.sam-done-btn:active {
+    transform: scale(0.985);
+}
+
+.sam-card--summary {
+    text-align: center;
+}
+
+.sam-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 1.35rem 0 1rem;
+}
+
+.sam-summary-grid p {
+    margin: 0;
+    padding: 0.9rem 0.72rem;
+    border: 1px solid #dbe5f0;
+    border-radius: 14px;
+    background: #f8fafc;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.sam-summary-grid strong,
+.sam-summary-grid span {
+    display: block;
+}
+
+.sam-summary-grid strong {
+    color: #0f172a;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(1.25rem, 6vw, 1.75rem);
+    font-weight: 950;
+    line-height: 1;
+}
+
+.sam-summary-grid span {
+    margin-top: 0.45rem;
+    color: #475569;
+    font-size: 0.68rem;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    line-height: 1.25;
+    text-transform: uppercase;
+}
+
+.sam-summary-note {
+    margin: 0 0 1.35rem;
+    color: #334155;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+@media (max-width: 360px) {
+    .sam-card {
+        padding: 1.15rem 1rem;
+    }
+
+    .sam-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
