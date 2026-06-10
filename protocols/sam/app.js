@@ -608,12 +608,14 @@
     function stopSAM() {
         stopLoopOnly();
         samEnded = false;
+        document.getElementById('viewport')?.classList.remove('viewport-sam');
         const stage = document.getElementById('protocol-stage');
         if (stage) stage.removeAttribute('style');
     }
 
     function launchSAM() {
         stopSAM();
+        document.getElementById('viewport')?.classList.add('viewport-sam');
         if (typeof showProtocolViewport === 'function') showProtocolViewport();
         setInst('SAM · READY');
         renderOnboarding();

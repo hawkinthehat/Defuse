@@ -12,6 +12,15 @@
     let savedExitAriaHidden = null;
     let pushedHistoryLock = false;
 
+    if (typeof window !== 'undefined' && typeof window.exitProtocol === 'function' && !window.__iecExitProtocolGuarded) {
+        const previousExitProtocol = window.exitProtocol;
+        window.exitProtocol = function guardedExitProtocol(...args) {
+            if (window.__iecExposureLocked) return undefined;
+            return previousExitProtocol.apply(this, args);
+        };
+        window.__iecExitProtocolGuarded = true;
+    }
+
     function setInst(text) {
         const inst = document.getElementById('inst');
         if (inst) inst.textContent = text;
@@ -91,6 +100,7 @@
     function enableSecurityLock() {
         iecLocked = true;
         iecCompleted = false;
+        window.__iecExposureLocked = true;
         lockExitButton();
         blockBackNavigation();
         window.addEventListener('popstate', onPopState);
@@ -100,6 +110,7 @@
 
     function disableSecurityLock() {
         iecLocked = false;
+        window.__iecExposureLocked = false;
         pushedHistoryLock = false;
         window.removeEventListener('popstate', onPopState);
         window.removeEventListener('beforeunload', onBeforeUnload);
@@ -119,6 +130,7 @@
         stopTimer();
         disableSecurityLock();
         iecCompleted = false;
+        document.getElementById('viewport')?.classList.remove('viewport-iec');
     }
 
     function tick(now) {
@@ -252,6 +264,7 @@
 
     function launchIEC() {
         stopIEC();
+        document.getElementById('viewport')?.classList.add('viewport-iec');
         if (typeof showProtocolViewport === 'function') showProtocolViewport();
         setInst('IEC · READY');
         renderOnboarding();
