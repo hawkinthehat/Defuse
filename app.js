@@ -24,44 +24,22 @@ const globalBinauralState = {
 
 /**
  * Pre-session splash: PROTOCOL ENGAGED: [NAME]. FOCUS ON THE [RHYTHM TYPE] RHYTHM.
- * rhythm = words inserted before final " RHYTHM." (e.g. VISUAL, HAPTIC AND VISUAL).
  */
 const PROTOCOL_ENGAGE = {
-    cpi: { name: 'CPI', rhythm: 'VISUAL' },
-    cas: { name: 'CAS', rhythm: 'VISUAL' },
     obd: { name: 'OBD', rhythm: 'HAPTIC AND VISUAL' },
-    ccd: { name: 'CCD', rhythm: 'VISUAL' },
-    obs: { name: 'OBS', rhythm: 'VISUAL' },
-    abm: { name: 'ABM', rhythm: 'HAPTIC AND VISUAL' },
-    ics: { name: 'ICS', rhythm: 'RESPIRATORY VISUAL' },
-    sam: { name: 'SAM', rhythm: 'HAPTIC' },
-    iec: { name: 'IEC', rhythm: 'VISUAL AND HAPTIC' },
-    kcb: { name: 'KCB', rhythm: 'HIGH-CONTRAST VISUAL' },
-    wmd: { name: 'WMD', rhythm: 'VISUAL' },
     cre: { name: 'CRE', rhythm: 'HAPTIC AND VISUAL' },
-    mdr: { name: 'MDR', rhythm: 'HAPTIC' },
-    audio: { name: 'AUDIO', rhythm: 'AUDITORY' },
-    vsd: { name: 'VSD', rhythm: 'HAPTIC AND VISUAL' },
-    gcm: { name: 'GCM', rhythm: 'AUDITORY AND VISUAL' }
+    prcb: { name: 'PRCB', rhythm: 'HIGH-CONTRAST VISUAL' }
 };
 
 const PROTOCOL_ROUTES = {
-    abm: { name: 'ABM', path: 'protocols/abm/' },
-    ics: { name: 'ICS', path: 'protocols/ics/' },
-    sam: { name: 'SAM', path: 'protocols/sam/' },
-    iec: { name: 'IEC', path: 'protocols/iec/' },
     cre: { name: 'CRE', path: 'protocols/cre/' },
-    mdr: { name: 'MDR', path: 'protocols/mdr/' },
-    audio: { name: 'AUDIO', path: 'protocols/audio/' },
-    cas: { name: 'CAS', path: 'protocols/cas/' },
     obd: { name: 'OBD', path: 'protocols/obd/' },
-    gcm: { name: 'GCM', path: 'protocols/gcm/' }
+    prcb: { name: 'PRCB', path: 'protocols/prcb/' }
 };
 
 let protocolIntroTimeoutId = 0;
 let masterInitializationInited = false;
 let dashboardPrimaryInited = false;
-let masterStartInited = false;
 
 function getGlobalBinauralAudioContext() {
     if (typeof window === 'undefined') return null;
@@ -189,39 +167,6 @@ function initializationHapticTap() {
     }
 }
 
-function fadeOutMasterStartOverlay() {
-    const overlay = document.getElementById('master-start-overlay');
-    if (!overlay || overlay.classList.contains('hidden')) return;
-
-    overlay.setAttribute('aria-hidden', 'true');
-    overlay.classList.add('master-start-overlay--exiting');
-
-    const hideOverlay = () => {
-        overlay.classList.add('hidden');
-        overlay.classList.remove('master-start-overlay--exiting');
-    };
-
-    overlay.addEventListener('transitionend', hideOverlay, { once: true });
-    window.setTimeout(hideOverlay, 700);
-}
-
-function initMasterStartOverlay() {
-    if (masterStartInited) return;
-    masterStartInited = true;
-    initializeGlobalBinauralEngine();
-
-    const button = document.getElementById('master-start-button');
-    if (!button) return;
-
-    button.addEventListener('click', () => {
-        button.disabled = true;
-        initializationHapticTap();
-        resumeGlobalBinauralEngine().finally(() => {
-            fadeOutMasterStartOverlay();
-        });
-    });
-}
-
 function selectionTapHaptic() {
     if (typeof navigator === 'undefined' || !navigator.vibrate) return;
     try {
@@ -270,34 +215,15 @@ function showProtocolPending(protocolKey) {
 
 function runProtocol(protocolKey) {
     const runners = {
-        cpi: () => typeof launchCPI === 'function' && launchCPI(),
-        cas: () => (typeof launchCAS === 'function' ? launchCAS() : showProtocolPending('cas')),
         obd: () => (typeof launchOBD === 'function' ? launchOBD() : showProtocolPending('obd')),
-        ccd: () => typeof launchCCD === 'function' && launchCCD(),
-        obs: () => typeof launchOBS === 'function' && launchOBS(),
-        abm: () => (typeof launchABM === 'function' ? launchABM() : showProtocolPending('abm')),
-        ics: () => (typeof launchICS === 'function' ? launchICS() : showProtocolPending('ics')),
-        sam: () => (typeof launchSAM === 'function' ? launchSAM() : showProtocolPending('sam')),
-        iec: () => (typeof launchIEC === 'function' ? launchIEC() : showProtocolPending('iec')),
-        kcb: () => typeof launchKCB === 'function' && launchKCB(),
-        wmd: () => typeof launchWMD === 'function' && launchWMD(),
         cre: () => (typeof launchCRE === 'function' ? launchCRE() : showProtocolPending('cre')),
-        mdr: () => (typeof launchMDR === 'function' ? launchMDR() : showProtocolPending('mdr')),
-        audio: () => (typeof launchAudio === 'function' ? launchAudio() : showProtocolPending('audio')),
-        vsd: () => typeof launchVSD === 'function' && launchVSD(),
-        gcm: () => (typeof launchGCM === 'function' ? launchGCM() : showProtocolPending('gcm'))
+        prcb: () => (typeof launchPRCB === 'function' ? launchPRCB() : showProtocolPending('prcb'))
     };
     const fn = runners[protocolKey];
     if (fn) fn();
 }
 
-/**
- * Shows a 1.5-second engage overlay, then launches the protocol.
- * @param {string} protocolKey cpi | cas | obd | ccd | obs | abm | kcb
- */
 function launchWithIntro(protocolKey) {
-    closeDischargeChoice();
-    closeMemoryChoice();
     cancelProtocolIntro();
 
     const meta = PROTOCOL_ENGAGE[protocolKey];
@@ -321,109 +247,27 @@ function launchWithIntro(protocolKey) {
     }, PROTOCOL_INTRO_MS);
 }
 
-function closeMemoryChoice() {
-    const el = document.getElementById('memory-choice-overlay');
-    if (el) {
-        el.classList.add('hidden');
-        el.setAttribute('aria-hidden', 'true');
-    }
-}
-
-function openMemoryChoice() {
-    const el = document.getElementById('memory-choice-overlay');
-    if (el) {
-        el.classList.remove('hidden');
-        el.setAttribute('aria-hidden', 'false');
-    }
-}
-
-function closeDischargeChoice() {
-    const el = document.getElementById('discharge-choice-overlay');
-    if (el) {
-        el.classList.add('hidden');
-        el.setAttribute('aria-hidden', 'true');
-    }
-}
-
-function openDischargeChoice() {
-    const el = document.getElementById('discharge-choice-overlay');
-    if (el) {
-        el.classList.remove('hidden');
-        el.setAttribute('aria-hidden', 'false');
-    }
-}
-
-function launchWMDSession() {
-    closeDischargeChoice();
-    closeMemoryChoice();
-    cancelProtocolIntro();
-    if (typeof launchWMD === 'function') launchWMD();
-}
-
 function launchCRESession() {
-    closeDischargeChoice();
-    closeMemoryChoice();
     cancelProtocolIntro();
     if (typeof launchCRE === 'function') launchCRE();
 }
 
-function launchMDRSession() {
-    closeDischargeChoice();
-    closeMemoryChoice();
+function launchPRCBSession() {
     cancelProtocolIntro();
-    if (typeof launchMDR === 'function') launchMDR();
+    if (typeof launchPRCB === 'function') launchPRCB();
 }
 
-function launchAudioSession() {
-    closeDischargeChoice();
-    closeMemoryChoice();
-    cancelProtocolIntro();
-    if (typeof launchAudio === 'function') launchAudio();
-}
-
-function launchVSDSession() {
-    closeDischargeChoice();
-    closeMemoryChoice();
-    cancelProtocolIntro();
-    if (typeof launchVSD === 'function') launchVSD();
-}
-
-function launchGCMSession() {
-    closeDischargeChoice();
-    closeMemoryChoice();
-    cancelProtocolIntro();
-    if (typeof launchGCM === 'function') launchGCM();
-}
-
-/** Direct-launch modules (custom intro / no engage splash). */
 const DIRECT_SESSION_LAUNCHERS = {
     cre: launchCRESession,
-    mdr: launchMDRSession,
-    audio: launchAudioSession,
-    gcm: launchGCMSession
+    prcb: launchPRCBSession
 };
 
-/** Standard engage-splash protocols. */
 const INTRO_SESSION_KEYS = {
-    abm: 'abm',
-    ics: 'ics',
-    sam: 'sam',
-    iec: 'iec',
-    cas: 'cas',
-    obd: 'obd',
-    obs: 'obs'
+    obd: 'obd'
 };
 
 function onPrimarySymptom(symptom) {
     selectionTapHaptic();
-    if (symptom === 'memory') {
-        openMemoryChoice();
-        return;
-    }
-    if (symptom === 'discharge') {
-        openDischargeChoice();
-        return;
-    }
     const direct = DIRECT_SESSION_LAUNCHERS[symptom];
     if (direct) {
         direct();
@@ -435,29 +279,7 @@ function onPrimarySymptom(symptom) {
     }
 }
 
-function toggleProtocolManual() {
-    const wrap = document.getElementById('protocol-manual');
-    const btn = document.getElementById('manual-override-btn');
-    const dash = document.getElementById('dashboard');
-    if (!wrap || !btn) return;
-    const opening = wrap.classList.contains('hidden');
-    selectionTapHaptic();
-    if (opening) {
-        wrap.classList.remove('hidden');
-        wrap.setAttribute('aria-hidden', 'false');
-        btn.setAttribute('aria-expanded', 'true');
-        if (dash) dash.classList.add('dashboard--manual-open');
-    } else {
-        wrap.classList.add('hidden');
-        wrap.setAttribute('aria-hidden', 'true');
-        btn.setAttribute('aria-expanded', 'false');
-        if (dash) dash.classList.remove('dashboard--manual-open');
-    }
-}
-
 function revealDashboardFromMasterInit() {
-    selectionTapHaptic();
-
     const overlay = document.getElementById('master-init-overlay');
     const dash = document.getElementById('dashboard');
 
@@ -494,7 +316,14 @@ function initMasterInitializationOverlay() {
         dash.setAttribute('aria-hidden', 'true');
     }
 
-    btn.addEventListener('click', revealDashboardFromMasterInit);
+    btn.addEventListener('click', () => {
+        btn.disabled = true;
+        initializationHapticTap();
+        initializeGlobalBinauralEngine();
+        resumeGlobalBinauralEngine().finally(() => {
+            revealDashboardFromMasterInit();
+        });
+    });
 }
 
 function initDashboardPrimary() {
@@ -507,60 +336,6 @@ function initDashboardPrimary() {
             if (s) onPrimarySymptom(s);
         });
     });
-
-    document.querySelectorAll('[data-discharge-pick]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            selectionTapHaptic();
-            const key = btn.getAttribute('data-discharge-pick');
-            closeDischargeChoice();
-            if (key === 'ccd' || key === 'kcb') launchWithIntro(key);
-        });
-    });
-
-    document.querySelectorAll('[data-memory-pick]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            selectionTapHaptic();
-            const key = btn.getAttribute('data-memory-pick');
-            closeMemoryChoice();
-            if (key === 'vsd') launchVSDSession();
-            else if (key === 'wmd') launchWMDSession();
-        });
-    });
-
-    const cancelMemory = document.getElementById('memory-choice-cancel');
-    if (cancelMemory) {
-        cancelMemory.addEventListener('click', () => {
-            selectionTapHaptic();
-            closeMemoryChoice();
-        });
-    }
-
-    const cancelDischarge = document.getElementById('discharge-choice-cancel');
-    if (cancelDischarge) {
-        cancelDischarge.addEventListener('click', () => {
-            selectionTapHaptic();
-            closeDischargeChoice();
-        });
-    }
-
-    const manualBtn = document.getElementById('manual-override-btn');
-    if (manualBtn) {
-        manualBtn.addEventListener('click', () => toggleProtocolManual());
-    }
-
-    const dischargeOverlay = document.getElementById('discharge-choice-overlay');
-    if (dischargeOverlay) {
-        dischargeOverlay.addEventListener('click', (e) => {
-            if (e.target === dischargeOverlay) closeDischargeChoice();
-        });
-    }
-
-    const memoryOverlay = document.getElementById('memory-choice-overlay');
-    if (memoryOverlay) {
-        memoryOverlay.addEventListener('click', (e) => {
-            if (e.target === memoryOverlay) closeMemoryChoice();
-        });
-    }
 }
 
 function showProtocolViewport() {
@@ -571,7 +346,6 @@ function showProtocolViewport() {
     vp.style.removeProperty('display');
 }
 
-/** Sets status text and shows the protocol viewport (used by CPI and similar modules). */
 function openSession(message) {
     showProtocolViewport();
     const inst = document.getElementById('inst');
@@ -583,49 +357,14 @@ function openSession(message) {
 
 function exitProtocol() {
     cancelProtocolIntro();
-    closeDischargeChoice();
-    closeMemoryChoice();
-    if (typeof clearKcbStrobe === 'function') {
-        clearKcbStrobe();
-    }
-    if (typeof stopCAS === 'function') {
-        stopCAS();
-    }
-    if (typeof stopABM === 'function') {
-        stopABM();
-    }
-    if (typeof stopICS === 'function') {
-        stopICS();
-    }
     if (typeof stopOBD === 'function') {
         stopOBD();
-    }
-    if (typeof stopOBS === 'function') {
-        stopOBS();
-    }
-    if (typeof stopWMD === 'function') {
-        stopWMD();
     }
     if (typeof stopCRE === 'function') {
         stopCRE();
     }
-    if (typeof stopMDR === 'function') {
-        stopMDR();
-    }
-    if (typeof stopAudio === 'function') {
-        stopAudio();
-    }
-    if (typeof stopVSD === 'function') {
-        stopVSD();
-    }
-    if (typeof stopGCM === 'function') {
-        stopGCM();
-    }
-    if (typeof stopSAM === 'function') {
-        stopSAM();
-    }
-    if (typeof stopIEC === 'function') {
-        stopIEC();
+    if (typeof stopPRCB === 'function') {
+        stopPRCB();
     }
     const vp = document.getElementById('viewport');
     if (vp) {
@@ -662,11 +401,10 @@ if (typeof window !== 'undefined') {
         }
     };
     window.ProtocolRoutes = PROTOCOL_ROUTES;
-}
-
-function initAppShell() {
-    initMasterStartOverlay();
-    initDashboardPrimary();
+    window.launchWithIntro = launchWithIntro;
+    window.exitProtocol = exitProtocol;
+    window.openSession = openSession;
+    window.showProtocolViewport = showProtocolViewport;
 }
 
 if (typeof document !== 'undefined') {

@@ -512,12 +512,6 @@ body {
     box-shadow: var(--shadow-md), 0 0 0 3px var(--healing-blue-soft);
 }
 
-.dashboard--manual-open .manual-override-btn {
-    border-color: var(--healing-blue);
-    color: var(--healing-blue);
-    background: var(--healing-blue-soft);
-}
-
 .help-me-choose-banner {
     margin: 0 0 0.65rem;
     font-size: 0.62rem;
@@ -603,145 +597,48 @@ body {
     color: var(--text-primary);
 }
 
-.symptom-tile-meta {
-    font-size: 0.58rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--healing-blue);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-weight: 800;
-}
-
-.manual-override-btn {
-    width: auto;
-    max-width: 26rem;
-    margin: 22px auto 8px;
-    padding: 8px 10px;
-    border: 0;
-    border-bottom: 1px solid var(--border-strong);
-    border-radius: 0;
-    background: transparent;
-    color: var(--text-secondary);
-    font-size: 0.54rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    box-shadow: none;
-}
-
-.manual-override-btn:hover {
-    color: var(--healing-blue);
-    border-color: var(--healing-blue-ring);
-    background: var(--bg-subtle);
-}
-
-.manual-override-btn[aria-expanded='true'] {
-    color: var(--healing-blue);
-    border-color: var(--healing-blue);
-    background: var(--healing-blue-soft);
-}
-
-.protocol-manual {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.symptom-grid--primary {
     gap: 16px;
-    padding: 8px 0 32px;
 }
 
-.protocol-manual.hidden {
-    display: none !important;
+.symptom-tile--primary {
+    min-height: 4.75rem;
+    padding: 18px 20px;
+    border-width: 2px;
+    box-shadow: var(--shadow-md), inset 5px 0 0 var(--healing-blue);
 }
 
-.protocol-manual-heading {
-    margin: 12px 0 0;
-    width: 85%;
-    max-width: 400px;
-    font-size: 0.52rem;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    text-align: center;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+.symptom-tile--primary .symptom-tile-label {
+    font-size: clamp(0.95rem, 3.6vw, 1.08rem);
+    line-height: 1.35;
 }
 
-.discharge-choice-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 10100;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    background: var(--overlay-scrim);
+.symptom-tile--primary:hover,
+.symptom-tile--primary:focus-visible {
+    box-shadow:
+        var(--shadow-md),
+        0 0 0 4px var(--healing-blue-soft),
+        inset 5px 0 0 var(--healing-blue-bright);
 }
 
-.discharge-choice-overlay.hidden {
-    display: none !important;
+.symptom-tile--emergency {
+    border-color: var(--warning-red);
+    background: #fff5f5;
+    box-shadow: var(--shadow-md), inset 5px 0 0 var(--warning-red);
 }
 
-.discharge-choice-card {
-    width: 100%;
-    max-width: 22rem;
-    padding: 1.25rem 1.1rem 1rem;
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    background: var(--bg-surface);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    box-shadow: var(--shadow-md);
+.symptom-tile--emergency .symptom-tile-label {
+    color: #991b1b;
 }
 
-.discharge-choice-title {
-    margin: 0;
-    font-size: 0.62rem;
-    font-weight: 800;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-primary);
-    text-align: center;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-.discharge-choice-sub {
-    margin: 0 0 4px;
-    font-size: 0.58rem;
-    line-height: 1.4;
-    color: var(--text-secondary);
-    text-align: center;
-}
-
-.symptom-tile--compact {
-    min-height: auto;
-    padding: 12px 14px;
-}
-
-.symptom-tile--warn {
-    border-color: rgba(220, 38, 38, 0.35);
-    box-shadow: var(--shadow-tile), inset 0 0 0 1px rgba(220, 38, 38, 0.06);
-}
-
-.discharge-choice-cancel {
-    margin-top: 4px;
-    padding: 10px;
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    background: var(--bg-subtle);
-    color: var(--text-muted);
-    font-size: 0.55rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    cursor: pointer;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-.discharge-choice-cancel:hover {
-    color: var(--text-primary);
-    border-color: var(--border-strong);
+.symptom-tile--emergency:hover,
+.symptom-tile--emergency:focus-visible {
+    border-color: #ef4444;
+    background: #fef2f2;
+    box-shadow:
+        var(--shadow-md),
+        0 0 0 4px rgba(220, 38, 38, 0.15),
+        inset 5px 0 0 #ef4444;
 }
 
 .protocol-indicator {
