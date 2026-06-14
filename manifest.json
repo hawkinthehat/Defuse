@@ -1,7 +1,7 @@
 {
-  "name": "DeFuse | Momentum System",
-  "short_name": "DeFuse",
-  "description": "Clinical momentum system protocols",
+  "name": "DEFUSE",
+  "short_name": "DEFUSE",
+  "description": "DEFUSE — clinical triage and stabilization protocols",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
