@@ -33,7 +33,9 @@ const PRECACHE_URLS = [
   '/protocols/vsd/vsd.js',
   '/protocols/gcm/gcm.css',
   '/protocols/gcm/gcm.js',
+  '/protocols/sam/sam.css',
   '/protocols/sam/app.js',
+  '/protocols/iec/iec.css',
   '/protocols/iec/app.js',
 ];
 
