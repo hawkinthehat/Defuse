@@ -54,7 +54,7 @@
 
                 <label class="onboarding-frequency-label" for="onboarding-frequency-select">Frequency Profile</label>
                 <select id="onboarding-frequency-select" class="onboarding-frequency-select" aria-describedby="onboarding-frequency-hint">
-                    <option value="theta-6" selected>Theta Differential Engine (6Hz Delta/Theta Baseline)</option>
+                    <option value="theta-6" selected>Theta Differential Engine (6Hz Deep Relaxation Baseline)</option>
                     <option value="alpha-10">Alpha Entrainment (10Hz Baseline)</option>
                     <option value="none">Opt Out — No Binaural Frequency Layer</option>
                 </select>
@@ -103,10 +103,6 @@
                 </li>
             </ul>
         </section>
-
-        <footer class="emergency-exit-bar" aria-label="Crisis emergency resources">
-            <button type="button" class="emergency-exit-link" data-emergency-dial>⚠️ EMERGENCY: DIAL 988 / 911</button>
-        </footer>
     </div>
 
     <div id="protocol-intro-overlay" class="protocol-intro-overlay hidden" aria-hidden="true">
@@ -120,10 +116,11 @@
         <p id="inst" class="instruction-bar" role="status"></p>
         <button type="button" class="exit-btn" onclick="exitProtocol()" title="Return to dashboard">EXIT</button>
         <div id="protocol-stage"></div>
-        <footer class="emergency-exit-bar emergency-exit-bar--viewport" aria-label="Crisis emergency resources">
-            <button type="button" class="emergency-exit-link" data-emergency-dial>⚠️ EMERGENCY: DIAL 988 / 911</button>
-        </footer>
     </div>
+
+    <footer id="emergency-bypass-footer" class="emergency-exit-bar emergency-exit-bar--global" aria-label="Crisis emergency resources — always available">
+        <button type="button" class="emergency-exit-link" data-emergency-dial data-emergency-bypass>⚠️ EMERGENCY: DIAL 988 / 911</button>
+    </footer>
 
     <div class="scanlines" aria-hidden="true"></div>
 

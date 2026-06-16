@@ -43,7 +43,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    padding: 40px 20px 60px;
+    padding: 40px 20px calc(60px + 3.5rem);
     width: 100%;
     background: var(--bg-page);
     color: var(--text-primary);
@@ -239,6 +239,7 @@ body {
 
 .onboarding-overlay {
     background: #ffffff;
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 .master-init-card {
@@ -963,6 +964,26 @@ body {
     background: linear-gradient(to top, var(--bg-page) 72%, rgba(248, 250, 252, 0));
 }
 
+/* Absolute emergency bypass — immune to overlays, countdown locks, and interface freezes */
+.emergency-exit-bar--global,
+#emergency-bypass-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 15000;
+    max-width: none;
+    margin: 0;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, 0.97);
+    border-top: 2px solid rgba(220, 38, 38, 0.45);
+    box-shadow: 0 -6px 24px rgba(15, 23, 42, 0.12);
+    pointer-events: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: flex !important;
+}
+
 .emergency-exit-bar--viewport {
     position: fixed;
     max-width: none;
@@ -990,6 +1011,14 @@ body {
     box-shadow: var(--shadow-sm);
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    pointer-events: auto !important;
+}
+
+.emergency-exit-link[data-emergency-bypass] {
+    border-width: 2.5px;
+    background: #fee2e2;
+    color: #7f1d1d;
+    box-shadow: var(--shadow-md), 0 0 0 2px rgba(220, 38, 38, 0.2);
 }
 
 .emergency-exit-link:hover,
