@@ -768,11 +768,40 @@ body {
 }
 
 .symptom-tile-label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
     font-size: 0.88rem;
     font-weight: 800;
     line-height: 1.3;
     letter-spacing: 0.02em;
     color: var(--text-primary);
+}
+
+.lushootseed-heading {
+    display: block;
+    line-height: 1.25;
+}
+
+.lushootseed-term {
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: 0.02em;
+}
+
+.phonetic-guide {
+    font-size: 0.72em;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.01em;
+}
+
+.symptom-tile-purpose {
+    font-size: 0.88em;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--text-secondary);
 }
 
 .symptom-grid--primary {
@@ -791,6 +820,10 @@ body {
     line-height: 1.35;
 }
 
+.symptom-tile--primary .lushootseed-term {
+    font-size: 1.05em;
+}
+
 .symptom-tile--primary:hover,
 .symptom-tile--primary:focus-visible {
     box-shadow:
@@ -805,8 +838,9 @@ body {
     box-shadow: var(--shadow-md), inset 5px 0 0 var(--warning-red);
 }
 
-.symptom-tile--emergency .symptom-tile-label {
+.symptom-tile--emergency .symptom-tile-purpose {
     color: #991b1b;
+    font-weight: 700;
 }
 
 .symptom-tile--emergency:hover,
