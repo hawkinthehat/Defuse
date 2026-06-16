@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="protocols/obd/obd.css">
     <link rel="stylesheet" href="protocols/cre/cre.css">
+    <link rel="stylesheet" href="protocols/sam/sam.css">
+    <link rel="stylesheet" href="protocols/iec/iec.css">
     <link rel="stylesheet" href="protocols/prcb/prcb.css">
 </head>
 <body>
@@ -48,6 +50,16 @@
                     </button>
                 </li>
                 <li>
+                    <button type="button" class="symptom-tile symptom-tile--primary" data-symptom="sam" data-protocol-path="protocols/sam/">
+                        <span class="symptom-tile-label">I need to anchor in body safety while attention is overloaded</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="symptom-tile symptom-tile--primary" data-symptom="iec" data-protocol-path="protocols/iec/">
+                        <span class="symptom-tile-label">I need to process a feared image, scene, or worry loop</span>
+                    </button>
+                </li>
+                <li>
                     <button type="button" class="symptom-tile symptom-tile--primary symptom-tile--emergency" data-symptom="prcb" data-protocol-path="protocols/prcb/">
                         <span class="symptom-tile-label">🚨 EMERGENCY: My mind is completely racing / locking up</span>
                     </button>
@@ -74,6 +86,8 @@
     <script src="app.js"></script>
     <script src="protocols/obd/obd.js"></script>
     <script src="protocols/cre/cre.js"></script>
+    <script src="protocols/sam/app.js"></script>
+    <script src="protocols/iec/app.js"></script>
     <script src="protocols/prcb/prcb.js"></script>
     <script>
       if ('serviceWorker' in navigator) {

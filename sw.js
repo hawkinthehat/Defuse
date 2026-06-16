@@ -1,4 +1,4 @@
-const CACHE_NAME = 'defuse-v10';
+const CACHE_NAME = 'defuse-v11';
 
 const PRECACHE_URLS = [
   '/',
@@ -13,6 +13,10 @@ const PRECACHE_URLS = [
   '/protocols/obd/obd.js',
   '/protocols/cre/cre.css',
   '/protocols/cre/cre.js',
+  '/protocols/sam/sam.css',
+  '/protocols/sam/app.js',
+  '/protocols/iec/iec.css',
+  '/protocols/iec/app.js',
   '/protocols/prcb/prcb.css',
   '/protocols/prcb/prcb.js',
 ];

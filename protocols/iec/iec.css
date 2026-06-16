@@ -73,8 +73,8 @@
     min-height: 3.18rem;
     border: 1.5px solid #0f172a;
     border-radius: 12px;
-    background: #0f172a;
-    color: #ffffff;
+    background: #bfdbfe;
+    color: #0f172a;
     cursor: pointer;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.76rem;
@@ -91,7 +91,7 @@
 .iec-submit-btn:hover,
 .iec-submit-btn:focus-visible {
     outline: none;
-    background: #1e293b;
+    background: #dbeafe;
     border-color: #1e293b;
     box-shadow:
         0 16px 36px rgba(15, 23, 42, 0.28),

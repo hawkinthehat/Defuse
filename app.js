@@ -29,12 +29,16 @@ const globalBinauralState = {
 const PROTOCOL_ENGAGE = {
     obd: { name: 'OBD', rhythm: 'HAPTIC AND VISUAL' },
     cre: { name: 'CRE', rhythm: 'HAPTIC AND VISUAL' },
+    sam: { name: 'SAM', rhythm: 'VISUAL AND HAPTIC' },
+    iec: { name: 'IEC', rhythm: 'VISUAL' },
     prcb: { name: 'PRCB', rhythm: 'HIGH-CONTRAST VISUAL' }
 };
 
 const PROTOCOL_ROUTES = {
     cre: { name: 'CRE', path: 'protocols/cre/' },
     obd: { name: 'OBD', path: 'protocols/obd/' },
+    sam: { name: 'SAM', path: 'protocols/sam/' },
+    iec: { name: 'IEC', path: 'protocols/iec/' },
     prcb: { name: 'PRCB', path: 'protocols/prcb/' }
 };
 
@@ -221,6 +225,8 @@ function runProtocol(protocolKey) {
     const runners = {
         obd: () => (typeof launchOBD === 'function' ? launchOBD() : showProtocolPending('obd')),
         cre: () => (typeof launchCRE === 'function' ? launchCRE() : showProtocolPending('cre')),
+        sam: () => (typeof launchSAM === 'function' ? launchSAM() : showProtocolPending('sam')),
+        iec: () => (typeof launchIEC === 'function' ? launchIEC() : showProtocolPending('iec')),
         prcb: () => (typeof launchPRCB === 'function' ? launchPRCB() : showProtocolPending('prcb'))
     };
     const fn = runners[protocolKey];
@@ -267,7 +273,9 @@ const DIRECT_SESSION_LAUNCHERS = {
 };
 
 const INTRO_SESSION_KEYS = {
-    obd: 'obd'
+    obd: 'obd',
+    sam: 'sam',
+    iec: 'iec'
 };
 
 function onPrimarySymptom(symptom) {
@@ -367,6 +375,12 @@ function exitProtocol() {
     }
     if (typeof stopCRE === 'function') {
         stopCRE();
+    }
+    if (typeof stopSAM === 'function') {
+        stopSAM();
+    }
+    if (typeof stopIEC === 'function') {
+        stopIEC();
     }
     if (typeof stopPRCB === 'function') {
         stopPRCB();
