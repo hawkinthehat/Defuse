@@ -1,4 +1,4 @@
-const CACHE_NAME = 'defuse-v8';
+const CACHE_NAME = 'defuse-v11';
 
 const PRECACHE_URLS = [
   '/',
@@ -9,28 +9,16 @@ const PRECACHE_URLS = [
   '/logo.png',
   '/icon-192.png',
   '/icon-512.png',
-  '/protocols/cas/cas.css',
-  '/protocols/cas/cas.js',
-  '/protocols/ccd/ccd.css',
-  '/protocols/ccd/ccd.js',
-  '/protocols/cpi/cpi.css',
-  '/protocols/cpi/cpi.js',
-  '/protocols/kcb/kcb.css',
-  '/protocols/kcb/kcb.js',
   '/protocols/obd/obd.css',
   '/protocols/obd/obd.js',
-  '/protocols/sam/sam.css',
-  '/protocols/sam/sam.js',
-  '/protocols/iec/iec.css',
-  '/protocols/iec/iec.js',
-  '/protocols/wmd/wmd.css',
-  '/protocols/wmd/wmd.js',
   '/protocols/cre/cre.css',
   '/protocols/cre/cre.js',
-  '/protocols/audio/audio.css',
-  '/protocols/audio/audio.js',
-  '/protocols/vsd/vsd.css',
-  '/protocols/vsd/vsd.js',
+  '/protocols/sam/sam.css',
+  '/protocols/sam/app.js',
+  '/protocols/iec/iec.css',
+  '/protocols/iec/app.js',
+  '/protocols/prcb/prcb.css',
+  '/protocols/prcb/prcb.js',
 ];
 
 self.addEventListener('install', (event) => {

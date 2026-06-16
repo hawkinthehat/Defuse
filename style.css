@@ -203,13 +203,6 @@ body {
     color: var(--healing-blue);
 }
 
-.exit-btn--locked,
-.exit-btn--locked:hover {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-}
-
 .hidden {
     display: none !important;
     pointer-events: none;
@@ -489,8 +482,8 @@ body {
     font-weight: 800;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #0f172a;
-    background: #bfdbfe;
+    color: #ffffff;
+    background: var(--healing-blue);
     border: 2px solid var(--healing-blue);
     border-radius: 6px;
     cursor: pointer;
@@ -604,89 +597,48 @@ body {
     color: var(--text-primary);
 }
 
-.symptom-tile-meta {
-    font-size: 0.58rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--healing-blue);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-weight: 800;
+.symptom-grid--primary {
+    gap: 16px;
 }
 
-.discharge-choice-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 10100;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    background: var(--overlay-scrim);
+.symptom-tile--primary {
+    min-height: 4.75rem;
+    padding: 18px 20px;
+    border-width: 2px;
+    box-shadow: var(--shadow-md), inset 5px 0 0 var(--healing-blue);
 }
 
-.discharge-choice-overlay.hidden {
-    display: none !important;
+.symptom-tile--primary .symptom-tile-label {
+    font-size: clamp(0.95rem, 3.6vw, 1.08rem);
+    line-height: 1.35;
 }
 
-.discharge-choice-card {
-    width: 100%;
-    max-width: 22rem;
-    padding: 1.25rem 1.1rem 1rem;
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    background: var(--bg-surface);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    box-shadow: var(--shadow-md);
+.symptom-tile--primary:hover,
+.symptom-tile--primary:focus-visible {
+    box-shadow:
+        var(--shadow-md),
+        0 0 0 4px var(--healing-blue-soft),
+        inset 5px 0 0 var(--healing-blue-bright);
 }
 
-.discharge-choice-title {
-    margin: 0;
-    font-size: 0.62rem;
-    font-weight: 800;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-primary);
-    text-align: center;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+.symptom-tile--emergency {
+    border-color: var(--warning-red);
+    background: #fff5f5;
+    box-shadow: var(--shadow-md), inset 5px 0 0 var(--warning-red);
 }
 
-.discharge-choice-sub {
-    margin: 0 0 4px;
-    font-size: 0.58rem;
-    line-height: 1.4;
-    color: var(--text-secondary);
-    text-align: center;
+.symptom-tile--emergency .symptom-tile-label {
+    color: #991b1b;
 }
 
-.symptom-tile--compact {
-    min-height: auto;
-    padding: 12px 14px;
-}
-
-.symptom-tile--warn {
-    border-color: rgba(220, 38, 38, 0.35);
-    box-shadow: var(--shadow-tile), inset 0 0 0 1px rgba(220, 38, 38, 0.06);
-}
-
-.discharge-choice-cancel {
-    margin-top: 4px;
-    padding: 10px;
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    background: var(--bg-subtle);
-    color: var(--text-muted);
-    font-size: 0.55rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    cursor: pointer;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-.discharge-choice-cancel:hover {
-    color: var(--text-primary);
-    border-color: var(--border-strong);
+.symptom-tile--emergency:hover,
+.symptom-tile--emergency:focus-visible {
+    border-color: #ef4444;
+    background: #fef2f2;
+    box-shadow:
+        var(--shadow-md),
+        0 0 0 4px rgba(220, 38, 38, 0.15),
+        inset 5px 0 0 #ef4444;
 }
 
 .protocol-indicator {

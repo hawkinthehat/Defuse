@@ -1,45 +1,117 @@
-/* IEC — Imaginal Exposure Canvas */
+/* IEC — imaginal exposure canvas */
 
 .iec-root {
     width: 100%;
     height: 100%;
     min-height: 100%;
     align-self: stretch;
+    position: relative;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    padding: calc(env(safe-area-inset-top, 32px) + 1rem) 1.25rem calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+    padding: calc(env(safe-area-inset-top, 32px) + 5.25rem) 1.15rem calc(env(safe-area-inset-bottom, 0px) + 1.75rem);
     background:
-        radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.08), transparent 24rem),
-        var(--bg-page, #f8fafc);
+        radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.08), transparent 34rem),
+        #f8fafc;
     color: #0f172a;
+    overflow-y: auto;
 }
 
-.iec-root--preflight {
-    align-items: stretch;
-    justify-content: stretch;
-    padding: 0;
-}
-
-.iec-input-card {
-    width: min(100%, 28rem);
-    padding: 1.35rem;
-    border: 1.5px solid var(--healing-blue, #2563eb);
-    border-radius: 16px;
-    background: var(--bg-surface, #ffffff);
-    box-shadow: var(--shadow-md);
+.iec-card {
+    width: min(100%, 25rem);
+    padding: clamp(1.35rem, 5vw, 1.85rem);
+    border: 1.5px solid rgba(15, 23, 42, 0.18);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow:
+        0 24px 70px rgba(15, 23, 42, 0.13),
+        0 0 0 5px rgba(37, 99, 235, 0.06);
     box-sizing: border-box;
 }
 
-.iec-input-label {
-    display: block;
-    margin: 0 0 1rem;
-    font-size: clamp(1.05rem, 4.6vw, 1.3rem);
-    line-height: 1.35;
+.iec-kicker {
+    margin: 0 0 0.7rem;
+    color: #2563eb;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.62rem;
     font-weight: 900;
+    letter-spacing: 0.2em;
+    line-height: 1.35;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.iec-title {
+    margin: 0;
     color: #0f172a;
+    font-size: clamp(1.45rem, 6.4vw, 2.25rem);
+    font-weight: 950;
+    letter-spacing: -0.045em;
+    line-height: 1.08;
+    text-align: center;
+}
+
+.iec-steps {
+    margin: 1.25rem 0 1.45rem;
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.72rem;
+    color: #0f172a;
+}
+
+.iec-steps li {
+    font-size: clamp(0.94rem, 4vw, 1.05rem);
+    font-weight: 720;
+    line-height: 1.46;
+}
+
+.iec-start-btn,
+.iec-submit-btn {
+    width: 100%;
+    min-height: 3.18rem;
+    border: 1.5px solid #0f172a;
+    border-radius: 12px;
+    background: #bfdbfe;
+    color: #0f172a;
+    cursor: pointer;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.76rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.24);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.iec-start-btn:hover,
+.iec-start-btn:focus-visible,
+.iec-submit-btn:hover,
+.iec-submit-btn:focus-visible {
+    outline: none;
+    background: #dbeafe;
+    border-color: #1e293b;
+    box-shadow:
+        0 16px 36px rgba(15, 23, 42, 0.28),
+        0 0 0 4px rgba(37, 99, 235, 0.14);
+}
+
+.iec-start-btn:active,
+.iec-submit-btn:active {
+    transform: scale(0.985);
+}
+
+.iec-textarea-label {
+    display: block;
+    margin: 1.35rem 0 0.45rem;
+    color: #334155;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 }
 
 .iec-textarea {
@@ -48,174 +120,172 @@
     resize: vertical;
     box-sizing: border-box;
     padding: 1rem;
-    border: 2px solid var(--border-strong, #cbd5e1);
-    border-radius: 12px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 14px;
     background: #ffffff;
     color: #0f172a;
-    font: 800 clamp(1rem, 4vw, 1.15rem)/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
+    caret-color: #2563eb;
+    font: 750 clamp(1rem, 4.2vw, 1.08rem)/1.48 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    box-shadow:
+        inset 0 1px 2px rgba(15, 23, 42, 0.04),
+        0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.iec-textarea::placeholder {
+    color: #64748b;
 }
 
 .iec-textarea:focus {
-    border-color: var(--healing-blue, #2563eb);
-    outline: 3px solid var(--healing-blue-soft, rgba(37, 99, 235, 0.1));
+    outline: none;
+    border-color: #2563eb;
+    box-shadow:
+        inset 0 1px 2px rgba(15, 23, 42, 0.04),
+        0 0 0 4px rgba(37, 99, 235, 0.14);
 }
 
-.iec-input-help {
-    margin: 0.85rem 0 1rem;
-    color: #0f172a;
-    font-size: 0.86rem;
-    line-height: 1.45;
-    font-weight: 700;
+.iec-validation {
+    min-height: 1.15rem;
+    margin: 0.55rem 0 0.9rem;
+    color: #dc2626;
+    font-size: 0.84rem;
+    font-weight: 750;
+    line-height: 1.35;
 }
 
-.iec-submit-btn,
-.iec-done-btn {
-    width: 100%;
-    min-height: 3.25rem;
-    padding: 0.95rem 1rem;
-    border: 2px solid var(--healing-blue, #2563eb);
-    border-radius: 10px;
-    background: #bfdbfe;
-    color: #0f172a;
-    cursor: pointer;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(0.78rem, 3.4vw, 0.92rem);
-    font-weight: 900;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    box-shadow: var(--shadow-sm);
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
+.iec-root--projection {
+    padding: calc(env(safe-area-inset-top, 32px) + 4.75rem) 1rem calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+    overflow: hidden;
 }
 
-.iec-submit-btn:active,
-.iec-done-btn:active {
-    transform: scale(0.985);
-}
-
-.iec-root--exposure {
-    justify-content: space-between;
-    gap: 1rem;
-    text-align: center;
-}
-
-.iec-timer {
-    width: min(100%, 30rem);
+.iec-countdown-shell {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 32px) + 0.8rem);
+    left: max(1rem, env(safe-area-inset-left, 0px));
+    right: max(1rem, env(safe-area-inset-right, 0px));
+    z-index: 12100;
     display: grid;
-    gap: 0.5rem;
-    padding-top: 0.5rem;
+    grid-template-columns: 1fr auto;
+    gap: 0.35rem 0.75rem;
+    align-items: center;
+    padding: 0.84rem 1rem;
+    border: 2px solid #0f172a;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow:
+        0 18px 50px rgba(15, 23, 42, 0.16),
+        0 0 0 5px rgba(15, 23, 42, 0.04);
+    box-sizing: border-box;
 }
 
-.iec-timer-label,
-.iec-lock-note,
-.iec-complete-kicker {
-    margin: 0;
-    color: #0f172a;
+.iec-countdown-label,
+.iec-status {
+    color: #334155;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(0.68rem, 3vw, 0.82rem);
+    font-size: clamp(0.58rem, 2.5vw, 0.7rem);
     font-weight: 900;
     letter-spacing: 0.16em;
     text-transform: uppercase;
 }
 
-.iec-timer-text {
+.iec-countdown {
     color: #0f172a;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(1.65rem, 8vw, 3rem);
-    font-weight: 900;
-    letter-spacing: 0.04em;
+    font-size: clamp(1.55rem, 7vw, 2.45rem);
+    font-weight: 950;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
 }
 
-.iec-timer-bar {
+.iec-countdown-track {
+    grid-column: 1 / -1;
     display: block;
     width: 100%;
-    height: 0.45rem;
+    height: 0.42rem;
     border-radius: 999px;
-    background: var(--bg-subtle, #f1f5f9);
+    background: #e2e8f0;
     overflow: hidden;
-    border: 1px solid var(--border-subtle, #e2e8f0);
 }
 
-.iec-timer-fill {
+.iec-countdown-fill {
     display: block;
     width: 100%;
     height: 100%;
     border-radius: inherit;
-    background: linear-gradient(90deg, var(--healing-blue, #2563eb), var(--healing-blue-bright, #3b82f6));
-    transition: width 0.18s linear;
+    background: linear-gradient(90deg, #0f172a, #2563eb);
+    transition: width 0.12s linear;
 }
 
-.iec-exposure-field {
-    flex: 1;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem 0;
-    box-sizing: border-box;
+.iec-status {
+    grid-column: 1 / -1;
+    color: #475569;
+    letter-spacing: 0.08em;
 }
 
-.iec-exposure-text {
-    max-width: min(92vw, 42rem);
+.iec-projection-text {
+    width: min(94vw, 62rem);
+    max-height: 62vh;
     margin: 0;
-    padding: clamp(1.25rem, 5vw, 2.25rem);
-    border: 1.5px solid var(--healing-blue-ring, rgba(37, 99, 235, 0.35));
-    border-radius: 24px;
-    background: rgba(255, 255, 255, 0.88);
     color: #0f172a;
-    font-size: clamp(2rem, 10vw, 5.5rem);
-    font-weight: 900;
-    line-height: 1.08;
-    letter-spacing: -0.04em;
+    font-size: clamp(2.55rem, 14vw, 7.5rem);
+    font-weight: 950;
+    letter-spacing: -0.07em;
+    line-height: 0.96;
+    text-align: center;
+    white-space: pre-wrap;
     overflow-wrap: anywhere;
-    box-shadow:
-        0 20px 60px rgba(37, 99, 235, 0.12),
-        0 0 0 6px rgba(37, 99, 235, 0.06);
-    animation: iec-soft-pulse 3.2s ease-in-out infinite;
+    animation: iec-soft-pulse 7.5s ease-in-out infinite;
+    will-change: transform, opacity;
+}
+
+.iec-root--complete .iec-countdown-shell {
+    border-color: #2563eb;
+}
+
+.iec-root--complete .iec-status {
+    color: #2563eb;
+}
+
+.iec-exit-locked {
+    display: none !important;
+    pointer-events: none !important;
 }
 
 @keyframes iec-soft-pulse {
     0%,
     100% {
+        opacity: 0.9;
         transform: scale(0.985);
-        box-shadow:
-            0 16px 42px rgba(37, 99, 235, 0.1),
-            0 0 0 4px rgba(37, 99, 235, 0.05);
     }
-    50% {
-        transform: scale(1.015);
-        box-shadow:
-            0 24px 68px rgba(37, 99, 235, 0.18),
-            0 0 0 10px rgba(37, 99, 235, 0.08);
+    46%,
+    58% {
+        opacity: 1;
+        transform: scale(1.035);
     }
 }
 
-.iec-root--complete {
-    text-align: center;
-    gap: 1rem;
+@media (max-width: 380px) {
+    .iec-countdown-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .iec-countdown {
+        justify-self: start;
+    }
+
+    .iec-projection-text {
+        font-size: clamp(2.2rem, 15vw, 4.9rem);
+    }
 }
 
-.iec-complete-line {
-    max-width: 24rem;
-    margin: 0;
-    color: #0f172a;
-    font-size: clamp(1rem, 4vw, 1.15rem);
-    line-height: 1.5;
-    font-weight: 800;
+@media (max-height: 620px) {
+    .iec-projection-text {
+        max-height: 54vh;
+        font-size: clamp(2rem, 11vw, 5rem);
+    }
 }
 
-.iec-complete-quote {
-    width: min(100%, 30rem);
-    margin: 0 0 0.5rem;
-    padding: 1rem;
-    border-left: 4px solid var(--healing-blue, #2563eb);
-    border-radius: 10px;
-    background: #ffffff;
-    color: #0f172a;
-    font-size: clamp(1.1rem, 4.8vw, 1.5rem);
-    line-height: 1.35;
-    font-weight: 900;
-    overflow-wrap: anywhere;
-    box-shadow: var(--shadow-sm);
+@media (prefers-reduced-motion: reduce) {
+    .iec-projection-text {
+        animation-duration: 12s;
+    }
 }

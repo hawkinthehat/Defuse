@@ -10,19 +10,11 @@
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="protocols/cas/cas.css">
-    <link rel="stylesheet" href="protocols/ccd/ccd.css">
-    <link rel="stylesheet" href="protocols/cpi/cpi.css">
-    <link rel="stylesheet" href="protocols/kcb/kcb.css">
     <link rel="stylesheet" href="protocols/obd/obd.css">
-    <link rel="stylesheet" href="protocols/obs/obs.css">
-    <link rel="stylesheet" href="protocols/abm/abm.css">
+    <link rel="stylesheet" href="protocols/cre/cre.css">
     <link rel="stylesheet" href="protocols/sam/sam.css">
     <link rel="stylesheet" href="protocols/iec/iec.css">
-    <link rel="stylesheet" href="protocols/wmd/wmd.css">
-    <link rel="stylesheet" href="protocols/cre/cre.css">
-    <link rel="stylesheet" href="protocols/audio/audio.css">
-    <link rel="stylesheet" href="protocols/vsd/vsd.css">
+    <link rel="stylesheet" href="protocols/prcb/prcb.css">
 </head>
 <body>
     <div id="master-init-overlay" class="master-init-overlay" aria-hidden="false">
@@ -46,71 +38,34 @@
         <section class="symptom-primary shift-view-section" aria-labelledby="diag-hero">
             <p class="help-me-choose-banner">Shift My View</p>
             <h1 id="diag-hero" class="diagnostic-hero">Take a breath. Choose the protocol that fits this moment.</h1>
-            <ul class="symptom-grid">
+            <ul class="symptom-grid symptom-grid--primary">
                 <li>
-                    <button type="button" class="symptom-tile" data-symptom="abm" data-protocol-path="protocols/abm/">
-                        <span class="symptom-tile-label">My thoughts are racing / attention keeps snapping to threat</span>
-                        <span class="symptom-tile-meta">ABM · Attention Bias Modification</span>
+                    <button type="button" class="symptom-tile symptom-tile--primary" data-symptom="cre" data-protocol-path="protocols/cre/">
+                        <span class="symptom-tile-label">My mind is caught in an overthinking / worry loop</span>
                     </button>
                 </li>
                 <li>
-                    <button type="button" class="symptom-tile" data-symptom="sam" data-protocol-path="protocols/sam/">
-                        <span class="symptom-tile-label">I need to anchor in body safety</span>
-                        <span class="symptom-tile-meta">SAM · Somatic Anchoring Module</span>
+                    <button type="button" class="symptom-tile symptom-tile--primary" data-symptom="obd" data-protocol-path="protocols/obd/">
+                        <span class="symptom-tile-label">I am stuck on a specific spinning thought or memory</span>
                     </button>
                 </li>
                 <li>
-                    <button type="button" class="symptom-tile" data-symptom="iec" data-protocol-path="protocols/iec/">
-                        <span class="symptom-tile-label">I need to process a feared image or scene</span>
-                        <span class="symptom-tile-meta">IEC · Imaginal Exposure Canvas</span>
+                    <button type="button" class="symptom-tile symptom-tile--primary" data-symptom="sam" data-protocol-path="protocols/sam/">
+                        <span class="symptom-tile-label">I need to anchor in body safety while attention is overloaded</span>
                     </button>
                 </li>
                 <li>
-                    <button type="button" class="symptom-tile" data-symptom="cre" data-protocol-path="protocols/cre/">
-                        <span class="symptom-tile-label">I am caught in an overthinking loop / worry stream</span>
-                        <span class="symptom-tile-meta">CRE · Cognitive Re-coder</span>
+                    <button type="button" class="symptom-tile symptom-tile--primary" data-symptom="iec" data-protocol-path="protocols/iec/">
+                        <span class="symptom-tile-label">I need to process a feared image, scene, or worry loop</span>
                     </button>
                 </li>
                 <li>
-                    <button type="button" class="symptom-tile" data-symptom="audio" data-protocol-path="protocols/audio/">
-                        <span class="symptom-tile-label">I feel overstimulated / my brain feels loud</span>
-                        <span class="symptom-tile-meta">AUDIO · Binaural Entrainment</span>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="symptom-tile" data-symptom="cas" data-protocol-path="protocols/cas/">
-                        <span class="symptom-tile-label">I feel dizzy / disconnected / visually unsteady</span>
-                        <span class="symptom-tile-meta">CAS · Calming Axial Sweep</span>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="symptom-tile" data-symptom="obd" data-protocol-path="protocols/obd/">
-                        <span class="symptom-tile-label">I am stuck on a specific intrusive thought</span>
-                        <span class="symptom-tile-meta">OBD · Orbital Bilateral Desensitization</span>
+                    <button type="button" class="symptom-tile symptom-tile--primary symptom-tile--emergency" data-symptom="prcb" data-protocol-path="protocols/prcb/">
+                        <span class="symptom-tile-label">🚨 EMERGENCY: My mind is completely racing / locking up</span>
                     </button>
                 </li>
             </ul>
         </section>
-    </div>
-
-    <div id="memory-choice-overlay" class="discharge-choice-overlay hidden" aria-hidden="true">
-        <div class="discharge-choice-card" role="dialog" aria-labelledby="memory-choice-title" aria-modal="true">
-            <p id="memory-choice-title" class="discharge-choice-title">Memory / flashback — select deflector</p>
-            <p class="discharge-choice-sub">VSD: grid pattern saturation · WMD: rotation match puzzle</p>
-            <button type="button" class="symptom-tile symptom-tile--compact" data-memory-pick="vsd">VSD · Visuospatial grid</button>
-            <button type="button" class="symptom-tile symptom-tile--compact" data-memory-pick="wmd">WMD · Rotation deflector</button>
-            <button type="button" class="discharge-choice-cancel" id="memory-choice-cancel">Cancel</button>
-        </div>
-    </div>
-
-    <div id="discharge-choice-overlay" class="discharge-choice-overlay hidden" aria-hidden="true">
-        <div class="discharge-choice-card" role="dialog" aria-labelledby="discharge-choice-title" aria-modal="true">
-            <p id="discharge-choice-title" class="discharge-choice-title">Kinetic discharge — select protocol</p>
-            <p class="discharge-choice-sub">CCD: cognitive load discharge · KCB: high-stimulation circuit breaker (strobe)</p>
-            <button type="button" class="symptom-tile symptom-tile--compact" data-discharge-pick="ccd">CCD · White surge</button>
-            <button type="button" class="symptom-tile symptom-tile--compact symptom-tile--warn" data-discharge-pick="kcb">KCB · Circuit breaker</button>
-            <button type="button" class="discharge-choice-cancel" id="discharge-choice-cancel">Cancel</button>
-        </div>
     </div>
 
     <div id="protocol-intro-overlay" class="protocol-intro-overlay hidden" aria-hidden="true">
@@ -129,19 +84,11 @@
     <div class="scanlines" aria-hidden="true"></div>
 
     <script src="app.js"></script>
-    <script src="protocols/cas/cas.js"></script>
-    <script src="protocols/ccd/ccd.js"></script>
-    <script src="protocols/cpi/cpi.js"></script>
-    <script src="protocols/kcb/kcb.js"></script>
     <script src="protocols/obd/obd.js"></script>
-    <script src="protocols/obs/obs.js"></script>
-    <script src="protocols/abm/abm.js"></script>
-    <script src="protocols/sam/sam.js"></script>
-    <script src="protocols/iec/iec.js"></script>
-    <script src="protocols/wmd/wmd.js"></script>
     <script src="protocols/cre/cre.js"></script>
-    <script src="protocols/audio/audio.js"></script>
-    <script src="protocols/vsd/vsd.js"></script>
+    <script src="protocols/sam/app.js"></script>
+    <script src="protocols/iec/app.js"></script>
+    <script src="protocols/prcb/prcb.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {

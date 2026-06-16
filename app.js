@@ -6,7 +6,9 @@ const PROTOCOL_INTRO_MS = 1500;
 const GLOBAL_BINAURAL_CONFIG = {
     leftHz: 200,
     rightHz: 206,
-    gain: 0.05
+    gain: 0.05,
+    clearFilterHz: 20000,
+    muffledFilterHz: 90
 };
 
 const globalBinauralState = {
@@ -14,6 +16,7 @@ const globalBinauralState = {
     leftOscillator: null,
     rightOscillator: null,
     masterGain: null,
+    lowPassFilter: null,
     merger: null,
     started: false,
     unlocked: false
@@ -21,57 +24,26 @@ const globalBinauralState = {
 
 /**
  * Pre-session splash: PROTOCOL ENGAGED: [NAME]. FOCUS ON THE [RHYTHM TYPE] RHYTHM.
- * rhythm = words inserted before final " RHYTHM." (e.g. VISUAL, HAPTIC AND VISUAL).
  */
 const PROTOCOL_ENGAGE = {
-    cpi: { name: 'CPI', rhythm: 'VISUAL' },
-    cas: { name: 'CAS', rhythm: 'VISUAL' },
     obd: { name: 'OBD', rhythm: 'HAPTIC AND VISUAL' },
-    ccd: { name: 'CCD', rhythm: 'VISUAL' },
-    obs: { name: 'OBS', rhythm: 'VISUAL' },
-    abm: { name: 'ABM', rhythm: 'HAPTIC AND VISUAL' },
-    sam: { name: 'SAM', rhythm: 'HAPTIC' },
-    iec: { name: 'IEC', rhythm: 'VISUAL AND HAPTIC' },
-    kcb: { name: 'KCB', rhythm: 'HIGH-CONTRAST VISUAL' },
-    wmd: { name: 'WMD', rhythm: 'VISUAL' },
     cre: { name: 'CRE', rhythm: 'HAPTIC AND VISUAL' },
-    audio: { name: 'AUDIO', rhythm: 'AUDITORY' },
-    vsd: { name: 'VSD', rhythm: 'HAPTIC AND VISUAL' }
+    sam: { name: 'SAM', rhythm: 'VISUAL AND HAPTIC' },
+    iec: { name: 'IEC', rhythm: 'VISUAL' },
+    prcb: { name: 'PRCB', rhythm: 'HIGH-CONTRAST VISUAL' }
 };
 
 const PROTOCOL_ROUTES = {
-    abm: { name: 'ABM', path: 'protocols/abm/' },
+    cre: { name: 'CRE', path: 'protocols/cre/' },
+    obd: { name: 'OBD', path: 'protocols/obd/' },
     sam: { name: 'SAM', path: 'protocols/sam/' },
     iec: { name: 'IEC', path: 'protocols/iec/' },
-    cre: { name: 'CRE', path: 'protocols/cre/' },
-    audio: { name: 'AUDIO', path: 'protocols/audio/' },
-    cas: { name: 'CAS', path: 'protocols/cas/' },
-    obd: { name: 'OBD', path: 'protocols/obd/' }
+    prcb: { name: 'PRCB', path: 'protocols/prcb/' }
 };
 
 let protocolIntroTimeoutId = 0;
 let masterInitializationInited = false;
 let dashboardPrimaryInited = false;
-let masterStartInited = false;
-let protocolExitLocked = false;
-
-function setProtocolExitLocked(locked) {
-    protocolExitLocked = !!locked;
-    const exitBtn = document.querySelector('.exit-btn');
-    if (!exitBtn) return;
-
-    if (protocolExitLocked) {
-        exitBtn.classList.add('exit-btn--locked');
-        exitBtn.setAttribute('aria-disabled', 'true');
-        exitBtn.setAttribute('tabindex', '-1');
-        exitBtn.disabled = true;
-    } else {
-        exitBtn.classList.remove('exit-btn--locked');
-        exitBtn.removeAttribute('aria-disabled');
-        exitBtn.removeAttribute('tabindex');
-        exitBtn.disabled = false;
-    }
-}
 
 function getGlobalBinauralAudioContext() {
     if (typeof window === 'undefined') return null;
@@ -103,6 +75,7 @@ function initializeGlobalBinauralEngine() {
         const rightGain = audioContext.createGain();
         const merger = audioContext.createChannelMerger(2);
         const masterGain = audioContext.createGain();
+        const lowPassFilter = audioContext.createBiquadFilter();
 
         leftOscillator.type = 'sine';
         rightOscillator.type = 'sine';
@@ -111,13 +84,17 @@ function initializeGlobalBinauralEngine() {
         leftGain.gain.value = 1;
         rightGain.gain.value = 1;
         masterGain.gain.value = 0;
+        lowPassFilter.type = 'lowpass';
+        lowPassFilter.frequency.value = GLOBAL_BINAURAL_CONFIG.clearFilterHz;
+        lowPassFilter.Q.value = 0.7;
 
         leftOscillator.connect(leftGain);
         rightOscillator.connect(rightGain);
         leftGain.connect(merger, 0, 0);
         rightGain.connect(merger, 0, 1);
         merger.connect(masterGain);
-        masterGain.connect(audioContext.destination);
+        masterGain.connect(lowPassFilter);
+        lowPassFilter.connect(audioContext.destination);
 
         const now = audioContext.currentTime;
         leftOscillator.start(now);
@@ -126,6 +103,7 @@ function initializeGlobalBinauralEngine() {
         globalBinauralState.leftOscillator = leftOscillator;
         globalBinauralState.rightOscillator = rightOscillator;
         globalBinauralState.masterGain = masterGain;
+        globalBinauralState.lowPassFilter = lowPassFilter;
         globalBinauralState.merger = merger;
         globalBinauralState.started = true;
         return true;
@@ -145,6 +123,23 @@ function setGlobalBinauralGain(value) {
     } catch {
         masterGain.gain.value = value;
     }
+}
+
+function setGlobalBinauralLowPass(frequencyHz) {
+    const { audioContext, lowPassFilter } = globalBinauralState;
+    if (!audioContext || !lowPassFilter) return;
+
+    const nextHz = Math.max(40, Math.min(22000, Number(frequencyHz) || GLOBAL_BINAURAL_CONFIG.clearFilterHz));
+    try {
+        lowPassFilter.frequency.cancelScheduledValues(audioContext.currentTime);
+        lowPassFilter.frequency.setTargetAtTime(nextHz, audioContext.currentTime, 0.018);
+    } catch {
+        lowPassFilter.frequency.value = nextHz;
+    }
+}
+
+function resetGlobalBinauralFilter() {
+    setGlobalBinauralLowPass(GLOBAL_BINAURAL_CONFIG.clearFilterHz);
 }
 
 function resumeGlobalBinauralEngine() {
@@ -174,39 +169,6 @@ function initializationHapticTap() {
     } catch {
         /* ignore */
     }
-}
-
-function fadeOutMasterStartOverlay() {
-    const overlay = document.getElementById('master-start-overlay');
-    if (!overlay || overlay.classList.contains('hidden')) return;
-
-    overlay.setAttribute('aria-hidden', 'true');
-    overlay.classList.add('master-start-overlay--exiting');
-
-    const hideOverlay = () => {
-        overlay.classList.add('hidden');
-        overlay.classList.remove('master-start-overlay--exiting');
-    };
-
-    overlay.addEventListener('transitionend', hideOverlay, { once: true });
-    window.setTimeout(hideOverlay, 700);
-}
-
-function initMasterStartOverlay() {
-    if (masterStartInited) return;
-    masterStartInited = true;
-    initializeGlobalBinauralEngine();
-
-    const button = document.getElementById('master-start-button');
-    if (!button) return;
-
-    button.addEventListener('click', () => {
-        button.disabled = true;
-        initializationHapticTap();
-        resumeGlobalBinauralEngine().finally(() => {
-            fadeOutMasterStartOverlay();
-        });
-    });
 }
 
 function selectionTapHaptic() {
@@ -257,31 +219,17 @@ function showProtocolPending(protocolKey) {
 
 function runProtocol(protocolKey) {
     const runners = {
-        cpi: () => typeof launchCPI === 'function' && launchCPI(),
-        cas: () => (typeof launchCAS === 'function' ? launchCAS() : showProtocolPending('cas')),
         obd: () => (typeof launchOBD === 'function' ? launchOBD() : showProtocolPending('obd')),
-        ccd: () => typeof launchCCD === 'function' && launchCCD(),
-        obs: () => typeof launchOBS === 'function' && launchOBS(),
-        abm: () => (typeof launchABM === 'function' ? launchABM() : showProtocolPending('abm')),
+        cre: () => (typeof launchCRE === 'function' ? launchCRE() : showProtocolPending('cre')),
         sam: () => (typeof launchSAM === 'function' ? launchSAM() : showProtocolPending('sam')),
         iec: () => (typeof launchIEC === 'function' ? launchIEC() : showProtocolPending('iec')),
-        kcb: () => typeof launchKCB === 'function' && launchKCB(),
-        wmd: () => typeof launchWMD === 'function' && launchWMD(),
-        cre: () => (typeof launchCRE === 'function' ? launchCRE() : showProtocolPending('cre')),
-        audio: () => (typeof launchAudio === 'function' ? launchAudio() : showProtocolPending('audio')),
-        vsd: () => typeof launchVSD === 'function' && launchVSD()
+        prcb: () => (typeof launchPRCB === 'function' ? launchPRCB() : showProtocolPending('prcb'))
     };
     const fn = runners[protocolKey];
     if (fn) fn();
 }
 
-/**
- * Shows a 1.5-second engage overlay, then launches the protocol.
- * @param {string} protocolKey cpi | cas | obd | ccd | obs | abm | kcb
- */
 function launchWithIntro(protocolKey) {
-    closeDischargeChoice();
-    closeMemoryChoice();
     cancelProtocolIntro();
 
     const meta = PROTOCOL_ENGAGE[protocolKey];
@@ -305,92 +253,29 @@ function launchWithIntro(protocolKey) {
     }, PROTOCOL_INTRO_MS);
 }
 
-function closeMemoryChoice() {
-    const el = document.getElementById('memory-choice-overlay');
-    if (el) {
-        el.classList.add('hidden');
-        el.setAttribute('aria-hidden', 'true');
-    }
-}
-
-function openMemoryChoice() {
-    const el = document.getElementById('memory-choice-overlay');
-    if (el) {
-        el.classList.remove('hidden');
-        el.setAttribute('aria-hidden', 'false');
-    }
-}
-
-function closeDischargeChoice() {
-    const el = document.getElementById('discharge-choice-overlay');
-    if (el) {
-        el.classList.add('hidden');
-        el.setAttribute('aria-hidden', 'true');
-    }
-}
-
-function openDischargeChoice() {
-    const el = document.getElementById('discharge-choice-overlay');
-    if (el) {
-        el.classList.remove('hidden');
-        el.setAttribute('aria-hidden', 'false');
-    }
-}
-
-function launchWMDSession() {
-    closeDischargeChoice();
-    closeMemoryChoice();
-    cancelProtocolIntro();
-    if (typeof launchWMD === 'function') launchWMD();
-}
-
 function launchCRESession() {
-    closeDischargeChoice();
-    closeMemoryChoice();
     cancelProtocolIntro();
     if (typeof launchCRE === 'function') launchCRE();
 }
 
-function launchAudioSession() {
-    closeDischargeChoice();
-    closeMemoryChoice();
+function launchPRCBSession() {
     cancelProtocolIntro();
-    if (typeof launchAudio === 'function') launchAudio();
+    if (typeof launchPRCB === 'function') launchPRCB();
 }
 
-function launchVSDSession() {
-    closeDischargeChoice();
-    closeMemoryChoice();
-    cancelProtocolIntro();
-    if (typeof launchVSD === 'function') launchVSD();
-}
-
-/** Direct-launch modules (custom intro / no engage splash). */
 const DIRECT_SESSION_LAUNCHERS = {
     cre: launchCRESession,
-    audio: launchAudioSession
+    prcb: launchPRCBSession
 };
 
-/** Standard engage-splash protocols. */
 const INTRO_SESSION_KEYS = {
-    abm: 'abm',
-    sam: 'sam',
-    iec: 'iec',
-    cas: 'cas',
     obd: 'obd',
-    obs: 'obs'
+    sam: 'sam',
+    iec: 'iec'
 };
 
 function onPrimarySymptom(symptom) {
     selectionTapHaptic();
-    if (symptom === 'memory') {
-        openMemoryChoice();
-        return;
-    }
-    if (symptom === 'discharge') {
-        openDischargeChoice();
-        return;
-    }
     const direct = DIRECT_SESSION_LAUNCHERS[symptom];
     if (direct) {
         direct();
@@ -403,8 +288,6 @@ function onPrimarySymptom(symptom) {
 }
 
 function revealDashboardFromMasterInit() {
-    selectionTapHaptic();
-
     const overlay = document.getElementById('master-init-overlay');
     const dash = document.getElementById('dashboard');
 
@@ -441,7 +324,14 @@ function initMasterInitializationOverlay() {
         dash.setAttribute('aria-hidden', 'true');
     }
 
-    btn.addEventListener('click', revealDashboardFromMasterInit);
+    btn.addEventListener('click', () => {
+        btn.disabled = true;
+        initializationHapticTap();
+        initializeGlobalBinauralEngine();
+        resumeGlobalBinauralEngine().finally(() => {
+            revealDashboardFromMasterInit();
+        });
+    });
 }
 
 function initDashboardPrimary() {
@@ -454,55 +344,6 @@ function initDashboardPrimary() {
             if (s) onPrimarySymptom(s);
         });
     });
-
-    document.querySelectorAll('[data-discharge-pick]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            selectionTapHaptic();
-            const key = btn.getAttribute('data-discharge-pick');
-            closeDischargeChoice();
-            if (key === 'ccd' || key === 'kcb') launchWithIntro(key);
-        });
-    });
-
-    document.querySelectorAll('[data-memory-pick]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            selectionTapHaptic();
-            const key = btn.getAttribute('data-memory-pick');
-            closeMemoryChoice();
-            if (key === 'vsd') launchVSDSession();
-            else if (key === 'wmd') launchWMDSession();
-        });
-    });
-
-    const cancelMemory = document.getElementById('memory-choice-cancel');
-    if (cancelMemory) {
-        cancelMemory.addEventListener('click', () => {
-            selectionTapHaptic();
-            closeMemoryChoice();
-        });
-    }
-
-    const cancelDischarge = document.getElementById('discharge-choice-cancel');
-    if (cancelDischarge) {
-        cancelDischarge.addEventListener('click', () => {
-            selectionTapHaptic();
-            closeDischargeChoice();
-        });
-    }
-
-    const dischargeOverlay = document.getElementById('discharge-choice-overlay');
-    if (dischargeOverlay) {
-        dischargeOverlay.addEventListener('click', (e) => {
-            if (e.target === dischargeOverlay) closeDischargeChoice();
-        });
-    }
-
-    const memoryOverlay = document.getElementById('memory-choice-overlay');
-    if (memoryOverlay) {
-        memoryOverlay.addEventListener('click', (e) => {
-            if (e.target === memoryOverlay) closeMemoryChoice();
-        });
-    }
 }
 
 function showProtocolViewport() {
@@ -513,7 +354,6 @@ function showProtocolViewport() {
     vp.style.removeProperty('display');
 }
 
-/** Sets status text and shows the protocol viewport (used by CPI and similar modules). */
 function openSession(message) {
     showProtocolViewport();
     const inst = document.getElementById('inst');
@@ -524,14 +364,12 @@ function openSession(message) {
 }
 
 function exitProtocol() {
-    if (protocolExitLocked) return;
-
     cancelProtocolIntro();
-    closeDischargeChoice();
-    closeMemoryChoice();
-    setProtocolExitLocked(false);
-    if (typeof clearKcbStrobe === 'function') {
-        clearKcbStrobe();
+    if (typeof stopOBD === 'function') {
+        stopOBD();
+    }
+    if (typeof stopCRE === 'function') {
+        stopCRE();
     }
     if (typeof stopSAM === 'function') {
         stopSAM();
@@ -539,33 +377,12 @@ function exitProtocol() {
     if (typeof stopIEC === 'function') {
         stopIEC();
     }
-    if (typeof stopCAS === 'function') {
-        stopCAS();
-    }
-    if (typeof stopABM === 'function') {
-        stopABM();
-    }
-    if (typeof stopOBD === 'function') {
-        stopOBD();
-    }
-    if (typeof stopOBS === 'function') {
-        stopOBS();
-    }
-    if (typeof stopWMD === 'function') {
-        stopWMD();
-    }
-    if (typeof stopCRE === 'function') {
-        stopCRE();
-    }
-    if (typeof stopAudio === 'function') {
-        stopAudio();
-    }
-    if (typeof stopVSD === 'function') {
-        stopVSD();
+    if (typeof stopPRCB === 'function') {
+        stopPRCB();
     }
     const vp = document.getElementById('viewport');
     if (vp) {
-        vp.classList.remove('viewport-obs');
+        vp.classList.remove('viewport-obs', 'viewport-ics', 'viewport-sam', 'viewport-iec');
         vp.classList.add('hidden');
         vp.setAttribute('aria-hidden', 'true');
         vp.style.removeProperty('display');
@@ -587,6 +404,9 @@ if (typeof window !== 'undefined') {
         config: GLOBAL_BINAURAL_CONFIG,
         initialize: initializeGlobalBinauralEngine,
         resume: resumeGlobalBinauralEngine,
+        setGain: setGlobalBinauralGain,
+        setLowPassFrequency: setGlobalBinauralLowPass,
+        resetFilter: resetGlobalBinauralFilter,
         get audioContext() {
             return globalBinauralState.audioContext;
         },
@@ -595,12 +415,10 @@ if (typeof window !== 'undefined') {
         }
     };
     window.ProtocolRoutes = PROTOCOL_ROUTES;
-    window.setProtocolExitLocked = setProtocolExitLocked;
-}
-
-function initAppShell() {
-    initMasterStartOverlay();
-    initDashboardPrimary();
+    window.launchWithIntro = launchWithIntro;
+    window.exitProtocol = exitProtocol;
+    window.openSession = openSession;
+    window.showProtocolViewport = showProtocolViewport;
 }
 
 if (typeof document !== 'undefined') {
