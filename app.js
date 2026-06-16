@@ -12,6 +12,16 @@ const GLOBAL_BINAURAL_CONFIG = {
     muffledFilterHz: 90
 };
 
+/** Frequency presets for onboarding opt-in sub-selection. */
+const FREQUENCY_PRESETS = {
+    'theta-6': { leftHz: 200, rightHz: 206, label: 'Theta Differential Engine (6Hz Delta/Theta Baseline)' },
+    'alpha-10': { leftHz: 200, rightHz: 210, label: 'Alpha Entrainment (10Hz Baseline)' },
+    none: { leftHz: 200, rightHz: 200, label: 'Opt Out — No Binaural Frequency Layer', gain: 0 }
+};
+
+let onboardingAudioEnabled = true;
+let onboardingFrequencyKey = 'theta-6';
+
 const globalBinauralState = {
     audioContext: null,
     leftOscillator: null,
@@ -48,6 +58,59 @@ const DEFUSE_PRIMARY_TRIAGE = Object.freeze(['cre', 'obd', 'prcb']);
 let protocolIntroTimeoutId = 0;
 let masterInitializationInited = false;
 let dashboardPrimaryInited = false;
+
+function applyFrequencyPreset(presetKey) {
+    const preset = FREQUENCY_PRESETS[presetKey] || FREQUENCY_PRESETS['theta-6'];
+    GLOBAL_BINAURAL_CONFIG.leftHz = preset.leftHz;
+    GLOBAL_BINAURAL_CONFIG.rightHz = preset.rightHz;
+
+    const { leftOscillator, rightOscillator, audioContext } = globalBinauralState;
+    if (!audioContext || !leftOscillator || !rightOscillator) return;
+
+    try {
+        const now = audioContext.currentTime;
+        leftOscillator.frequency.setTargetAtTime(preset.leftHz, now, 0.04);
+        rightOscillator.frequency.setTargetAtTime(preset.rightHz, now, 0.04);
+    } catch {
+        leftOscillator.frequency.value = preset.leftHz;
+        rightOscillator.frequency.value = preset.rightHz;
+    }
+}
+
+function getOnboardingAudioGain() {
+    if (!onboardingAudioEnabled) return 0;
+    const preset = FREQUENCY_PRESETS[onboardingFrequencyKey];
+    if (preset && Object.prototype.hasOwnProperty.call(preset, 'gain')) return preset.gain;
+    return GLOBAL_BINAURAL_CONFIG.gain;
+}
+
+function promptEmergencyDial() {
+    const choice = window.confirm(
+        'EMERGENCY CRISIS SUPPORT\n\nTap OK to dial 988 (Suicide & Crisis Lifeline).\nTap Cancel to dial 911 instead.'
+    );
+    const number = choice ? '988' : '911';
+    window.location.href = `tel:${number}`;
+}
+
+function initEmergencyExitLinks() {
+    document.querySelectorAll('[data-emergency-dial]').forEach((el) => {
+        el.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            promptEmergencyDial();
+        });
+    });
+}
+
+function syncOnboardingFrequencyPanel() {
+    const audioToggle = document.getElementById('onboarding-audio-toggle');
+    const frequencySelect = document.getElementById('onboarding-frequency-select');
+    if (!frequencySelect) return;
+
+    const audioOn = audioToggle ? audioToggle.checked : true;
+    frequencySelect.disabled = !audioOn;
+    frequencySelect.setAttribute('aria-disabled', audioOn ? 'false' : 'true');
+}
 
 function getGlobalBinauralAudioContext() {
     if (typeof window === 'undefined') return null;
@@ -146,24 +209,45 @@ function resetGlobalBinauralFilter() {
     setGlobalBinauralLowPass(GLOBAL_BINAURAL_CONFIG.clearFilterHz);
 }
 
-function resumeGlobalBinauralEngine() {
+function resumeGlobalBinauralEngine(targetGain) {
     if (!initializeGlobalBinauralEngine()) return Promise.resolve(false);
 
+    const gain = typeof targetGain === 'number' ? targetGain : GLOBAL_BINAURAL_CONFIG.gain;
     const audioContext = globalBinauralState.audioContext;
     if (!audioContext || audioContext.state !== 'suspended') {
         globalBinauralState.unlocked = !!audioContext;
-        if (globalBinauralState.unlocked) setGlobalBinauralGain(GLOBAL_BINAURAL_CONFIG.gain);
-        return Promise.resolve(!!audioContext);
+        if (globalBinauralState.unlocked && gain > 0) setGlobalBinauralGain(gain);
+        return Promise.resolve(!!audioContext && gain > 0);
     }
 
     return audioContext
         .resume()
         .then(() => {
             globalBinauralState.unlocked = true;
-            setGlobalBinauralGain(GLOBAL_BINAURAL_CONFIG.gain);
-            return true;
+            if (gain > 0) setGlobalBinauralGain(gain);
+            return gain > 0;
         })
         .catch(() => false);
+}
+
+function readOnboardingAudioPreferences() {
+    const audioToggle = document.getElementById('onboarding-audio-toggle');
+    const frequencySelect = document.getElementById('onboarding-frequency-select');
+
+    onboardingAudioEnabled = audioToggle ? audioToggle.checked : false;
+    onboardingFrequencyKey = frequencySelect ? frequencySelect.value : 'theta-6';
+
+    const preset = FREQUENCY_PRESETS[onboardingFrequencyKey] || FREQUENCY_PRESETS['theta-6'];
+    GLOBAL_BINAURAL_CONFIG.leftHz = preset.leftHz;
+    GLOBAL_BINAURAL_CONFIG.rightHz = preset.rightHz;
+}
+
+function startOnboardingBinauralIfEnabled() {
+    if (!onboardingAudioEnabled) return Promise.resolve(false);
+
+    initializeGlobalBinauralEngine();
+    applyFrequencyPreset(onboardingFrequencyKey);
+    return resumeGlobalBinauralEngine(getOnboardingAudioGain());
 }
 
 function initializationHapticTap() {
@@ -313,6 +397,8 @@ function initMasterInitializationOverlay() {
     const overlay = document.getElementById('master-init-overlay');
     const btn = document.getElementById('master-init-btn');
     const dash = document.getElementById('dashboard');
+    const audioToggle = document.getElementById('onboarding-audio-toggle');
+    const frequencySelect = document.getElementById('onboarding-frequency-select');
 
     if (!overlay || !btn) {
         if (dash) {
@@ -329,11 +415,17 @@ function initMasterInitializationOverlay() {
         dash.setAttribute('aria-hidden', 'true');
     }
 
+    syncOnboardingFrequencyPanel();
+    audioToggle?.addEventListener('change', syncOnboardingFrequencyPanel);
+    frequencySelect?.addEventListener('change', () => {
+        onboardingFrequencyKey = frequencySelect.value;
+    });
+
     btn.addEventListener('click', () => {
         btn.disabled = true;
         initializationHapticTap();
-        initializeGlobalBinauralEngine();
-        resumeGlobalBinauralEngine().finally(() => {
+        readOnboardingAudioPreferences();
+        startOnboardingBinauralIfEnabled().finally(() => {
             revealDashboardFromMasterInit();
         });
     });
@@ -424,6 +516,7 @@ if (typeof window !== 'undefined') {
     window.exitProtocol = exitProtocol;
     window.openSession = openSession;
     window.showProtocolViewport = showProtocolViewport;
+    window.promptEmergencyDial = promptEmergencyDial;
 }
 
 if (typeof document !== 'undefined') {
@@ -431,9 +524,11 @@ if (typeof document !== 'undefined') {
         document.addEventListener('DOMContentLoaded', () => {
             initMasterInitializationOverlay();
             initDashboardPrimary();
+            initEmergencyExitLinks();
         });
     } else {
         initMasterInitializationOverlay();
         initDashboardPrimary();
+        initEmergencyExitLinks();
     }
 }
