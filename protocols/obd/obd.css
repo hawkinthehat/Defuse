@@ -1,4 +1,4 @@
-/* OBD — EMDR infinity loop + optokinetic field + grounding pad */
+/* dᶻix̌ʷ (Straighten) — EMDR infinity loop + optokinetic ripple field + grounding pad */
 
 .obd-root {
     width: 100%;
@@ -32,14 +32,97 @@
     justify-content: center;
     min-height: 0;
     overflow: hidden;
-    background: var(--bg-page, #f8fafc);
+    background: #dbeafe;
+}
+
+/* OKN ripple field — 36px/s horizontal scroll (clinical OKN velocity) */
+.obd-ripple-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    --obd-ripple-period: 288px;
+    --obd-okn-speed: 36px;
+    --obd-ripple-duration: calc(var(--obd-ripple-period) / var(--obd-okn-speed) * 1s);
+    background-color: #dbeafe;
+    background-image:
+        repeating-linear-gradient(
+            105deg,
+            transparent 0,
+            transparent 18px,
+            rgba(37, 99, 235, 0.08) 18px,
+            rgba(37, 99, 235, 0.08) 22px
+        ),
+        repeating-linear-gradient(
+            -12deg,
+            rgba(29, 78, 216, 0.14) 0,
+            rgba(29, 78, 216, 0.14) 3px,
+            transparent 3px,
+            transparent 28px
+        ),
+        radial-gradient(ellipse 140% 55% at 50% 100%, rgba(37, 99, 235, 0.22) 0%, transparent 62%),
+        radial-gradient(ellipse 120% 45% at 50% 0%, rgba(147, 197, 253, 0.35) 0%, transparent 58%),
+        repeating-radial-gradient(
+            circle at 24px 18px,
+            rgba(37, 99, 235, 0.06) 0,
+            rgba(37, 99, 235, 0.06) 2px,
+            transparent 2px,
+            transparent 48px
+        ),
+        linear-gradient(
+            180deg,
+            #eff6ff 0%,
+            #dbeafe 38%,
+            #bfdbfe 62%,
+            #93c5fd 100%
+        );
+    background-size:
+        var(--obd-ripple-period) 100%,
+        calc(var(--obd-ripple-period) * 0.75) 100%,
+        200% 100%,
+        200% 100%,
+        96px 96px,
+        100% 100%;
+    background-position:
+        0 0,
+        0 0,
+        50% 100%,
+        50% 0%,
+        0 0,
+        0 0;
+    animation: obd-water-ripple-scroll var(--obd-ripple-duration) linear infinite;
+    will-change: background-position;
+}
+
+@keyframes obd-water-ripple-scroll {
+    0% {
+        background-position:
+            0 0,
+            0 0,
+            50% 100%,
+            50% 0%,
+            0 0,
+            0 0;
+    }
+    100% {
+        background-position:
+            var(--obd-ripple-period) 0,
+            calc(var(--obd-ripple-period) * -0.5) 0,
+            50% 100%,
+            50% 0%,
+            48px 24px,
+            0 0;
+    }
 }
 
 .obd-canvas {
+    position: relative;
+    z-index: 1;
     display: block;
     width: 100%;
     height: 100%;
     touch-action: none;
+    background: transparent;
 }
 
 .obd-paused-banner {
@@ -47,6 +130,7 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    z-index: 2;
     margin: 0;
     padding: 0.5rem 0.85rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -108,4 +192,10 @@
     box-shadow: var(--shadow-md), 0 0 0 2px var(--healing-blue-soft, rgba(37, 99, 235, 0.12));
     transform: rotateX(8deg) scale(0.99);
     color: var(--healing-blue, #2563eb);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .obd-ripple-layer {
+        animation: none;
+    }
 }

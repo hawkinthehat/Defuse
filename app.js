@@ -37,7 +37,7 @@ const globalBinauralState = {
  * Pre-session splash: PROTOCOL ENGAGED: [NAME]. FOCUS ON THE [RHYTHM TYPE] RHYTHM.
  */
 const PROTOCOL_ENGAGE = {
-    obd: { name: 'OBD', rhythm: 'HAPTIC AND VISUAL' },
+    obd: { name: 'dᶻix̌ʷ (Straighten)', rhythm: 'HAPTIC AND VISUAL' },
     cre: { name: 'CRE', rhythm: 'HAPTIC AND VISUAL' },
     sam: { name: 'SAM', rhythm: 'VISUAL AND HAPTIC' },
     iec: { name: 'IEC', rhythm: 'VISUAL' },
@@ -46,7 +46,7 @@ const PROTOCOL_ENGAGE = {
 
 const PROTOCOL_ROUTES = {
     cre: { name: 'CRE', path: 'protocols/cre/' },
-    obd: { name: 'OBD', path: 'protocols/obd/' },
+    obd: { name: 'dᶻix̌ʷ (Straighten)', path: 'protocols/obd/' },
     sam: { name: 'SAM', path: 'protocols/sam/' },
     iec: { name: 'IEC', path: 'protocols/iec/' },
     prcb: { name: 'PRCB', path: 'protocols/prcb/' }
