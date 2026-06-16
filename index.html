@@ -17,15 +17,52 @@
     <link rel="stylesheet" href="protocols/prcb/prcb.css">
 </head>
 <body>
-    <div id="master-init-overlay" class="master-init-overlay" aria-hidden="false">
-        <section class="master-init-card" role="dialog" aria-modal="true" aria-labelledby="master-init-title" aria-describedby="master-init-headphones-sub">
-            <p id="master-init-title" class="master-init-kicker">Master Initialization</p>
-            <div class="headphone-required-notice" role="note" aria-labelledby="master-init-headphones-title" aria-describedby="master-init-headphones-sub">
-                <p id="master-init-headphones-title" class="headphone-required-title">🎧 HEADPHONES REQUIRED FOR BEST RESULTS</p>
-                <p id="master-init-headphones-sub" class="headphone-required-sub">Binaural audio entrainment requires independent left/right channels to safely calm the system&rsquo;s threat loops.</p>
+    <div id="master-init-overlay" class="master-init-overlay onboarding-overlay" aria-hidden="false">
+        <section class="master-init-card onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+            <header class="onboarding-header">
+                <h1 id="onboarding-title" class="onboarding-title">Hawk In The Hat Studios — Clinical Stabilization Interface</h1>
+            </header>
+
+            <div class="onboarding-legal" id="onboarding-legal">
+                <section class="onboarding-section" aria-labelledby="onboarding-crisis-heading">
+                    <h2 id="onboarding-crisis-heading" class="onboarding-section-heading">Crisis Support &amp; Terms of Use:</h2>
+                    <p class="onboarding-body">This tool is designed for somatic grounding and nervous system regulation. It is strictly a supportive digital therapeutic and is NOT a substitute for professional medical advice, diagnosis, or psychiatric treatment. Hawk In The Hat Studios and its developers are not licensed medical providers.</p>
+                    <p class="onboarding-body onboarding-body--emphasis">If you are experiencing a medical emergency, are in immediate danger, or require active crisis intervention, this application cannot dispatch help. Please immediately dial 988 (Suicide &amp; Crisis Lifeline) or 911.</p>
+                </section>
+
+                <hr class="onboarding-divider" aria-hidden="true">
+
+                <section class="onboarding-section" aria-labelledby="onboarding-privacy-heading">
+                    <h2 id="onboarding-privacy-heading" class="onboarding-section-heading">Data Sovereignty &amp; Privacy:</h2>
+                    <p class="onboarding-body">This application is built strictly as an offline, local-first tool. All data, inputs, and personal images remain encrypted entirely on your physical device. Hawk In The Hat Studios does not track, collect, store, or transmit your behavioral data or personal information to any external server.</p>
+                </section>
+
+                <hr class="onboarding-divider" aria-hidden="true">
+
+                <section class="onboarding-section" aria-labelledby="onboarding-liability-heading">
+                    <h2 id="onboarding-liability-heading" class="onboarding-section-heading">Limitation of Liability:</h2>
+                    <p class="onboarding-body">By tapping &lsquo;I Understand and Enter,&rsquo; you acknowledge that Hawk In The Hat Studios provides this software &lsquo;as is.&rsquo; You agree to assume all risk associated with its use, and Hawk In The Hat Studios is fully indemnified and holds no liability for any outcomes related to the use or inability to use this software.</p>
+                </section>
             </div>
-            <button type="button" class="master-init-btn" id="master-init-btn" aria-controls="dashboard">
-                [ INITIALIZE STABILIZATION PLATFORM ]
+
+            <div class="onboarding-audio-panel" id="onboarding-audio-panel">
+                <label class="onboarding-toggle" for="onboarding-audio-toggle">
+                    <input type="checkbox" id="onboarding-audio-toggle" class="onboarding-toggle-input" checked>
+                    <span class="onboarding-toggle-switch" aria-hidden="true"></span>
+                    <span class="onboarding-toggle-label">Enable Global Acoustic Entrainment (🎧 Headphones Required)</span>
+                </label>
+
+                <label class="onboarding-frequency-label" for="onboarding-frequency-select">Frequency Profile</label>
+                <select id="onboarding-frequency-select" class="onboarding-frequency-select" aria-describedby="onboarding-frequency-hint">
+                    <option value="theta-6" selected>Theta Differential Engine (6Hz Delta/Theta Baseline)</option>
+                    <option value="alpha-10">Alpha Entrainment (10Hz Baseline)</option>
+                    <option value="none">Opt Out — No Binaural Frequency Layer</option>
+                </select>
+                <p id="onboarding-frequency-hint" class="onboarding-frequency-hint">Requires headphones for independent left/right channel delivery.</p>
+            </div>
+
+            <button type="button" class="master-init-btn onboarding-enter-btn" id="master-init-btn" aria-controls="dashboard">
+                [ I Understand and Enter ]
             </button>
         </section>
     </div>
@@ -66,6 +103,10 @@
                 </li>
             </ul>
         </section>
+
+        <footer class="emergency-exit-bar" aria-label="Crisis emergency resources">
+            <button type="button" class="emergency-exit-link" data-emergency-dial>⚠️ EMERGENCY: DIAL 988 / 911</button>
+        </footer>
     </div>
 
     <div id="protocol-intro-overlay" class="protocol-intro-overlay hidden" aria-hidden="true">
@@ -79,6 +120,9 @@
         <p id="inst" class="instruction-bar" role="status"></p>
         <button type="button" class="exit-btn" onclick="exitProtocol()" title="Return to dashboard">EXIT</button>
         <div id="protocol-stage"></div>
+        <footer class="emergency-exit-bar emergency-exit-bar--viewport" aria-label="Crisis emergency resources">
+            <button type="button" class="emergency-exit-link" data-emergency-dial>⚠️ EMERGENCY: DIAL 988 / 911</button>
+        </footer>
     </div>
 
     <div class="scanlines" aria-hidden="true"></div>
