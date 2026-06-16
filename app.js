@@ -1,5 +1,6 @@
 /**
- * Global viewport shell for protocol modules. Loaded before protocol scripts.
+ * DEFUSE — global viewport shell for protocol modules.
+ * Home triage is locked to three primary routes: CRE, OBD, PRCB.
  */
 
 const PROTOCOL_INTRO_MS = 1500;
@@ -36,6 +37,9 @@ const PROTOCOL_ROUTES = {
     obd: { name: 'OBD', path: 'protocols/obd/' },
     prcb: { name: 'PRCB', path: 'protocols/prcb/' }
 };
+
+/** Locked 3-button home triage — no alternate entry points. */
+const DEFUSE_PRIMARY_TRIAGE = Object.freeze(['cre', 'obd', 'prcb']);
 
 let protocolIntroTimeoutId = 0;
 let masterInitializationInited = false;
@@ -267,6 +271,7 @@ const INTRO_SESSION_KEYS = {
 };
 
 function onPrimarySymptom(symptom) {
+    if (!DEFUSE_PRIMARY_TRIAGE.includes(symptom)) return;
     selectionTapHaptic();
     const direct = DIRECT_SESSION_LAUNCHERS[symptom];
     if (direct) {

@@ -55,7 +55,22 @@ body {
     max-width: 22rem;
     margin: 0 auto 0.5rem;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
     justify-content: center;
+}
+
+.app-brand-title {
+    margin: 0;
+    font-size: clamp(1.65rem, 7vw, 2.15rem);
+    font-weight: 900;
+    letter-spacing: 0.38em;
+    text-indent: 0.38em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--text-primary);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 .app-brand-logo {
@@ -504,23 +519,12 @@ body {
     box-sizing: border-box;
 }
 
-.shift-view-section {
+.defuse-triage-section {
     padding: 1rem 12px 0.5rem;
     border-radius: 12px;
     background: var(--bg-surface);
     border: 1.5px solid var(--healing-blue);
     box-shadow: var(--shadow-md), 0 0 0 3px var(--healing-blue-soft);
-}
-
-.help-me-choose-banner {
-    margin: 0 0 0.65rem;
-    font-size: 0.62rem;
-    font-weight: 800;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    text-align: center;
-    color: var(--healing-blue);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 .diagnostic-hero {
