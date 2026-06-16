@@ -201,7 +201,7 @@
         stage.innerHTML = `
             <div class="prcb-warning-screen" id="prcb-warning-screen">
                 <div class="prcb-warning-panel" role="dialog" aria-labelledby="prcb-warning-heading" aria-modal="true">
-                    <p class="prcb-warning-kicker">Emergency · Perceptual rivalry circuit breaker</p>
+                    <p class="prcb-warning-kicker">p̓ayəq · Emergency override</p>
                     <h2 class="prcb-warning-title" id="prcb-warning-heading">High-intensity visual override</h2>
                     <p class="prcb-warning-text">
                         This module uses <strong>competing high-contrast visual fields</strong> and rapid perceptual switching

@@ -1,6 +1,6 @@
 /**
- * DEFUSE — global viewport shell for protocol modules.
- * Home triage is locked to three primary routes: CRE, OBD, PRCB.
+ * dᶻix̌ʷ — global viewport shell for protocol modules.
+ * Home triage is locked to three primary routes: k̓ʷəč (CRE), dᶻix̌ʷ (OBD), p̓ayəq (PRCB).
  */
 
 const PROTOCOL_INTRO_MS = 1500;
@@ -37,23 +37,23 @@ const globalBinauralState = {
  * Pre-session splash: PROTOCOL ENGAGED: [NAME]. FOCUS ON THE [RHYTHM TYPE] RHYTHM.
  */
 const PROTOCOL_ENGAGE = {
-    obd: { name: 'dᶻix̌ʷ (Straighten)', rhythm: 'HAPTIC AND VISUAL' },
-    cre: { name: 'CRE', rhythm: 'HAPTIC AND VISUAL' },
+    obd: { name: 'dᶻix̌ʷ', rhythm: 'HAPTIC AND VISUAL' },
+    cre: { name: 'k̓ʷəč', rhythm: 'HAPTIC AND VISUAL' },
     sam: { name: 'SAM', rhythm: 'VISUAL AND HAPTIC' },
     iec: { name: 'IEC', rhythm: 'VISUAL' },
-    prcb: { name: 'PRCB', rhythm: 'HIGH-CONTRAST VISUAL' }
+    prcb: { name: 'p̓ayəq', rhythm: 'HIGH-CONTRAST VISUAL' }
 };
 
 const PROTOCOL_ROUTES = {
-    cre: { name: 'CRE', path: 'protocols/cre/' },
-    obd: { name: 'dᶻix̌ʷ (Straighten)', path: 'protocols/obd/' },
+    cre: { name: 'k̓ʷəč', path: 'protocols/cre/' },
+    obd: { name: 'dᶻix̌ʷ', path: 'protocols/obd/' },
     sam: { name: 'SAM', path: 'protocols/sam/' },
     iec: { name: 'IEC', path: 'protocols/iec/' },
-    prcb: { name: 'PRCB', path: 'protocols/prcb/' }
+    prcb: { name: 'p̓ayəq', path: 'protocols/prcb/' }
 };
 
 /** Locked 3-button home triage — no alternate entry points. */
-const DEFUSE_PRIMARY_TRIAGE = Object.freeze(['cre', 'obd', 'prcb']);
+const DZIXW_PRIMARY_TRIAGE = Object.freeze(['cre', 'obd', 'prcb']);
 
 let protocolIntroTimeoutId = 0;
 let masterInitializationInited = false;
@@ -396,7 +396,7 @@ const INTRO_SESSION_KEYS = {
 };
 
 function onPrimarySymptom(symptom) {
-    if (!DEFUSE_PRIMARY_TRIAGE.includes(symptom)) return;
+    if (!DZIXW_PRIMARY_TRIAGE.includes(symptom)) return;
     selectionTapHaptic();
     const direct = DIRECT_SESSION_LAUNCHERS[symptom];
     if (direct) {

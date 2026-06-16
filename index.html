@@ -3,24 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>DEFUSE</title>
+    <title>dᶻix̌ʷ — Clinical Stabilization Interface</title>
     <meta name="theme-color" content="#2563EB">
-    <meta name="apple-mobile-web-app-title" content="DEFUSE">
+    <meta name="apple-mobile-web-app-title" content="dᶻix̌ʷ">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="protocols/obd/obd.css">
     <link rel="stylesheet" href="protocols/cre/cre.css">
-    <link rel="stylesheet" href="protocols/sam/sam.css">
-    <link rel="stylesheet" href="protocols/iec/iec.css">
     <link rel="stylesheet" href="protocols/prcb/prcb.css">
 </head>
 <body>
     <div id="master-init-overlay" class="master-init-overlay onboarding-overlay" aria-hidden="false">
         <section class="master-init-card onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
             <header class="onboarding-header">
-                <h1 id="onboarding-title" class="onboarding-title">Hawk In The Hat Studios — Clinical Stabilization Interface</h1>
+                <h1 id="onboarding-title" class="onboarding-title">dᶻix̌ʷ — Clinical Stabilization Interface</h1>
             </header>
 
             <div class="onboarding-legal" id="onboarding-legal">
@@ -69,7 +67,7 @@
 
     <div id="dashboard" class="hidden" aria-hidden="true">
         <header class="app-brand">
-            <p class="app-brand-title">DEFUSE</p>
+            <p class="app-brand-title">dᶻix̌ʷ — Clinical Stabilization Interface</p>
             <img src="logo.png" width="320" height="461" class="app-brand-logo" alt="">
         </header>
 
@@ -78,27 +76,17 @@
             <ul class="symptom-grid symptom-grid--primary">
                 <li>
                     <button type="button" class="symptom-tile symptom-tile--primary" data-symptom="cre" data-protocol-path="protocols/cre/">
-                        <span class="symptom-tile-label">My mind is caught in an overthinking / worry loop</span>
+                        <span class="symptom-tile-label">k̓ʷəč: Witness and reframe overthinking</span>
                     </button>
                 </li>
                 <li>
                     <button type="button" class="symptom-tile symptom-tile--primary" data-symptom="obd" data-protocol-path="protocols/obd/">
-                        <span class="symptom-tile-label">dᶻix̌ʷ (Straighten) — I am stuck on a specific spinning thought or memory</span>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="symptom-tile symptom-tile--primary" data-symptom="sam" data-protocol-path="protocols/sam/">
-                        <span class="symptom-tile-label">I need to anchor in body safety while attention is overloaded</span>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="symptom-tile symptom-tile--primary" data-symptom="iec" data-protocol-path="protocols/iec/">
-                        <span class="symptom-tile-label">I need to process a feared image, scene, or worry loop</span>
+                        <span class="symptom-tile-label">dᶻix̌ʷ: Return to center and straighten rhythm</span>
                     </button>
                 </li>
                 <li>
                     <button type="button" class="symptom-tile symptom-tile--primary symptom-tile--emergency" data-symptom="prcb" data-protocol-path="protocols/prcb/">
-                        <span class="symptom-tile-label">🚨 EMERGENCY: My mind is completely racing / locking up</span>
+                        <span class="symptom-tile-label">p̓ayəq: Emergency override/sever panic</span>
                     </button>
                 </li>
             </ul>
@@ -128,8 +116,6 @@
     <script src="protocols/obd/audio/obd-audio.js"></script>
     <script src="protocols/obd/obd.js"></script>
     <script src="protocols/cre/cre.js"></script>
-    <script src="protocols/sam/app.js"></script>
-    <script src="protocols/iec/app.js"></script>
     <script src="protocols/prcb/prcb.js"></script>
     <script>
       if ('serviceWorker' in navigator) {

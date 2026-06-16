@@ -1,7 +1,7 @@
 {
-  "name": "DEFUSE",
-  "short_name": "DEFUSE",
-  "description": "DEFUSE — clinical triage and stabilization protocols",
+  "name": "dᶻix̌ʷ — Clinical Stabilization Interface",
+  "short_name": "dᶻix̌ʷ",
+  "description": "dᶻix̌ʷ — clinical triage and stabilization protocols",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

@@ -1,5 +1,5 @@
 /**
- * dᶻix̌ʷ (Straighten) — EMDR bilateral infinity loop (lemniscate), OKN ripple field, grounding-pad gate.
+ * dᶻix̌ʷ — EMDR bilateral infinity loop (lemniscate), OKN ripple field, grounding-pad gate.
  */
 (function () {
     const SESSION_MS = 60000;
@@ -10,7 +10,7 @@
     const MAX_DPR = 2;
     const TWO_PI = Math.PI * 2;
     const PADDLE_SRC = 'protocols/obd/assets/paddle-blade.svg';
-    const PROTOCOL_LABEL = 'dᶻix̌ʷ (Straighten)';
+    const PROTOCOL_LABEL = 'dᶻix̌ʷ';
 
     let obdRunning = false;
     let obdRafId = 0;

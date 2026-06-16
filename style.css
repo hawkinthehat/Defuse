@@ -63,14 +63,15 @@ body {
 
 .app-brand-title {
     margin: 0;
-    font-size: clamp(1.65rem, 7vw, 2.15rem);
-    font-weight: 900;
-    letter-spacing: 0.38em;
-    text-indent: 0.38em;
-    text-transform: uppercase;
+    font-size: clamp(1.05rem, 4.2vw, 1.35rem);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-indent: 0;
+    text-transform: none;
     text-align: center;
     color: var(--text-primary);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    line-height: 1.35;
 }
 
 .app-brand-logo {
