@@ -1,6 +1,6 @@
 /**
  * dᶻix̌ʷ — global viewport shell for protocol modules.
- * Home triage is locked to three primary routes: k̓ʷəč (CRE), dᶻix̌ʷ (OBD), p̓ayəq (PRCB).
+ * Home triage is locked to three primary routes: k̓ʷəč (CRE), dᶻix̌ʷ (OBD), tix̌ix̌dubut (PRCB).
  */
 
 const PROTOCOL_INTRO_MS = 1500;
@@ -41,7 +41,7 @@ const PROTOCOL_ENGAGE = {
     cre: { name: 'k̓ʷəč', rhythm: 'HAPTIC AND VISUAL' },
     sam: { name: 'SAM', rhythm: 'VISUAL AND HAPTIC' },
     iec: { name: 'IEC', rhythm: 'VISUAL' },
-    prcb: { name: 'p̓ayəq', rhythm: 'HIGH-CONTRAST VISUAL' }
+    prcb: { name: 'tix̌ix̌dubut', rhythm: 'HIGH-CONTRAST VISUAL' }
 };
 
 const PROTOCOL_ROUTES = {
@@ -49,7 +49,7 @@ const PROTOCOL_ROUTES = {
     obd: { name: 'dᶻix̌ʷ', path: 'protocols/obd/' },
     sam: { name: 'SAM', path: 'protocols/sam/' },
     iec: { name: 'IEC', path: 'protocols/iec/' },
-    prcb: { name: 'p̓ayəq', path: 'protocols/prcb/' }
+    prcb: { name: 'tix̌ix̌dubut', path: 'protocols/prcb/' }
 };
 
 /** Locked 3-button home triage — no alternate entry points. */
