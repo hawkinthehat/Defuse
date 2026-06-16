@@ -216,7 +216,7 @@
 
     function updateInstTimer() {
         const left = creSessionEndAt - Date.now();
-        setInst(`CRE · ${formatTimeLeft(left)} · Stability ${Math.max(0, stability)}%`);
+        setInst(`k̓ʷəč · ${formatTimeLeft(left)} · Stability ${Math.max(0, stability)}%`);
         if (left <= 0 && creRunning) {
             endSession(stability > 0);
         }
@@ -260,7 +260,7 @@
     function renderPreflight() {
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
-        setInst('CRE · READ INSTRUCTIONS');
+        setInst('k̓ʷəč · READ INSTRUCTIONS');
         stage.innerHTML = `
             <div class="cre-root cre-root--preflight">
                 <div class="protocol-preflight-overlay">
@@ -457,7 +457,7 @@
 
     function renderComplete(won) {
         stopCRE();
-        setInst(won ? 'CRE · LOOPS BROKEN' : 'CRE · STABILITY LOST');
+        setInst(won ? 'k̓ʷəč · LOOPS BROKEN' : 'k̓ʷəč · STABILITY LOST');
 
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;

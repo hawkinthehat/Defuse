@@ -1,4 +1,4 @@
-const CACHE_NAME = 'defuse-v12';
+const CACHE_NAME = 'dzixw-v13';
 
 const PRECACHE_URLS = [
   '/',

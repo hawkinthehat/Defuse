@@ -1,8 +1,8 @@
 <img width="864" height="1243" alt="image" src="https://github.com/user-attachments/assets/ba2a2612-aa95-4829-85e2-5f6789bf4383" />
-# DEFUSE | Momentum System v3.2
-### **Diagnostic & Cognitive Defusal Protocol**
+# dᶻix̌ʷ | Clinical Stabilization Interface v3.2
+### **Lushootseed Nomenclature · Cognitive Pattern Interruption**
 
-The **Defuse System** is a high-precision behavioral wellness suite designed for rapid cognitive de-escalation and neurological grounding. It utilizes **Bilateral Stimulation (BLS)**, **Saccadic Eye Movement**, **Optokinetic Flow**, and **Kinetic Sensory Overload** to disrupt acute anxiety loops and "defuse" the nervous system.
+**dᶻix̌ʷ** is a high-precision behavioral wellness suite designed for rapid cognitive de-escalation and neurological grounding. It utilizes **Bilateral Stimulation (BLS)**, **Saccadic Eye Movement**, **Optokinetic Flow**, and **Kinetic Sensory Overload** to disrupt acute anxiety loops and restore nervous-system rhythm.
 
 ---
 
