@@ -1,4 +1,4 @@
-const CACHE_NAME = 'defuse-v11';
+const CACHE_NAME = 'defuse-v12';
 
 const PRECACHE_URLS = [
   '/',
@@ -11,6 +11,9 @@ const PRECACHE_URLS = [
   '/icon-512.png',
   '/protocols/obd/obd.css',
   '/protocols/obd/obd.js',
+  '/protocols/obd/audio/obd-audio.js',
+  '/protocols/obd/audio/gunwale-strike.wav',
+  '/protocols/obd/assets/paddle-blade.svg',
   '/protocols/cre/cre.css',
   '/protocols/cre/cre.js',
   '/protocols/sam/sam.css',

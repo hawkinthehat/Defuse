@@ -1,15 +1,16 @@
 /**
- * OBD — EMDR bilateral infinity loop (lemniscate), OKN field, grounding-pad gate.
+ * dᶻix̌ʷ (Straighten) — EMDR bilateral infinity loop (lemniscate), OKN ripple field, grounding-pad gate.
  */
 (function () {
     const SESSION_MS = 60000;
     const PHASE_MS = 30000;
     const LOOP_PERIOD_SLOW = 5.8;
     const LOOP_PERIOD_FAST = 3.4;
-    const OKN_SCROLL_PX_PER_SEC = 36;
     const CENTER_HAPTIC_MS = 30;
     const MAX_DPR = 2;
     const TWO_PI = Math.PI * 2;
+    const PADDLE_SRC = 'protocols/obd/assets/paddle-blade.svg';
+    const PROTOCOL_LABEL = 'dᶻix̌ʷ (Straighten)';
 
     let obdRunning = false;
     let obdRafId = 0;
@@ -20,13 +21,14 @@
     let obdCssW = 0;
     let obdCssH = 0;
     let obdResizeHandler = null;
+    let paddleImage = null;
+    let paddleLoadPromise = null;
 
     let holding = false;
     let pathT = 0;
-    let oknOffset = 0;
     let loopPeriodSec = LOOP_PERIOD_SLOW;
     let lastFrame = 0;
-    let lastCrossIndex = -1;
+    let lastApexIndex = -1;
     let fastPhase = false;
 
     function stopOBD() {
@@ -57,6 +59,9 @@
                 pad.removeEventListener('pointercancel', obdCanvas._obdPadUp);
             }
         }
+        if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.stop) {
+            window.OBDAudio.stop();
+        }
         obdCanvas = null;
         obdCtx = null;
         if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -80,6 +85,30 @@
         } catch {
             /* ignore */
         }
+    }
+
+    function playApexFeedback() {
+        centerHaptic();
+        if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.playGunwaleStrike) {
+            window.OBDAudio.playGunwaleStrike();
+        }
+    }
+
+    function loadPaddleImage() {
+        if (paddleImage && paddleImage.complete) return Promise.resolve(paddleImage);
+        if (paddleLoadPromise) return paddleLoadPromise;
+
+        paddleLoadPromise = new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                paddleImage = img;
+                resolve(img);
+            };
+            img.onerror = () => resolve(null);
+            img.src = PADDLE_SRC;
+        });
+
+        return paddleLoadPromise;
     }
 
     /**
@@ -107,45 +136,39 @@
         canvas.height = Math.floor(obdCssH * dpr);
         canvas.style.width = `${obdCssW}px`;
         canvas.style.height = `${obdCssH}px`;
-        const ctx = canvas.getContext('2d', { alpha: false });
+        const ctx = canvas.getContext('2d', { alpha: true });
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         return ctx;
     }
 
-    function drawOkn(ctx) {
-        const spacing = 22;
-        const start = -(oknOffset % spacing);
-        ctx.lineWidth = 1;
-        for (let x = start; x < obdCssW + spacing; x += spacing) {
-            const fade = 0.55 + 0.25 * (0.5 + 0.5 * Math.sin(x * 0.08));
-            ctx.strokeStyle = `rgba(226, 232, 240, ${fade})`;
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, obdCssH);
-            ctx.stroke();
-        }
-        for (let y = 0; y < obdCssH; y += 48) {
-            ctx.strokeStyle = 'rgba(203, 213, 225, 0.35)';
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(obdCssW, y);
-            ctx.stroke();
-        }
-    }
+    function drawPaddle(ctx, px, py, tangentAngle) {
+        const scale = Math.min(obdCssW, obdCssH) * 0.11;
+        const bladeW = scale * 0.72;
+        const bladeH = scale * 1.2;
 
-    function drawDot(ctx, px, py) {
-        const r = Math.min(obdCssW, obdCssH) * 0.028;
-        const grad = ctx.createRadialGradient(px, py, 0, px, py, r * 2.2);
-        grad.addColorStop(0, '#93c5fd');
-        grad.addColorStop(0.45, '#2563eb');
-        grad.addColorStop(1, 'rgba(37, 99, 235, 0.12)');
         ctx.save();
-        ctx.shadowColor = 'rgba(37, 99, 235, 0.45)';
-        ctx.shadowBlur = 18;
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(px, py, Math.max(10, r), 0, TWO_PI);
-        ctx.fill();
+        ctx.translate(px, py);
+        ctx.rotate(tangentAngle + Math.PI / 2);
+
+        if (paddleImage && paddleImage.complete) {
+            ctx.drawImage(paddleImage, -bladeW * 0.5, -bladeH * 0.62, bladeW, bladeH);
+        } else {
+            const grad = ctx.createLinearGradient(0, -bladeH * 0.5, 0, bladeH * 0.5);
+            grad.addColorStop(0, '#8B5E3C');
+            grad.addColorStop(0.5, '#A67C52');
+            grad.addColorStop(1, '#4A2F1A');
+            ctx.fillStyle = grad;
+            ctx.strokeStyle = '#0F172A';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, -bladeH * 0.55);
+            ctx.bezierCurveTo(bladeW * 0.55, -bladeH * 0.45, bladeW * 0.5, bladeH * 0.15, 0, bladeH * 0.35);
+            ctx.bezierCurveTo(-bladeW * 0.5, bladeH * 0.15, -bladeW * 0.55, -bladeH * 0.45, 0, -bladeH * 0.55);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
         ctx.restore();
     }
 
@@ -154,12 +177,18 @@
         if (banner) banner.classList.toggle('obd-paused-banner--visible', !holding && obdRunning);
     }
 
-    function checkCenterCrossing(prevT, t) {
-        const idxBefore = Math.floor((prevT - Math.PI / 2) / Math.PI);
-        const idxAfter = Math.floor((t - Math.PI / 2) / Math.PI);
-        if (idxAfter > idxBefore && idxAfter !== lastCrossIndex) {
-            lastCrossIndex = idxAfter;
-            centerHaptic();
+    /**
+     * Fire somatic/audio feedback at figure-eight apex (peak and trough).
+     * Boundaries align to vertical extrema every π/2, offset by π/4.
+     */
+    function checkApexCrossing(prevT, t) {
+        const apexPeriod = Math.PI / 2;
+        const apexOffset = Math.PI / 4;
+        const idxBefore = Math.floor((prevT + apexOffset) / apexPeriod);
+        const idxAfter = Math.floor((t + apexOffset) / apexPeriod);
+        if (idxAfter > idxBefore && idxAfter !== lastApexIndex) {
+            lastApexIndex = idxAfter;
+            playApexFeedback();
         }
     }
 
@@ -175,8 +204,7 @@
         const prevT = pathT;
         if (holding) {
             pathT += (TWO_PI / loopPeriodSec) * dt;
-            oknOffset += OKN_SCROLL_PX_PER_SEC * dt;
-            checkCenterCrossing(prevT, pathT);
+            checkApexCrossing(prevT, pathT);
         }
 
         const cx = obdCssW * 0.5;
@@ -184,14 +212,14 @@
         const A = obdCssW * 0.4;
         const B = obdCssH * 0.36;
         const p = lemniscate(pathT, A, B);
+        const pAhead = lemniscate(pathT + 0.04, A, B);
         const px = cx + p.x;
         const py = cy + p.y;
+        const tangentAngle = Math.atan2(pAhead.y - p.y, pAhead.x - p.x);
 
         const ctx = obdCtx;
-        ctx.fillStyle = '#f8fafc';
-        ctx.fillRect(0, 0, obdCssW, obdCssH);
-        drawOkn(ctx);
-        drawDot(ctx, px, py);
+        ctx.clearRect(0, 0, obdCssW, obdCssH);
+        drawPaddle(ctx, px, py, tangentAngle);
 
         obdRafId = requestAnimationFrame(frame);
     }
@@ -206,7 +234,10 @@
             lastFrame = performance.now();
             pad.classList.add('obd-ground-pad--active');
             updatePausedBanner();
-            setInst(fastPhase ? 'OBD · INCREASED LOOP SPEED' : 'OBD · INFINITY TRACKING');
+            setInst(fastPhase ? `${PROTOCOL_LABEL} · INCREASED LOOP SPEED` : `${PROTOCOL_LABEL} · INFINITY TRACKING`);
+            if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.prime) {
+                window.OBDAudio.prime();
+            }
         };
 
         const onUp = (e) => {
@@ -215,7 +246,7 @@
             holding = false;
             pad.classList.remove('obd-ground-pad--active');
             updatePausedBanner();
-            setInst('OBD · RE-ESTABLISH CONTACT');
+            setInst(`${PROTOCOL_LABEL} · RE-ESTABLISH CONTACT`);
         };
 
         pad.addEventListener('pointerdown', onDown, opts);
@@ -236,9 +267,10 @@
 
         stage.innerHTML = `
             <div class="obd-root">
-                <p class="obd-instruct">Maintain contact with the grounding pad. Allow your eyes to smoothly track the focal point through the infinity loop.</p>
+                <p class="obd-instruct">Maintain contact with the grounding pad. Allow your eyes to smoothly track the paddle blade through the infinity loop.</p>
                 <div class="obd-stage">
-                    <canvas class="obd-canvas" id="obd-canvas" aria-label="Infinity loop tracking field"></canvas>
+                    <div class="obd-ripple-layer" aria-hidden="true"></div>
+                    <canvas class="obd-canvas" id="obd-canvas" aria-label="Infinity loop tracking field with canoe paddle blade"></canvas>
                     <p class="obd-paused-banner" id="obd-paused-banner" role="status">Paused — re-establish contact</p>
                 </div>
                 <div class="obd-pad-wrap">
@@ -253,6 +285,7 @@
 
         obdCtx = fitCanvas(obdCanvas);
         bindGroundPad(pad);
+        loadPaddleImage();
 
         obdResizeHandler = () => {
             if (!obdRunning || !obdCanvas) return;
@@ -266,17 +299,19 @@
         obdRunning = true;
         holding = false;
         pathT = 0;
-        oknOffset = 0;
         loopPeriodSec = LOOP_PERIOD_SLOW;
         fastPhase = false;
         lastFrame = 0;
-        lastCrossIndex = -1;
+        lastApexIndex = -1;
 
         showProtocolViewport();
-        setInst('OBD · HOLD GROUNDING PAD TO BEGIN');
+        setInst(`${PROTOCOL_LABEL} · HOLD GROUNDING PAD TO BEGIN`);
 
         renderShell();
         updatePausedBanner();
+        if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.prime) {
+            window.OBDAudio.prime();
+        }
         obdRafId = requestAnimationFrame(frame);
 
         obdPhaseTimeoutId = window.setTimeout(() => {
@@ -284,7 +319,7 @@
             if (!obdRunning) return;
             fastPhase = true;
             loopPeriodSec = LOOP_PERIOD_FAST;
-            if (holding) setInst('OBD · INCREASED LOOP SPEED');
+            if (holding) setInst(`${PROTOCOL_LABEL} · INCREASED LOOP SPEED`);
         }, PHASE_MS);
 
         obdExitTimeoutId = window.setTimeout(() => {
