@@ -14,7 +14,7 @@ const GLOBAL_BINAURAL_CONFIG = {
 
 /** Frequency presets for onboarding opt-in sub-selection. */
 const FREQUENCY_PRESETS = {
-    'theta-6': { leftHz: 200, rightHz: 206, label: 'Theta Differential Engine (6Hz Delta/Theta Baseline)' },
+    'theta-6': { leftHz: 200, rightHz: 206, label: 'Theta Differential Engine (6Hz Deep Relaxation Baseline)' },
     'alpha-10': { leftHz: 200, rightHz: 210, label: 'Alpha Entrainment (10Hz Baseline)' },
     none: { leftHz: 200, rightHz: 200, label: 'Opt Out — No Binaural Frequency Layer', gain: 0 }
 };
@@ -92,14 +92,46 @@ function promptEmergencyDial() {
     window.location.href = `tel:${number}`;
 }
 
-function initEmergencyExitLinks() {
-    document.querySelectorAll('[data-emergency-dial]').forEach((el) => {
-        el.addEventListener('click', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            promptEmergencyDial();
-        });
+function ensureEmergencyBypassFooter() {
+    const footer = document.getElementById('emergency-bypass-footer');
+    if (!footer) return;
+
+    footer.classList.remove('hidden');
+    footer.removeAttribute('aria-hidden');
+    footer.style.removeProperty('display');
+    footer.style.removeProperty('visibility');
+    footer.style.removeProperty('opacity');
+    footer.style.removeProperty('pointer-events');
+
+    footer.querySelectorAll('[data-emergency-dial]').forEach((el) => {
+        el.classList.remove('hidden', 'iec-exit-locked');
+        el.removeAttribute('disabled');
+        el.removeAttribute('aria-hidden');
+        el.style.removeProperty('pointer-events');
+        el.style.removeProperty('opacity');
     });
+}
+
+let emergencyExitLinksInited = false;
+
+function initEmergencyExitLinks() {
+    if (emergencyExitLinksInited) return;
+    emergencyExitLinksInited = true;
+
+    document.addEventListener(
+        'click',
+        (event) => {
+            const trigger = event.target.closest('[data-emergency-dial]');
+            if (!trigger) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            promptEmergencyDial();
+        },
+        true
+    );
+
+    ensureEmergencyBypassFooter();
+    window.setInterval(ensureEmergencyBypassFooter, 1000);
 }
 
 function syncOnboardingFrequencyPanel() {
@@ -339,6 +371,7 @@ function launchWithIntro(protocolKey) {
         overlay.setAttribute('aria-hidden', 'true');
         runProtocol(protocolKey);
     }, PROTOCOL_INTRO_MS);
+    ensureEmergencyBypassFooter();
 }
 
 function launchCRESession() {
@@ -449,6 +482,7 @@ function showProtocolViewport() {
     vp.classList.remove('hidden');
     vp.setAttribute('aria-hidden', 'false');
     vp.style.removeProperty('display');
+    ensureEmergencyBypassFooter();
 }
 
 function openSession(message) {
@@ -517,6 +551,7 @@ if (typeof window !== 'undefined') {
     window.openSession = openSession;
     window.showProtocolViewport = showProtocolViewport;
     window.promptEmergencyDial = promptEmergencyDial;
+    window.ensureEmergencyBypassFooter = ensureEmergencyBypassFooter;
 }
 
 if (typeof document !== 'undefined') {
