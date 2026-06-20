@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzixw-v14';
+const CACHE_NAME = 'dzixw-v15';
 
 const PRECACHE_URLS = [
   '/',
@@ -6,7 +6,7 @@ const PRECACHE_URLS = [
   '/style.css',
   '/app.js',
   '/manifest.json',
-  '/logo.png',
+  '/dzixw-logo.png',
   '/icon-192.png',
   '/icon-512.png',
   '/protocols/obd/obd.css',

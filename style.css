@@ -78,7 +78,8 @@ body {
 }
 
 .app-brand-logo {
-    width: min(72vw, 20rem);
+    width: 100%;
+    max-width: 150px;
     height: auto;
     display: block;
     object-fit: contain;
@@ -91,10 +92,7 @@ body {
 }
 
 #dashboard .app-brand-logo {
-    width: min(85vw, 18rem);
-    max-width: 100%;
-    max-height: min(24vh, 140px);
-    height: auto;
+    max-width: 150px;
     margin: 0 auto;
 }
 
