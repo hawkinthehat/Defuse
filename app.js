@@ -1,17 +1,19 @@
 /**
  * dᶻix̌ʷ — global viewport shell for protocol modules.
- * Home triage is locked to three primary routes: k̓ʷəč (CRE), dᶻix̌ʷ (OBD), tix̌ix̌dubut (PRCB).
+ * Home triage displays five primary routes: k̓ʷəč (CRE), dᶻix̌ʷ (OBD), gʷədiʔ (MIF), ʔuʔəy̓ (AED), tix̌ix̌dubut (PRCB).
  * Published by the Tulalip Resilience Studio.
  */
 
 const STUDIO_NAME = 'Tulalip Resilience Studio';
 const STUDIO_ATTRIBUTION = 'dᶻix̌ʷ (Return to Center) by the Tulalip Resilience Studio.';
 
-/** Active retraining verbs for the locked home triage menu. */
+/** Active retraining verbs for the home triage menu. */
 const TRIAGE_RETRAIN_LABELS = Object.freeze({
     cre: { term: 'k̓ʷəč:', action: 'RETRAIN THOUGHT / ATTENTIONAL FOCUS' },
-    obd: { term: 'dᶻix̌ʷ:', action: 'RETRAIN RHYTHM / RETURN TO CENTER' },
-    prcb: { term: 'tix̌ix̌dubut:', action: 'RETRAIN STABILITY / EMERGENCY OVERRIDE' }
+    obd: { term: 'dᶻix̌ʷ:', action: 'RETRAIN RHYTHM / RHYTHMIC GROUNDING' },
+    mif: { term: 'gʷədiʔ:', action: 'RETRAIN SENSATION / HAPTIC GROUNDING' },
+    aed: { term: 'ʔuʔəy̓:', action: 'RETRAIN ATTENTION / KINETIC ICON CLEAR' },
+    prcb: { term: 'tix̌ix̌dubut:', action: 'RETRAIN STABILITY / EMERGENCY RESET' }
 });
 
 const PROTOCOL_INTRO_MS = 1500;
@@ -50,6 +52,8 @@ const globalBinauralState = {
 const PROTOCOL_ENGAGE = {
     obd: { name: 'dᶻix̌ʷ', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.obd.action },
     cre: { name: 'k̓ʷəč', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.cre.action },
+    mif: { name: 'gʷədiʔ', rhythm: 'HAPTIC', retrain: TRIAGE_RETRAIN_LABELS.mif.action },
+    aed: { name: 'ʔuʔəy̓', rhythm: 'KINETIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.aed.action },
     sam: { name: 'SAM', rhythm: 'VISUAL AND HAPTIC', retrain: 'RETRAIN ATTENTION' },
     iec: { name: 'IEC', rhythm: 'VISUAL', retrain: 'RETRAIN PERCEPTION' },
     prcb: { name: 'tix̌ix̌dubut', rhythm: 'HIGH-CONTRAST VISUAL', retrain: TRIAGE_RETRAIN_LABELS.prcb.action }
@@ -58,13 +62,15 @@ const PROTOCOL_ENGAGE = {
 const PROTOCOL_ROUTES = {
     cre: { name: 'k̓ʷəč', path: 'protocols/cre/' },
     obd: { name: 'dᶻix̌ʷ', path: 'protocols/obd/' },
+    mif: { name: 'gʷədiʔ', path: 'protocols/mif/' },
+    aed: { name: 'ʔuʔəy̓', path: 'protocols/aed/' },
     sam: { name: 'SAM', path: 'protocols/sam/' },
     iec: { name: 'IEC', path: 'protocols/iec/' },
     prcb: { name: 'tix̌ix̌dubut', path: 'protocols/prcb/' }
 };
 
-/** Locked 3-button home triage — no alternate entry points. */
-const DZIXW_PRIMARY_TRIAGE = Object.freeze(['cre', 'obd', 'prcb']);
+/** Primary home triage — all five dashboard protocols. */
+const DZIXW_PRIMARY_TRIAGE = Object.freeze(['cre', 'obd', 'mif', 'aed', 'prcb']);
 
 let protocolIntroTimeoutId = 0;
 let masterInitializationInited = false;
@@ -352,6 +358,8 @@ function runProtocol(protocolKey) {
     const runners = {
         obd: () => (typeof launchOBD === 'function' ? launchOBD() : showProtocolPending('obd')),
         cre: () => (typeof launchCRE === 'function' ? launchCRE() : showProtocolPending('cre')),
+        mif: () => (typeof launchMIF === 'function' ? launchMIF() : showProtocolPending('mif')),
+        aed: () => (typeof launchAED === 'function' ? launchAED() : showProtocolPending('aed')),
         sam: () => (typeof launchSAM === 'function' ? launchSAM() : showProtocolPending('sam')),
         iec: () => (typeof launchIEC === 'function' ? launchIEC() : showProtocolPending('iec')),
         prcb: () => (typeof launchPRCB === 'function' ? launchPRCB() : showProtocolPending('prcb'))
@@ -402,12 +410,13 @@ const DIRECT_SESSION_LAUNCHERS = {
 
 const INTRO_SESSION_KEYS = {
     obd: 'obd',
+    mif: 'mif',
+    aed: 'aed',
     sam: 'sam',
     iec: 'iec'
 };
 
 function onPrimarySymptom(symptom) {
-    if (!DZIXW_PRIMARY_TRIAGE.includes(symptom)) return;
     selectionTapHaptic();
     const direct = DIRECT_SESSION_LAUNCHERS[symptom];
     if (direct) {
@@ -529,6 +538,12 @@ function exitProtocol() {
     }
     if (typeof stopPRCB === 'function') {
         stopPRCB();
+    }
+    if (typeof stopMIF === 'function') {
+        stopMIF();
+    }
+    if (typeof stopAED === 'function') {
+        stopAED();
     }
     const vp = document.getElementById('viewport');
     if (vp) {
