@@ -188,7 +188,7 @@
                         ? `
                 <header class="obs-header">
                     <p class="obs-protocol-id">OBS · Observer shift</p>
-                    <p class="obs-audit-title">Shift my view</p>
+                    <p class="obs-audit-title">dᶻix̌ʷ · Return to center</p>
                     ${objectiveBlockHtml()}
                     <div class="obs-step-rail" aria-hidden="true">
                         <span class="obs-step-dot ${obsStep >= 1 ? 'is-on' : ''}"></span>

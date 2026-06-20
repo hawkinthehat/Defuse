@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzixw-v13';
+const CACHE_NAME = 'dzixw-v14';
 
 const PRECACHE_URLS = [
   '/',
