@@ -550,9 +550,12 @@ function exitProtocol() {
     if (typeof stopPRCB === 'function') {
         stopPRCB();
     }
+    if (typeof stopMIF === 'function') {
+        stopMIF();
+    }
     const vp = document.getElementById('viewport');
     if (vp) {
-        vp.classList.remove('viewport-obs', 'viewport-ics', 'viewport-sam', 'viewport-iec');
+        vp.classList.remove('viewport-obs', 'viewport-ics', 'viewport-sam', 'viewport-iec', 'viewport-mif');
         vp.classList.add('hidden');
         vp.setAttribute('aria-hidden', 'true');
         vp.style.removeProperty('display');
