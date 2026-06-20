@@ -1,6 +1,6 @@
 /**
  * dᶻix̌ʷ — global viewport shell for protocol modules.
- * Home triage is locked to three primary routes: k̓ʷəč (CRE), dᶻix̌ʷ (OBD), tix̌ix̌dubut (PRCB).
+ * Home triage is locked to five primary routes: k̓ʷəč (CRE), dᶻix̌ʷ (OBD), gʷədiʔ (MIF), ʔuʔəy̓ (AED), tix̌ix̌dubut (PRCB).
  * Published by the Tulalip Resilience Studio.
  */
 
@@ -11,6 +11,8 @@ const STUDIO_ATTRIBUTION = 'dᶻix̌ʷ (Return to Center) by the Tulalip Resilie
 const TRIAGE_RETRAIN_LABELS = Object.freeze({
     cre: { term: 'k̓ʷəč:', action: 'RETRAIN THOUGHT / ATTENTIONAL FOCUS' },
     obd: { term: 'dᶻix̌ʷ:', action: 'RETRAIN RHYTHM / RETURN TO CENTER' },
+    mif: { term: 'gʷədiʔ:', action: 'RETRAIN SENSATION / PHYSICAL TOUCH GROUNDING' },
+    aed: { term: 'ʔuʔəy̓:', action: 'RETRAIN FOCUS / CLEAR CHAOTIC STIMULI' },
     prcb: { term: 'tix̌ix̌dubut:', action: 'RETRAIN STABILITY / EMERGENCY OVERRIDE' }
 });
 
@@ -50,6 +52,8 @@ const globalBinauralState = {
 const PROTOCOL_ENGAGE = {
     obd: { name: 'dᶻix̌ʷ', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.obd.action },
     cre: { name: 'k̓ʷəč', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.cre.action },
+    mif: { name: 'gʷədiʔ', rhythm: 'HAPTIC AND SOMATIC', retrain: TRIAGE_RETRAIN_LABELS.mif.action },
+    aed: { name: 'ʔuʔəy̓', rhythm: 'VISUAL AND ATTENTIONAL', retrain: TRIAGE_RETRAIN_LABELS.aed.action },
     sam: { name: 'SAM', rhythm: 'VISUAL AND HAPTIC', retrain: 'RETRAIN ATTENTION' },
     iec: { name: 'IEC', rhythm: 'VISUAL', retrain: 'RETRAIN PERCEPTION' },
     prcb: { name: 'tix̌ix̌dubut', rhythm: 'HIGH-CONTRAST VISUAL', retrain: TRIAGE_RETRAIN_LABELS.prcb.action }
@@ -58,13 +62,24 @@ const PROTOCOL_ENGAGE = {
 const PROTOCOL_ROUTES = {
     cre: { name: 'k̓ʷəč', path: 'protocols/cre/' },
     obd: { name: 'dᶻix̌ʷ', path: 'protocols/obd/' },
+    mif: { name: 'gʷədiʔ', path: 'protocols/mif/' },
+    aed: { name: 'ʔuʔəy̓', path: 'protocols/aed/' },
     sam: { name: 'SAM', path: 'protocols/sam/' },
     iec: { name: 'IEC', path: 'protocols/iec/' },
     prcb: { name: 'tix̌ix̌dubut', path: 'protocols/prcb/' }
 };
 
-/** Locked 3-button home triage — no alternate entry points. */
-const DZIXW_PRIMARY_TRIAGE = Object.freeze(['cre', 'obd', 'prcb']);
+/** Locked 5-button home triage — no alternate entry points. */
+const DZIXW_PRIMARY_TRIAGE = Object.freeze(['cre', 'obd', 'mif', 'aed', 'prcb']);
+
+/** Dashboard button IDs mapped to protocol keys. */
+const TRIAGE_BUTTON_IDS = Object.freeze({
+    'protocol-cre': 'cre',
+    'protocol-obd': 'obd',
+    'protocol-mif': 'mif',
+    'protocol-aed': 'aed',
+    'protocol-prcb': 'prcb'
+});
 
 let protocolIntroTimeoutId = 0;
 let masterInitializationInited = false;
@@ -352,6 +367,8 @@ function runProtocol(protocolKey) {
     const runners = {
         obd: () => (typeof launchOBD === 'function' ? launchOBD() : showProtocolPending('obd')),
         cre: () => (typeof launchCRE === 'function' ? launchCRE() : showProtocolPending('cre')),
+        mif: () => (typeof launchMIF === 'function' ? launchMIF() : showProtocolPending('mif')),
+        aed: () => (typeof launchAED === 'function' ? launchAED() : showProtocolPending('aed')),
         sam: () => (typeof launchSAM === 'function' ? launchSAM() : showProtocolPending('sam')),
         iec: () => (typeof launchIEC === 'function' ? launchIEC() : showProtocolPending('iec')),
         prcb: () => (typeof launchPRCB === 'function' ? launchPRCB() : showProtocolPending('prcb'))
@@ -402,11 +419,13 @@ const DIRECT_SESSION_LAUNCHERS = {
 
 const INTRO_SESSION_KEYS = {
     obd: 'obd',
+    mif: 'mif',
+    aed: 'aed',
     sam: 'sam',
     iec: 'iec'
 };
 
-function onPrimarySymptom(symptom) {
+function loadProtocol(symptom) {
     if (!DZIXW_PRIMARY_TRIAGE.includes(symptom)) return;
     selectionTapHaptic();
     const direct = DIRECT_SESSION_LAUNCHERS[symptom];
@@ -417,7 +436,20 @@ function onPrimarySymptom(symptom) {
     const introKey = INTRO_SESSION_KEYS[symptom];
     if (introKey) {
         launchWithIntro(introKey);
+        return;
     }
+    runProtocol(symptom);
+}
+
+function initDashboardPrimary() {
+    if (dashboardPrimaryInited) return;
+    dashboardPrimaryInited = true;
+
+    Object.entries(TRIAGE_BUTTON_IDS).forEach(([elementId, symptomKey]) => {
+        const btn = document.getElementById(elementId);
+        if (!btn) return;
+        btn.addEventListener('click', () => loadProtocol(symptomKey));
+    });
 }
 
 function revealDashboardFromMasterInit() {
@@ -481,18 +513,6 @@ function initStudioBrandFooter() {
 
     footer.textContent = STUDIO_ATTRIBUTION;
     footer.setAttribute('aria-label', `Developer attribution — ${STUDIO_NAME}`);
-}
-
-function initDashboardPrimary() {
-    if (dashboardPrimaryInited) return;
-    dashboardPrimaryInited = true;
-
-    document.querySelectorAll('.symptom-tile[data-symptom]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            const s = btn.getAttribute('data-symptom');
-            if (s) onPrimarySymptom(s);
-        });
-    });
 }
 
 function showProtocolViewport() {
@@ -568,6 +588,7 @@ if (typeof window !== 'undefined') {
     };
     window.ProtocolRoutes = PROTOCOL_ROUTES;
     window.launchWithIntro = launchWithIntro;
+    window.loadProtocol = loadProtocol;
     window.exitProtocol = exitProtocol;
     window.openSession = openSession;
     window.showProtocolViewport = showProtocolViewport;
