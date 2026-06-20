@@ -8,6 +8,7 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    padding-bottom: var(--emergency-footer-reserve, 92px);
     background: var(--bg-page, #f8fafc);
     color: #0f172a;
     position: relative;
@@ -193,7 +194,7 @@
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    padding: 1rem 1rem 1.5rem;
+    padding: 1rem 1rem calc(1.5rem + var(--emergency-footer-reserve, 92px));
     box-sizing: border-box;
 }
 

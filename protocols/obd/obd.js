@@ -142,31 +142,35 @@
     }
 
     function drawPaddle(ctx, px, py, tangentAngle) {
-        const scale = Math.min(obdCssW, obdCssH) * 0.11;
-        const bladeW = scale * 0.72;
-        const bladeH = scale * 1.2;
+        const scale = Math.min(obdCssW, obdCssH) * 0.13;
+        const paddleW = scale * 0.48;
+        const paddleH = scale * 1.65;
 
         ctx.save();
         ctx.translate(px, py);
+        /* Blade leads along path tangent — vertical silhouette slices through the loop */
         ctx.rotate(tangentAngle + Math.PI / 2);
 
         if (paddleImage && paddleImage.complete) {
-            ctx.drawImage(paddleImage, -bladeW * 0.5, -bladeH * 0.62, bladeW, bladeH);
+            ctx.drawImage(paddleImage, -paddleW * 0.5, -paddleH * 0.42, paddleW, paddleH);
         } else {
-            const grad = ctx.createLinearGradient(0, -bladeH * 0.5, 0, bladeH * 0.5);
-            grad.addColorStop(0, '#8B5E3C');
-            grad.addColorStop(0.5, '#A67C52');
+            const grad = ctx.createLinearGradient(-paddleW * 0.5, 0, paddleW * 0.5, 0);
+            grad.addColorStop(0, '#5C3D24');
+            grad.addColorStop(0.35, '#A67C52');
+            grad.addColorStop(0.65, '#8B5E3C');
             grad.addColorStop(1, '#4A2F1A');
             ctx.fillStyle = grad;
-            ctx.strokeStyle = '#0F172A';
+            ctx.strokeStyle = '#2A1A0E';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(0, -bladeH * 0.55);
-            ctx.bezierCurveTo(bladeW * 0.55, -bladeH * 0.45, bladeW * 0.5, bladeH * 0.15, 0, bladeH * 0.35);
-            ctx.bezierCurveTo(-bladeW * 0.5, bladeH * 0.15, -bladeW * 0.55, -bladeH * 0.45, 0, -bladeH * 0.55);
+            ctx.moveTo(0, -paddleH * 0.42);
+            ctx.bezierCurveTo(paddleW * 0.52, -paddleH * 0.32, paddleW * 0.48, paddleH * 0.08, 0, paddleH * 0.18);
+            ctx.bezierCurveTo(-paddleW * 0.48, paddleH * 0.08, -paddleW * 0.52, -paddleH * 0.32, 0, -paddleH * 0.42);
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
+            ctx.fillStyle = '#6B4423';
+            ctx.fillRect(-paddleW * 0.12, paddleH * 0.12, paddleW * 0.24, paddleH * 0.38);
         }
 
         ctx.restore();
