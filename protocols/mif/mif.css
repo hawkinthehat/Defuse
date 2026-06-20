@@ -1,0 +1,134 @@
+/* MIF — Haptic Grounding (gʷədiʔ) */
+
+#viewport.viewport-mif {
+    background:
+        radial-gradient(circle at 50% 40%, rgba(37, 99, 235, 0.12), transparent 22rem),
+        var(--bg-page, #f8fafc);
+}
+
+.mif-root {
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: calc(env(safe-area-inset-top, 32px) + 5.5rem) 1.25rem 2.5rem;
+    box-sizing: border-box;
+    color: #0f172a;
+}
+
+.mif-clock-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: min(100%, 20rem);
+    padding: 0.72rem 0.9rem;
+    border: 1px solid rgba(148, 163, 184, 0.45);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(15, 23, 42, 0.08));
+}
+
+.mif-clock-label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted, #64748b);
+}
+
+.mif-clock {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--healing-blue, #2563eb);
+}
+
+.mif-pulse-wrap {
+    position: relative;
+    width: min(72vw, 16rem);
+    height: min(72vw, 16rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mif-pulse-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid rgba(37, 99, 235, 0.35);
+    transition: transform 0.6s ease, opacity 0.6s ease;
+}
+
+.mif-pulse-core {
+    width: 42%;
+    height: 42%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #3b82f6, #2563eb 55%, #1d4ed8);
+    box-shadow: 0 12px 32px rgba(37, 99, 235, 0.35);
+    transition: transform 0.6s ease;
+}
+
+.mif-phase-label {
+    margin: 0;
+    font-size: clamp(1rem, 4vw, 1.25rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--healing-blue, #2563eb);
+}
+
+.mif-cue {
+    margin: 0;
+    max-width: 22rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--text-secondary, #475569);
+}
+
+.mif-ground-pad {
+    width: min(100%, 22rem);
+    min-height: 3.25rem;
+    padding: 0.85rem 1rem;
+    border: 2px solid var(--healing-blue, #2563eb);
+    border-radius: 0.75rem;
+    background: rgba(37, 99, 235, 0.08);
+    color: #1e3a8a;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+}
+
+.mif-ground-pad:active,
+.mif-ground-pad.is-held {
+    background: rgba(37, 99, 235, 0.18);
+    transform: scale(0.98);
+}
+
+.mif-root--inhale .mif-pulse-ring {
+    transform: scale(1.12);
+    opacity: 0.85;
+}
+
+.mif-root--inhale .mif-pulse-core {
+    transform: scale(1.08);
+}
+
+.mif-root--exhale .mif-pulse-ring {
+    transform: scale(0.88);
+    opacity: 0.55;
+}
+
+.mif-root--exhale .mif-pulse-core {
+    transform: scale(0.92);
+}

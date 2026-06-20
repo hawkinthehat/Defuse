@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzixw-v13';
+const CACHE_NAME = 'dzixw-v14';
 
 const PRECACHE_URLS = [
   '/',
@@ -16,6 +16,12 @@ const PRECACHE_URLS = [
   '/protocols/obd/assets/paddle-blade.svg',
   '/protocols/cre/cre.css',
   '/protocols/cre/cre.js',
+  '/protocols/mif/mif.css',
+  '/protocols/mif/mif.js',
+  '/protocols/mif/index.html',
+  '/protocols/aed/aed.css',
+  '/protocols/aed/aed.js',
+  '/protocols/aed/index.html',
   '/protocols/sam/sam.css',
   '/protocols/sam/app.js',
   '/protocols/iec/iec.css',
