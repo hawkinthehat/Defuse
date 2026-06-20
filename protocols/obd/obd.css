@@ -8,6 +8,7 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    padding-bottom: var(--emergency-footer-reserve, 92px);
     background: var(--bg-page, #f8fafc);
     color: var(--text-primary, #0f172a);
 }
@@ -153,7 +154,7 @@
 
 .obd-pad-wrap {
     flex-shrink: 0;
-    padding: 0.75rem 1rem 1.25rem;
+    padding: 0.75rem 1rem 0.5rem;
     display: flex;
     justify-content: center;
     perspective: 420px;
