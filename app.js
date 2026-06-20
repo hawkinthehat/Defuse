@@ -1,7 +1,18 @@
 /**
  * dᶻix̌ʷ — global viewport shell for protocol modules.
  * Home triage is locked to three primary routes: k̓ʷəč (CRE), dᶻix̌ʷ (OBD), tix̌ix̌dubut (PRCB).
+ * Published by the Tulalip Resilience Studio.
  */
+
+const STUDIO_NAME = 'Tulalip Resilience Studio';
+const STUDIO_ATTRIBUTION = 'dᶻix̌ʷ (Return to Center) by the Tulalip Resilience Studio.';
+
+/** Active retraining verbs for the locked home triage menu. */
+const TRIAGE_RETRAIN_LABELS = Object.freeze({
+    cre: { term: 'k̓ʷəč:', action: 'RETRAIN THOUGHT / ATTENTIONAL FOCUS' },
+    obd: { term: 'dᶻix̌ʷ:', action: 'RETRAIN RHYTHM / RETURN TO CENTER' },
+    prcb: { term: 'tix̌ix̌dubut:', action: 'RETRAIN STABILITY / EMERGENCY OVERRIDE' }
+});
 
 const PROTOCOL_INTRO_MS = 1500;
 const GLOBAL_BINAURAL_CONFIG = {
@@ -14,7 +25,7 @@ const GLOBAL_BINAURAL_CONFIG = {
 
 /** Frequency presets for onboarding opt-in sub-selection. */
 const FREQUENCY_PRESETS = {
-    'theta-6': { leftHz: 200, rightHz: 206, label: 'Theta Differential Engine (6Hz Deep Relaxation Baseline)' },
+    'theta-6': { leftHz: 200, rightHz: 206, label: 'Theta Differential Engine (6Hz — Experimental Bioelectronic Neuromodulation Baseline)' },
     'alpha-10': { leftHz: 200, rightHz: 210, label: 'Alpha Entrainment (10Hz Baseline)' },
     none: { leftHz: 200, rightHz: 200, label: 'Opt Out — No Binaural Frequency Layer', gain: 0 }
 };
@@ -34,14 +45,14 @@ const globalBinauralState = {
 };
 
 /**
- * Pre-session splash: PROTOCOL ENGAGED: [NAME]. FOCUS ON THE [RHYTHM TYPE] RHYTHM.
+ * Pre-session splash: RETRAIN ENGAGED: [NAME]. FOCUS ON THE [RHYTHM TYPE] RHYTHM.
  */
 const PROTOCOL_ENGAGE = {
-    obd: { name: 'dᶻix̌ʷ', rhythm: 'HAPTIC AND VISUAL' },
-    cre: { name: 'k̓ʷəč', rhythm: 'HAPTIC AND VISUAL' },
-    sam: { name: 'SAM', rhythm: 'VISUAL AND HAPTIC' },
-    iec: { name: 'IEC', rhythm: 'VISUAL' },
-    prcb: { name: 'tix̌ix̌dubut', rhythm: 'HIGH-CONTRAST VISUAL' }
+    obd: { name: 'dᶻix̌ʷ', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.obd.action },
+    cre: { name: 'k̓ʷəč', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.cre.action },
+    sam: { name: 'SAM', rhythm: 'VISUAL AND HAPTIC', retrain: 'RETRAIN ATTENTION' },
+    iec: { name: 'IEC', rhythm: 'VISUAL', retrain: 'RETRAIN PERCEPTION' },
+    prcb: { name: 'tix̌ix̌dubut', rhythm: 'HIGH-CONTRAST VISUAL', retrain: TRIAGE_RETRAIN_LABELS.prcb.action }
 };
 
 const PROTOCOL_ROUTES = {
@@ -360,7 +371,7 @@ function launchWithIntro(protocolKey) {
         return;
     }
 
-    const line = `PROTOCOL ENGAGED: ${meta.name}. FOCUS ON THE ${meta.rhythm} RHYTHM.`;
+    const line = `RETRAIN ENGAGED: ${meta.name}. ${meta.retrain}. FOCUS ON THE ${meta.rhythm} RHYTHM.`;
     body.textContent = line;
     overlay.classList.remove('hidden');
     overlay.setAttribute('aria-hidden', 'false');
@@ -464,6 +475,14 @@ function initMasterInitializationOverlay() {
     });
 }
 
+function initStudioBrandFooter() {
+    const footer = document.getElementById('studio-brand-footer');
+    if (!footer) return;
+
+    footer.textContent = STUDIO_ATTRIBUTION;
+    footer.setAttribute('aria-label', `Developer attribution — ${STUDIO_NAME}`);
+}
+
 function initDashboardPrimary() {
     if (dashboardPrimaryInited) return;
     dashboardPrimaryInited = true;
@@ -531,6 +550,8 @@ function exitProtocol() {
 }
 
 if (typeof window !== 'undefined') {
+    window.StudioBrand = { name: STUDIO_NAME, attribution: STUDIO_ATTRIBUTION };
+    window.TriageRetrainLabels = TRIAGE_RETRAIN_LABELS;
     window.GlobalBinauralEngine = {
         config: GLOBAL_BINAURAL_CONFIG,
         initialize: initializeGlobalBinauralEngine,
@@ -559,11 +580,13 @@ if (typeof document !== 'undefined') {
         document.addEventListener('DOMContentLoaded', () => {
             initMasterInitializationOverlay();
             initDashboardPrimary();
+            initStudioBrandFooter();
             initEmergencyExitLinks();
         });
     } else {
         initMasterInitializationOverlay();
         initDashboardPrimary();
+        initStudioBrandFooter();
         initEmergencyExitLinks();
     }
 }
