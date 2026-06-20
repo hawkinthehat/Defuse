@@ -91,10 +91,11 @@ body {
 }
 
 #dashboard .app-brand-logo {
-    width: auto;
-    max-width: min(52vw, 11rem);
-    max-height: min(22vh, 120px);
+    width: min(85vw, 18rem);
+    max-width: 100%;
+    max-height: min(24vh, 140px);
     height: auto;
+    margin: 0 auto;
 }
 
 .protocol-card {
@@ -704,7 +705,7 @@ body {
     box-sizing: border-box;
 }
 
-.defuse-triage-section {
+.dzixw-triage-section {
     padding: 1rem 12px 0.5rem;
     border-radius: 12px;
     background: var(--bg-surface);

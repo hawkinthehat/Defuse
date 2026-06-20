@@ -1,4 +1,3 @@
-<img width="864" height="1243" alt="image" src="https://github.com/user-attachments/assets/ba2a2612-aa95-4829-85e2-5f6789bf4383" />
 # dᶻix̌ʷ | Clinical Stabilization Interface v3.2
 ### **Lushootseed Nomenclature · Cognitive Pattern Interruption**
 
