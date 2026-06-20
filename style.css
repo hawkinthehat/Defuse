@@ -731,12 +731,17 @@ body {
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 1rem;
 }
 
 .symptom-grid > li {
     margin: 0;
     padding: 0;
+}
+
+.symptom-grid > button {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .symptom-tile {
@@ -817,7 +822,7 @@ body {
 }
 
 .symptom-grid--primary {
-    gap: 16px;
+    gap: 1rem;
 }
 
 .symptom-tile--primary {
@@ -1016,6 +1021,7 @@ body {
 #emergency-bypass-footer {
     position: fixed;
     bottom: 0;
+    width: 100%;
     left: 0;
     right: 0;
     z-index: 15000;
