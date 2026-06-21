@@ -13,7 +13,7 @@
     const POP_MS = 520;
 
     const CHAOTIC_COLORS = ['#ff2244', '#ff8800', '#ffffff', '#00e5ff', '#ff44aa'];
-    const CALM_COLORS = ['#4a8fb8', '#5a9a7a', '#6ba8c4', '#4d9a82'];
+    const CALM_TEAL_STOPS = ['#0a3040', '#145568', '#1e7080', '#288c9c', '#34a8b8', '#48c4d4'];
 
     let aedRunning = false;
     let aedRafId = 0;
@@ -138,21 +138,38 @@
 
     function makeChaoticNode() {
         const size = rand(22, 38);
-        return {
+        const roll = Math.random();
+        const pattern = roll < 0.34 ? 'trigon' : roll < 0.67 ? 'salish_eye' : 'negative_trigon_stack';
+        const node = {
             kind: 'chaotic',
+            pattern,
             x: rand(size, Math.max(size + 1, width - size)),
             y: rand(size + 40, Math.max(size + 41, height - size)),
             size,
             vx: rand(-1.8, 1.8),
             vy: rand(-1.5, 1.5),
             pulsePhase: rand(0, Math.PI * 2),
-            pulseSpeed: rand(0.16, 0.28),
             rot: rand(0, Math.PI * 2),
             rotSpeed: rand(-0.05, 0.05),
             color: pick(CHAOTIC_COLORS),
-            wedgeSpread: rand(Math.PI / 4, Math.PI / 2.2),
             flashUntil: 0
         };
+
+        if (pattern === 'trigon') {
+            node.trigonCount = 2 + Math.floor(rand(0, 2));
+            node.trigonSpread = rand(0.32, 0.58);
+            node.trigonTilt = rand(-0.25, 0.25);
+            node.pulseSpeed = rand(0.22, 0.38);
+            node.rotSpeed = rand(-0.08, 0.08);
+        } else if (pattern === 'salish_eye') {
+            node.eyeTilt = rand(-0.45, 0.45);
+            node.pulseSpeed = rand(0.18, 0.34);
+        } else {
+            node.stackTilt = rand(-0.35, 0.35);
+            node.pulseSpeed = rand(0.16, 0.3);
+        }
+
+        return node;
     }
 
     function makeCalmNode() {
@@ -163,14 +180,15 @@
             y: rand(radius + 40, Math.max(radius + 41, height - radius)),
             radius,
             baseRadius: radius,
+            rx: radius * 1.08,
+            ry: radius * 0.72,
+            ovoidTilt: rand(-0.18, 0.18),
             vx: rand(-0.35, 0.35),
             vy: rand(-0.28, 0.28),
             driftPhase: rand(0, Math.PI * 2),
             driftSpeed: rand(0.0008, 0.0016),
             pulsePhase: rand(0, Math.PI * 2),
-            pulseSpeed: rand(0.012, 0.022),
-            color: pick(CALM_COLORS),
-            crescentTilt: rand(-0.35, 0.35),
+            pulseSpeed: rand(0.008, 0.016),
             alive: true
         };
     }
@@ -232,8 +250,13 @@
             if (!node.alive) continue;
             const dx = px - node.x;
             const dy = py - node.y;
-            const hitR = node.radius * 1.15;
-            if (dx * dx + dy * dy <= hitR * hitR) return node;
+            const cos = Math.cos(-node.ovoidTilt);
+            const sin = Math.sin(-node.ovoidTilt);
+            const lx = dx * cos - dy * sin;
+            const ly = dx * sin + dy * cos;
+            const hitRx = node.rx * 1.12;
+            const hitRy = node.ry * 1.12;
+            if ((lx * lx) / (hitRx * hitRx) + (ly * ly) / (hitRy * hitRy) <= 1) return node;
         }
         return null;
     }
@@ -259,7 +282,7 @@
         const calmHit = hitTestCalm(px, py);
         if (calmHit) {
             calmHit.alive = false;
-            addPopEffect(calmHit.x, calmHit.y, calmHit.color);
+            addPopEffect(calmHit.x, calmHit.y, CALM_TEAL_STOPS[4]);
             triggerRegulationStep();
             if (typeof navigator !== 'undefined' && navigator.vibrate) {
                 try {
@@ -277,77 +300,256 @@
         }
     }
 
-    function drawChaoticShape(ctx, node) {
-        const fastPulse = node.pulsePhase * 2.6;
-        const pulse = 0.62 + 0.48 * Math.sin(fastPulse);
+    /** Coast Salish trigon: three curved formline sides meeting at sharp points. */
+    function traceSalishTrigon(ctx, scale) {
+        const s = scale;
+        ctx.beginPath();
+        ctx.moveTo(0, -s);
+        ctx.quadraticCurveTo(-s * 0.98, -s * 0.12, -s * 0.64, s * 0.5);
+        ctx.quadraticCurveTo(0, s * 0.74, s * 0.64, s * 0.5);
+        ctx.quadraticCurveTo(s * 0.98, -s * 0.12, 0, -s);
+        ctx.closePath();
+    }
+
+    /** Formline ovoid outline via four cubic-bezier quarters. */
+    function traceOvoid(ctx, rx, ry) {
+        const k = 0.5522847498;
+        ctx.beginPath();
+        ctx.moveTo(0, -ry);
+        ctx.bezierCurveTo(rx * k, -ry, rx, -ry * k, rx, 0);
+        ctx.bezierCurveTo(rx, ry * k, rx * k, ry, 0, ry);
+        ctx.bezierCurveTo(-rx * k, ry, -rx, ry * k, -rx, 0);
+        ctx.bezierCurveTo(-rx, -ry * k, -rx * k, -ry, 0, -ry);
+        ctx.closePath();
+    }
+
+    function drawTrigon(ctx, node) {
+        const fastPulse = node.pulsePhase * 3.1;
+        const pulse = 0.58 + 0.52 * Math.sin(fastPulse);
         const reach = node.size * pulse;
-        const spread = node.wedgeSpread;
-        const halfSpread = spread * 0.5;
 
         ctx.save();
         ctx.translate(node.x, node.y);
-        ctx.rotate(node.rot);
+        ctx.rotate(node.rot + node.trigonTilt);
         ctx.fillStyle = node.color;
-        ctx.globalAlpha = 0.76 + 0.24 * Math.sin(fastPulse * 1.35);
+        ctx.strokeStyle = node.color;
+        ctx.lineJoin = 'miter';
+        ctx.lineCap = 'butt';
         ctx.shadowColor = node.color;
-        ctx.shadowBlur = 18;
+        ctx.shadowBlur = 14 + 10 * Math.sin(fastPulse * 1.4);
 
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(Math.cos(-halfSpread - Math.PI / 2) * reach * 1.45, Math.sin(-halfSpread - Math.PI / 2) * reach * 1.45);
-        ctx.lineTo(Math.cos(halfSpread - Math.PI / 2) * reach * 1.45, Math.sin(halfSpread - Math.PI / 2) * reach * 1.45);
-        ctx.closePath();
-        ctx.fill();
+        for (let i = 0; i < node.trigonCount; i += 1) {
+            const phase = fastPulse + i * node.trigonSpread * Math.PI * 2;
+            const microPulse = 0.72 + 0.38 * Math.sin(phase);
+            const offset = reach * 0.38 * i;
+            const angle = i * node.trigonSpread * Math.PI * 2;
 
-        ctx.globalAlpha = 0.5 + 0.4 * Math.sin(fastPulse * 1.8);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, -reach * 0.92);
-        ctx.lineTo(reach * 0.78, reach * 0.58);
-        ctx.closePath();
-        ctx.fill();
+            ctx.save();
+            ctx.translate(Math.cos(angle) * offset, Math.sin(angle) * offset);
+            ctx.rotate(Math.sin(phase * 0.7) * 0.18);
+            ctx.globalAlpha = 0.68 + 0.32 * Math.sin(phase * 1.25);
+
+            traceSalishTrigon(ctx, reach * microPulse);
+            ctx.fill();
+            ctx.globalAlpha = 0.85 + 0.15 * Math.sin(phase);
+            ctx.lineWidth = 1.4;
+            ctx.stroke();
+            ctx.restore();
+        }
 
         ctx.restore();
     }
 
-    function drawCalmNode(ctx, node, now) {
-        if (!node.alive) return;
-        const breathe = 0.92 + 0.08 * Math.sin(node.pulsePhase);
-        const r = node.baseRadius * breathe;
-        const arcSpan = Math.PI * 0.62;
-        const outerR = r;
-        const innerR = r * 0.74;
-        const crescentShift = r * 0.36;
+    /** Almond eye with sharp horizontal points, nested ovoid pupil, outer ovoid casing. */
+    function traceSalishEyeAlmond(ctx, rx, ry) {
+        ctx.beginPath();
+        ctx.moveTo(-rx, 0);
+        ctx.bezierCurveTo(-rx * 0.42, -ry * 1.15, rx * 0.42, -ry * 1.15, rx, 0);
+        ctx.bezierCurveTo(rx * 0.42, ry * 1.15, -rx * 0.42, ry * 1.15, -rx, 0);
+        ctx.closePath();
+    }
+
+    function drawSalishEye(ctx, node) {
+        const flash = 0.4 + 0.6 * Math.abs(Math.sin(node.pulsePhase * 3.4));
+        const s = node.size * (0.82 + 0.28 * Math.sin(node.pulsePhase * 2.1));
+        const outerRx = s * 1.08;
+        const outerRy = s * 0.82;
+        const eyeRx = s * 0.72;
+        const eyeRy = s * 0.38;
 
         ctx.save();
         ctx.translate(node.x, node.y);
-        ctx.rotate(node.crescentTilt);
-        ctx.shadowColor = node.color;
-        ctx.shadowBlur = 24;
-
-        ctx.beginPath();
-        ctx.arc(crescentShift, 0, outerR, -arcSpan * 0.5, arcSpan * 0.5);
-        ctx.arc(crescentShift - r * 0.18, 0, innerR, arcSpan * 0.5, -arcSpan * 0.5, true);
-        ctx.closePath();
-
-        const glow = ctx.createLinearGradient(-r, -r * 0.4, r, r * 0.4);
-        glow.addColorStop(0, `${node.color}22`);
-        glow.addColorStop(0.4, `${node.color}bb`);
-        glow.addColorStop(0.7, `${node.color}dd`);
-        glow.addColorStop(1, `${node.color}33`);
-        ctx.fillStyle = glow;
-        ctx.fill();
-
-        ctx.strokeStyle = `${node.color}77`;
-        ctx.lineWidth = 1.8;
+        ctx.rotate(node.rot + node.eyeTilt);
+        ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
+        ctx.shadowColor = node.color;
+        ctx.shadowBlur = 12 + 16 * flash;
+
+        ctx.globalAlpha = flash * 0.55;
+        ctx.strokeStyle = node.color;
+        ctx.lineWidth = 2.8;
+        traceOvoid(ctx, outerRx, outerRy);
         ctx.stroke();
 
-        ctx.globalAlpha = 0.35 + 0.15 * Math.sin(node.pulsePhase);
+        ctx.globalAlpha = flash * 0.35;
+        ctx.lineWidth = 1.4;
         ctx.beginPath();
-        ctx.arc(crescentShift * 0.85, 0, outerR * 1.08, -arcSpan * 0.42, arcSpan * 0.42);
-        ctx.strokeStyle = `${node.color}44`;
-        ctx.lineWidth = 3;
+        ctx.arc(-outerRx * 0.72, -outerRy * 0.35, s * 0.28, Math.PI * 0.15, Math.PI * 0.95);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(outerRx * 0.68, outerRy * 0.42, s * 0.24, Math.PI * 1.05, Math.PI * 1.85);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-outerRx * 0.15, -outerRy * 0.95);
+        ctx.quadraticCurveTo(outerRx * 0.35, -outerRy * 0.55, outerRx * 0.88, -outerRy * 0.12);
+        ctx.stroke();
+
+        ctx.globalAlpha = flash * 0.92;
+        ctx.fillStyle = node.color;
+        traceSalishEyeAlmond(ctx, eyeRx, eyeRy);
+        ctx.fill();
+
+        ctx.globalAlpha = flash;
+        ctx.fillStyle = '#050608';
+        traceOvoid(ctx, eyeRx * 0.32, eyeRy * 0.32);
+        ctx.fill();
+
+        ctx.globalAlpha = flash * 0.7;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.1;
+        traceSalishEyeAlmond(ctx, eyeRx * 0.96, eyeRy * 0.96);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    /** Upward negative-space trigon with concave sides (void outline). */
+    function traceNegativeTrigonVoid(ctx, s) {
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 0.34);
+        ctx.quadraticCurveTo(-s * 0.3, s * 0.04, -s * 0.13, s * 0.38);
+        ctx.lineTo(s * 0.13, s * 0.38);
+        ctx.quadraticCurveTo(s * 0.3, s * 0.04, 0, -s * 0.34);
+        ctx.closePath();
+    }
+
+    /**
+     * Three-part chaos stack from reference callout 1:
+     * curved brow band, negative-space upward trigon, bottom center bar.
+     */
+    function drawNegativeTrigonStack(ctx, node) {
+        const flash = 0.42 + 0.58 * Math.abs(Math.sin(node.pulsePhase * 3.1));
+        const s = node.size * (0.88 + 0.22 * Math.sin(node.pulsePhase * 2.4));
+
+        ctx.save();
+        ctx.translate(node.x, node.y);
+        ctx.rotate(node.rot + node.stackTilt);
+        ctx.fillStyle = node.color;
+        ctx.strokeStyle = node.color;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowColor = node.color;
+        ctx.shadowBlur = 10 + 14 * flash;
+        ctx.globalAlpha = flash * 0.92;
+
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.92, -s * 0.06);
+        ctx.quadraticCurveTo(0, -s * 0.58, s * 0.92, -s * 0.06);
+        ctx.quadraticCurveTo(0, -s * 0.26, -s * 0.92, -s * 0.06);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.92, -s * 0.06);
+        ctx.quadraticCurveTo(-s * 0.56, s * 0.14, -s * 0.14, s * 0.42);
+        ctx.lineTo(-s * 0.5, s * 0.42);
+        ctx.quadraticCurveTo(-s * 0.8, s * 0.06, -s * 0.92, -s * 0.06);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(s * 0.92, -s * 0.06);
+        ctx.quadraticCurveTo(s * 0.56, s * 0.14, s * 0.14, s * 0.42);
+        ctx.lineTo(s * 0.5, s * 0.42);
+        ctx.quadraticCurveTo(s * 0.8, s * 0.06, s * 0.92, -s * 0.06);
+        ctx.fill();
+
+        ctx.globalAlpha = flash;
+        ctx.lineWidth = s * 0.13;
+        ctx.beginPath();
+        ctx.arc(0, s * 0.52, s * 0.22, Math.PI * 1.07, Math.PI * 1.93);
+        ctx.stroke();
+
+        ctx.globalAlpha = flash * 0.5;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.9;
+        traceNegativeTrigonVoid(ctx, s);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    function drawChaoticShape(ctx, node) {
+        switch (node.pattern) {
+            case 'salish_eye':
+                drawSalishEye(ctx, node);
+                break;
+            case 'negative_trigon_stack':
+                drawNegativeTrigonStack(ctx, node);
+                break;
+            default:
+                drawTrigon(ctx, node);
+        }
+    }
+
+    /** Three nested concentric ovoid rings: outer border, middle ring, inner core. */
+    function drawCalmNode(ctx, node) {
+        if (!node.alive) return;
+
+        const breathe = 0.94 + 0.06 * Math.sin(node.pulsePhase);
+        const auraPulse = 0.5 + 0.5 * Math.sin(node.pulsePhase * 0.55);
+        const rx = node.rx * breathe;
+        const ry = node.ry * breathe;
+        const rings = [
+            { scale: 1, lineWidth: 3.2, stroke: CALM_TEAL_STOPS[2], fill: null },
+            { scale: 0.68, lineWidth: 2, stroke: CALM_TEAL_STOPS[3], fill: `${CALM_TEAL_STOPS[1]}44` },
+            { scale: 0.38, lineWidth: 0, stroke: null, fill: CALM_TEAL_STOPS[4] }
+        ];
+
+        ctx.save();
+        ctx.translate(node.x, node.y);
+        ctx.rotate(node.ovoidTilt);
+
+        ctx.globalAlpha = 0.12 + auraPulse * 0.14;
+        ctx.shadowColor = CALM_TEAL_STOPS[4];
+        ctx.shadowBlur = 28 + auraPulse * 22;
+        traceOvoid(ctx, rx * 1.18, ry * 1.18);
+        ctx.strokeStyle = CALM_TEAL_STOPS[3];
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        rings.forEach((ring, idx) => {
+            const ringRx = rx * ring.scale;
+            const ringRy = ry * ring.scale;
+            ctx.shadowBlur = idx === 0 ? 14 + auraPulse * 10 : 0;
+            ctx.globalAlpha = 0.72 + auraPulse * 0.12 - idx * 0.08;
+
+            if (ring.fill) {
+                ctx.fillStyle = ring.fill;
+                traceOvoid(ctx, ringRx, ringRy);
+                ctx.fill();
+            }
+
+            if (ring.stroke) {
+                ctx.strokeStyle = ring.stroke;
+                ctx.lineWidth = ring.lineWidth;
+                traceOvoid(ctx, ringRx, ringRy);
+                ctx.stroke();
+            }
+        });
+
+        ctx.globalAlpha = 0.28 + auraPulse * 0.18;
+        ctx.strokeStyle = CALM_TEAL_STOPS[5] || CALM_TEAL_STOPS[4];
+        ctx.lineWidth = 1.2;
+        traceOvoid(ctx, rx * 1.06, ry * 1.06);
         ctx.stroke();
 
         ctx.restore();
@@ -360,17 +562,21 @@
             const t = age / POP_MS;
             const alpha = 1 - easeOutCubic(t);
             const radius = pop.maxR * easeOutCubic(t);
+            const rx = radius * 1.12;
+            const ry = radius * 0.78;
+
+            ctx.save();
+            ctx.translate(pop.x, pop.y);
             ctx.strokeStyle = pop.color;
             ctx.globalAlpha = alpha * 0.65;
             ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(pop.x, pop.y, radius, 0, Math.PI * 2);
+            traceOvoid(ctx, rx, ry);
             ctx.stroke();
             ctx.globalAlpha = alpha * 0.35;
             ctx.fillStyle = pop.color;
-            ctx.beginPath();
-            ctx.arc(pop.x, pop.y, radius * 0.35, 0, Math.PI * 2);
+            traceOvoid(ctx, rx * 0.35, ry * 0.35);
             ctx.fill();
+            ctx.restore();
             ctx.globalAlpha = 1;
             return true;
         });
@@ -441,7 +647,7 @@
         aedCtx.fillStyle = vignette;
         aedCtx.fillRect(0, 0, width, height);
 
-        calmNodes.forEach((node) => drawCalmNode(aedCtx, node, now));
+        calmNodes.forEach((node) => drawCalmNode(aedCtx, node));
         chaoticNodes.forEach((node) => drawChaoticShape(aedCtx, node));
         drawPopEffects(aedCtx, now);
 
