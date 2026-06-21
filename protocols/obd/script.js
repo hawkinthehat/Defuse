@@ -1,12 +1,12 @@
 /**
- * dᶻix̌ʷ (OBD) — Acoustic bilateral panning + dark water background / light sine-wave reflections.
+ * dᶻix̌ʷ (OBD) — Acoustic bilateral panning + dark water background / vertical tracking sine-wave grid.
  */
 (function () {
     const MIN_RAMP_SEC = 0.001;
     const RESET_RAMP_SEC = 0.05;
 
-    const SINE_STROKE = 'rgba(45, 212, 191, 0.3)';
-    const SINE_WAVE_COUNT = 7;
+    const SINE_STROKE = 'rgba(45, 212, 191, 0.25)';
+    const SINE_COLUMN_GAP = 70;
     const SINE_SEGMENT_STEP = 6;
     const GRADIENT_CYCLE_MS = 24000;
     const SINE_TRACK_CYCLE_MS = 24000;
@@ -24,6 +24,8 @@
     let bgResizeHandler = null;
     let gradientStart = 0;
     let wavePhase = 0;
+    let paddleX = 0;
+    let frameCount = 0;
 
     function getSharedAudioContext() {
         if (typeof window.OBDAudio === 'undefined' || !window.OBDAudio.getAudioContext) return null;
@@ -162,31 +164,29 @@
     }
 
     /**
-     * Flowing horizontal sine-wave light reflections drifting across dark water.
+     * Vertical sine-wave tracking columns — paddle-linked phase shift ripples each column.
      * Phase is shared with the creek LFO baseline for future audio-visual sync.
      */
-    function drawLightSineWaves(ctx, w, h, driftPhase) {
+    function drawLightSineWaves(ctx, w, h, paddleXPos, currentFrame) {
         ctx.save();
         ctx.strokeStyle = SINE_STROKE;
-        ctx.lineWidth = 1.25;
+        ctx.lineWidth = 2;
         ctx.lineJoin = 'round';
         ctx.lineCap = 'round';
 
-        const rowGap = h / (SINE_WAVE_COUNT + 1);
+        const phaseShift = (paddleXPos * 0.05) + (currentFrame * 0.02);
 
-        for (let row = 0; row < SINE_WAVE_COUNT; row += 1) {
-            const baseY = rowGap * (row + 1);
-            const amplitude = 10 + (row % 3) * 4;
-            const wavelength = 0.012 + (row % 4) * 0.0035;
-            const phaseOffset = driftPhase + row * 0.85;
-            const driftX = Math.sin(driftPhase * 0.7 + row * 0.55) * 18;
+        for (let baseX = SINE_COLUMN_GAP * 0.5; baseX <= w + SINE_COLUMN_GAP; baseX += SINE_COLUMN_GAP) {
+            const col = Math.round(baseX / SINE_COLUMN_GAP);
+            const waveAmplitude = 10 + (col % 3) * 4;
+            const waveFrequency = 28 + (col % 4) * 8;
 
             ctx.beginPath();
-            for (let x = -20; x <= w + 20; x += SINE_SEGMENT_STEP) {
-                const y = baseY + Math.sin(x * wavelength + phaseOffset) * amplitude
-                    + Math.sin(driftPhase * 0.45 + x * 0.004) * 2.5;
-                if (x === -20) ctx.moveTo(x + driftX, y);
-                else ctx.lineTo(x + driftX, y);
+            for (let y = 0; y <= h; y += SINE_SEGMENT_STEP) {
+                const xOffset = Math.sin((y / waveFrequency) + phaseShift) * waveAmplitude;
+                const x = baseX + xOffset;
+                if (y === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
             }
             ctx.stroke();
         }
@@ -202,7 +202,8 @@
         wavePhase = driftPhase;
 
         drawWaterBackground(bgCtx, bgCssW, bgCssH, phase);
-        drawLightSineWaves(bgCtx, bgCssW, bgCssH, driftPhase);
+        drawLightSineWaves(bgCtx, bgCssW, bgCssH, paddleX, frameCount);
+        frameCount += 1;
 
         if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.syncCreekLfoToWavePhase) {
             window.OBDAudio.syncCreekLfoToWavePhase(driftPhase);
@@ -247,6 +248,12 @@
         bgCtx = null;
         bgCssW = 0;
         bgCssH = 0;
+        paddleX = 0;
+        frameCount = 0;
+    }
+
+    function setPaddleX(x) {
+        paddleX = x;
     }
 
     window.OBDBilateralAudio = {
@@ -260,6 +267,7 @@
     window.OBDVisual = {
         mount: mountBackgroundCanvas,
         unmount: unmountBackgroundCanvas,
+        setPaddleX,
         drawWaterBackground,
         drawLightSineWaves,
         getWavePhase: () => wavePhase,
