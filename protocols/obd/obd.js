@@ -59,8 +59,8 @@
                 pad.removeEventListener('pointercancel', obdCanvas._obdPadUp);
             }
         }
-        if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.reset) {
-            window.OBDBilateralAudio.reset();
+        if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.teardown) {
+            window.OBDBilateralAudio.teardown();
         }
         if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.stop) {
             window.OBDAudio.stop();
@@ -269,6 +269,9 @@
             setInst(fastPhase ? `${PROTOCOL_LABEL} · INCREASED LOOP SPEED` : `${PROTOCOL_LABEL} · INFINITY TRACKING`);
             if (typeof window.OBDAudio !== 'undefined') {
                 if (window.OBDAudio.prime) window.OBDAudio.prime();
+                if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.prepare) {
+                    window.OBDBilateralAudio.prepare();
+                }
                 if (window.OBDAudio.startBabblingCreek) window.OBDAudio.startBabblingCreek();
             }
         };
@@ -348,6 +351,9 @@
         updatePausedBanner();
         if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.prime) {
             window.OBDAudio.prime();
+        }
+        if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.prepare) {
+            window.OBDBilateralAudio.prepare();
         }
         obdRafId = requestAnimationFrame(frame);
 

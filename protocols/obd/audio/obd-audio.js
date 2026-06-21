@@ -19,6 +19,7 @@
     let activeSources = [];
     let creekNodes = null;
     let creekStopping = false;
+    let creekSink = null;
 
     function getAudioContext() {
         if (audioCtx && audioCtx.state !== 'closed') return audioCtx;
@@ -100,7 +101,7 @@
     function teardownCreekNodes() {
         if (!creekNodes) return;
 
-        const { noise, lfo, gain, filter, panner } = creekNodes;
+        const { noise, lfo, gain, filter } = creekNodes;
         [noise, lfo].forEach((node) => {
             try {
                 node.stop();
@@ -108,7 +109,7 @@
                 /* ignore */
             }
         });
-        [noise, lfo, gain, filter, panner].forEach((node) => {
+        [noise, lfo, gain, filter].forEach((node) => {
             try {
                 node.disconnect();
             } catch {
@@ -134,7 +135,6 @@
             const lfo = ctx.createOscillator();
             const lfoGain = ctx.createGain();
             const gain = ctx.createGain();
-            const panner = ctx.createStereoPanner();
             const now = ctx.currentTime;
 
             filter.type = 'lowpass';
@@ -149,36 +149,36 @@
             gain.gain.setValueAtTime(0, now);
             gain.gain.linearRampToValueAtTime(CREEK_GAIN, now + CREEK_FADE_IN_SEC);
 
-            panner.pan.setValueAtTime(0, now);
-
             noise.connect(filter);
             filter.connect(gain);
-            gain.connect(panner);
-            panner.connect(ctx.destination);
+            gain.connect(creekSink || ctx.destination);
             lfo.connect(lfoGain);
             lfoGain.connect(filter.frequency);
 
             noise.start(now);
             lfo.start(now);
 
-            creekNodes = { noise, filter, lfo, lfoGain, gain, panner };
+            creekNodes = { noise, filter, lfo, lfoGain, gain };
         });
     }
 
-    function setBilateralPan(pan, rampSec) {
-        if (!creekNodes || !creekNodes.panner) return;
+    function setCreekSink(node) {
+        creekSink = node || null;
+    }
+
+    function reconnectCreekOutput() {
+        if (!creekNodes) return;
 
         const ctx = getAudioContext();
         if (!ctx) return;
 
-        const clamped = Math.max(-1, Math.min(1, pan));
-        const now = ctx.currentTime;
-        const ramp = Math.max(0.001, rampSec || 0.016);
-        const panParam = creekNodes.panner.pan;
-
-        panParam.cancelScheduledValues(now);
-        panParam.setValueAtTime(panParam.value, now);
-        panParam.linearRampToValueAtTime(clamped, now + ramp);
+        const { gain } = creekNodes;
+        try {
+            gain.disconnect();
+        } catch {
+            /* ignore */
+        }
+        gain.connect(creekSink || ctx.destination);
     }
 
     function stopBabblingCreek() {
@@ -259,10 +259,12 @@
 
     window.OBDAudio = {
         prime: primeOBDAudio,
+        getAudioContext,
         playGunwaleStrike,
         startBabblingCreek,
         stopBabblingCreek,
-        setBilateralPan,
+        setCreekSink,
+        reconnectCreekOutput,
         stop: stopOBDAudio
     };
 })();
