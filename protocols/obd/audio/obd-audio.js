@@ -1,14 +1,24 @@
 /**
- * dᶻix̌ʷ (OBD) — organic gunwale strike audio, synced to path apex.
+ * dᶻix̌ʷ (OBD) — gunwale strike audio + offline babbling-creek synthesis.
  */
 (function () {
     const GUNWALE_SRC = 'protocols/obd/audio/gunwale-strike.wav';
     const STRIKE_GAIN = 0.72;
+    const CREEK_GAIN = 0.38;
+    const CREEK_FADE_IN_SEC = 1.5;
+    const CREEK_FADE_OUT_SEC = 0.12;
+    const CREEK_LFO_MIN_HZ = 0.2;
+    const CREEK_LFO_MAX_HZ = 1.5;
+    const CREEK_FILTER_BASE_HZ = 680;
+    const CREEK_FILTER_DEPTH_HZ = 520;
+    const PINK_NOISE_BUFFER_SIZE = 4096;
 
     let audioCtx = null;
     let strikeBuffer = null;
     let loadPromise = null;
     let activeSources = [];
+    let creekNodes = null;
+    let creekStopping = false;
 
     function getAudioContext() {
         if (audioCtx && audioCtx.state !== 'closed') return audioCtx;
@@ -54,6 +64,132 @@
         return loadPromise;
     }
 
+    function createPinkNoiseSource(ctx) {
+        const buffer = ctx.createBuffer(1, PINK_NOISE_BUFFER_SIZE, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        let b0 = 0;
+        let b1 = 0;
+        let b2 = 0;
+        let b3 = 0;
+        let b4 = 0;
+        let b5 = 0;
+        let b6 = 0;
+
+        for (let i = 0; i < PINK_NOISE_BUFFER_SIZE; i++) {
+            const white = Math.random() * 2 - 1;
+            b0 = 0.99886 * b0 + white * 0.0555179;
+            b1 = 0.99332 * b1 + white * 0.0750759;
+            b2 = 0.969 * b2 + white * 0.153852;
+            b3 = 0.8665 * b3 + white * 0.3104856;
+            b4 = 0.55 * b4 + white * 0.5329522;
+            b5 = -0.7616 * b5 - white * 0.016898;
+            data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+            b6 = white * 0.115926;
+        }
+
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        return source;
+    }
+
+    function randomLfoHz() {
+        return CREEK_LFO_MIN_HZ + Math.random() * (CREEK_LFO_MAX_HZ - CREEK_LFO_MIN_HZ);
+    }
+
+    function teardownCreekNodes() {
+        if (!creekNodes) return;
+
+        const { noise, lfo, gain, filter } = creekNodes;
+        [noise, lfo].forEach((node) => {
+            try {
+                node.stop();
+            } catch {
+                /* ignore */
+            }
+        });
+        [noise, lfo, gain, filter].forEach((node) => {
+            try {
+                node.disconnect();
+            } catch {
+                /* ignore */
+            }
+        });
+
+        creekNodes = null;
+        creekStopping = false;
+    }
+
+    function startBabblingCreek() {
+        if (creekNodes || creekStopping) return resumeAudio();
+
+        return resumeAudio().then((ready) => {
+            if (!ready || creekNodes || creekStopping) return;
+
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const noise = createPinkNoiseSource(ctx);
+            const filter = ctx.createBiquadFilter();
+            const lfo = ctx.createOscillator();
+            const lfoGain = ctx.createGain();
+            const gain = ctx.createGain();
+            const now = ctx.currentTime;
+
+            filter.type = 'lowpass';
+            filter.Q.value = 0.85;
+            filter.frequency.setValueAtTime(CREEK_FILTER_BASE_HZ, now);
+
+            lfo.type = 'sine';
+            lfo.frequency.setValueAtTime(randomLfoHz(), now);
+
+            lfoGain.gain.setValueAtTime(CREEK_FILTER_DEPTH_HZ, now);
+
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(CREEK_GAIN, now + CREEK_FADE_IN_SEC);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            lfo.connect(lfoGain);
+            lfoGain.connect(filter.frequency);
+
+            noise.start(now);
+            lfo.start(now);
+
+            creekNodes = { noise, filter, lfo, lfoGain, gain };
+        });
+    }
+
+    function stopBabblingCreek() {
+        if (!creekNodes || creekStopping) return;
+
+        const ctx = getAudioContext();
+        if (!ctx) {
+            teardownCreekNodes();
+            return;
+        }
+
+        creekStopping = true;
+        const { noise, lfo, gain } = creekNodes;
+        const now = ctx.currentTime;
+
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setValueAtTime(gain.gain.value, now);
+        gain.gain.linearRampToValueAtTime(0, now + CREEK_FADE_OUT_SEC);
+
+        window.setTimeout(() => {
+            [noise, lfo].forEach((node) => {
+                try {
+                    node.stop();
+                } catch {
+                    /* ignore */
+                }
+            });
+            teardownCreekNodes();
+        }, Math.ceil(CREEK_FADE_OUT_SEC * 1000) + 30);
+    }
+
     function playGunwaleStrike() {
         const ctx = getAudioContext();
         if (!ctx || !strikeBuffer) return;
@@ -82,6 +218,7 @@
     }
 
     function stopOBDAudio() {
+        stopBabblingCreek();
         activeSources.forEach((source) => {
             try {
                 source.stop();
@@ -96,11 +233,15 @@
         audioCtx = null;
         strikeBuffer = null;
         loadPromise = null;
+        creekNodes = null;
+        creekStopping = false;
     }
 
     window.OBDAudio = {
         prime: primeOBDAudio,
         playGunwaleStrike,
+        startBabblingCreek,
+        stopBabblingCreek,
         stop: stopOBDAudio
     };
 })();
