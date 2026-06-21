@@ -524,6 +524,7 @@ function initStudioBrandFooter() {
 function showProtocolViewport() {
     const vp = document.getElementById('viewport');
     if (!vp) return;
+    document.documentElement.classList.add('protocol-viewport-active');
     vp.classList.remove('hidden');
     vp.setAttribute('aria-hidden', 'false');
     vp.style.removeProperty('display');
@@ -563,6 +564,7 @@ function exitProtocol() {
     if (typeof stopAED === 'function') {
         stopAED();
     }
+    document.documentElement.classList.remove('protocol-viewport-active');
     const vp = document.getElementById('viewport');
     if (vp) {
         vp.classList.remove('viewport-obs', 'viewport-ics', 'viewport-sam', 'viewport-iec', 'viewport-mif');

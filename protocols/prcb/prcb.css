@@ -92,7 +92,7 @@
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    padding-bottom: var(--emergency-footer-reserve, 92px);
+    padding: 0;
     overflow: hidden;
     background: #000;
 }

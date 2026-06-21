@@ -62,6 +62,9 @@
         if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.teardown) {
             window.OBDBilateralAudio.teardown();
         }
+        if (typeof window.OBDVisual !== 'undefined' && window.OBDVisual.unmount) {
+            window.OBDVisual.unmount();
+        }
         if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.stop) {
             window.OBDAudio.stop();
         }
@@ -308,8 +311,7 @@
             <div class="obd-root">
                 <p class="obd-instruct">Maintain contact with the grounding pad. Allow your eyes to smoothly track the paddle blade through the infinity loop.</p>
                 <div class="obd-stage">
-                    <div class="obd-ripple-layer" aria-hidden="true"></div>
-                    <div class="obd-diamond-lattice" aria-hidden="true"></div>
+                    <canvas class="obd-bg-canvas" id="obd-bg-canvas" aria-hidden="true"></canvas>
                     <canvas class="obd-canvas" id="obd-canvas" aria-label="Infinity loop tracking field with canoe paddle blade"></canvas>
                     <p class="obd-paused-banner" id="obd-paused-banner" role="status">Paused — re-establish contact</p>
                 </div>
@@ -320,8 +322,13 @@
         `;
 
         obdCanvas = document.getElementById('obd-canvas');
+        const bgCanvas = document.getElementById('obd-bg-canvas');
         const pad = document.getElementById('obd-ground-pad');
         if (!obdCanvas) return;
+
+        if (typeof window.OBDVisual !== 'undefined' && window.OBDVisual.mount && bgCanvas) {
+            window.OBDVisual.mount(bgCanvas);
+        }
 
         obdCtx = fitCanvas(obdCanvas);
         bindGroundPad(pad);
