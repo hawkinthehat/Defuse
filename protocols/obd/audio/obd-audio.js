@@ -19,6 +19,7 @@
     let activeSources = [];
     let creekNodes = null;
     let creekStopping = false;
+    let creekSink = null;
 
     function getAudioContext() {
         if (audioCtx && audioCtx.state !== 'closed') return audioCtx;
@@ -150,7 +151,7 @@
 
             noise.connect(filter);
             filter.connect(gain);
-            gain.connect(ctx.destination);
+            gain.connect(creekSink || ctx.destination);
             lfo.connect(lfoGain);
             lfoGain.connect(filter.frequency);
 
@@ -159,6 +160,25 @@
 
             creekNodes = { noise, filter, lfo, lfoGain, gain };
         });
+    }
+
+    function setCreekSink(node) {
+        creekSink = node || null;
+    }
+
+    function reconnectCreekOutput() {
+        if (!creekNodes) return;
+
+        const ctx = getAudioContext();
+        if (!ctx) return;
+
+        const { gain } = creekNodes;
+        try {
+            gain.disconnect();
+        } catch {
+            /* ignore */
+        }
+        gain.connect(creekSink || ctx.destination);
     }
 
     function stopBabblingCreek() {
@@ -239,9 +259,12 @@
 
     window.OBDAudio = {
         prime: primeOBDAudio,
+        getAudioContext,
         playGunwaleStrike,
         startBabblingCreek,
         stopBabblingCreek,
+        setCreekSink,
+        reconnectCreekOutput,
         stop: stopOBDAudio
     };
 })();
