@@ -28,6 +28,10 @@
     --bg-black: var(--bg-page);
     --teal: var(--neon-teal);
     --blue: var(--healing-blue);
+    /* dᶻix̌ʷ (OBD) — clinical OKN background velocity clamps */
+    --obd-gradient-cycle: 24s;
+    --obd-ripple-cycle-primary: 24s;
+    --obd-ripple-cycle-secondary: 24s;
 }
 
 body {
@@ -991,4 +995,14 @@ body {
 
 .emergency-exit-link:active {
     transform: scale(0.99);
+}
+
+/* dᶻix̌ʷ (OBD) — clinical OKN velocity calibration (consumed by protocols/obd/obd.css) */
+.obd-ripple-layer {
+    animation-timing-function: linear;
+}
+
+.obd-ripple-layer::before,
+.obd-ripple-layer::after {
+    animation-timing-function: linear;
 }
