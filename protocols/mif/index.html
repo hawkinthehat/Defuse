@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>gʷədiʔ — Micro-Interoceptive Focus</title>
+    <meta name="theme-color" content="#040506">
+    <meta name="apple-mobile-web-app-title" content="gʷədiʔ">
+    <style>
+        :root {
+            --mif-bg: #040506;
+            --mif-bg-soft: #080a0c;
+            --mif-path: rgba(92, 148, 132, 0.55);
+            --mif-path-glow: rgba(72, 128, 112, 0.28);
+            --mif-pulse: rgba(110, 168, 148, 0.72);
+            --mif-text: rgba(160, 178, 168, 0.68);
+            --mif-exit-border: rgba(92, 148, 132, 0.5);
+            --emergency-footer-height: 80px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--mif-bg);
+            color: var(--mif-text);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .mif-page {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 80px;
+            background: var(--mif-bg);
+        }
+
+        .mif-exit {
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 12px) + 12px);
+            right: max(12px, env(safe-area-inset-right, 12px));
+            z-index: 12000;
+            border: 1.5px solid var(--mif-exit-border);
+            background: rgba(8, 10, 12, 0.92);
+            color: rgba(110, 168, 148, 0.92);
+            padding: 11px 14px;
+            font-size: 0.58rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-decoration: none;
+            font-family: inherit;
+            border-radius: 4px;
+            touch-action: manipulation;
+        }
+
+        .mif-exit:focus-visible {
+            outline: 2px solid rgba(110, 168, 148, 0.85);
+            outline-offset: 2px;
+        }
+
+        .mif-inst {
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 12px) + 14px);
+            left: max(16px, env(safe-area-inset-left, 0px));
+            right: calc(max(20px, env(safe-area-inset-right, 0px)) + 5.75rem);
+            margin: 0;
+            z-index: 11999;
+            font-size: clamp(0.68rem, 2.6vw, 0.8rem);
+            line-height: 1.35;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+            text-align: center;
+            color: rgba(92, 148, 132, 0.78);
+            pointer-events: none;
+        }
+
+        .mif-shell {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            min-height: 0;
+            padding-top: calc(env(safe-area-inset-top, 0px) + 3.25rem);
+            padding-bottom: 80px;
+            overflow: hidden;
+        }
+
+        #mif-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+            cursor: default;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .mif-emergency-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 15000;
+            padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+            background: rgba(8, 8, 10, 0.97);
+            border-top: 2px solid rgba(220, 38, 38, 0.55);
+            box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.45);
+            pointer-events: auto;
+        }
+
+        .mif-emergency-link {
+            display: block;
+            width: 100%;
+            max-width: 26rem;
+            margin: 0 auto;
+            padding: 12px 14px;
+            border: 2.5px solid #dc2626;
+            border-radius: 8px;
+            background: #1a0a0a;
+            color: #fecaca;
+            font-size: clamp(0.72rem, 3vw, 0.82rem);
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-align: center;
+            cursor: pointer;
+            font-family: inherit;
+            touch-action: manipulation;
+        }
+
+        .mif-emergency-link:hover,
+        .mif-emergency-link:focus-visible {
+            background: #2a1010;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="mif-page" id="mif-page">
+        <a class="mif-exit" href="../../" title="Return to dashboard">EXIT</a>
+        <p class="mif-inst" id="mif-inst" role="status">gʷədiʔ · SLIDE SLOWLY ALONG THE SHIFTING PATH</p>
+
+        <main class="mif-shell" id="mif-shell" aria-label="Micro-interoceptive focus touch canvas">
+            <canvas id="mif-canvas" aria-hidden="true"></canvas>
+        </main>
+
+        <footer class="mif-emergency-bar" aria-label="Crisis emergency resources — always available">
+            <button type="button" class="mif-emergency-link" data-emergency-dial>⚠️ EMERGENCY: DIAL 988 / 911</button>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.querySelector('[data-emergency-dial]')?.addEventListener('click', function () {
+            var choice = window.confirm(
+                'EMERGENCY CRISIS SUPPORT\n\nTap OK to dial 988 (Suicide & Crisis Lifeline).\nTap Cancel to dial 911 instead.'
+            );
+            window.location.href = 'tel:' + (choice ? '988' : '911');
+        });
+    </script>
+</body>
+</html>

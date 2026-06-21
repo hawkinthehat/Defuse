@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzixw-v15';
+const CACHE_NAME = 'dzixw-v16';
 
 const PRECACHE_URLS = [
   '/',
@@ -22,6 +22,9 @@ const PRECACHE_URLS = [
   '/protocols/iec/app.js',
   '/protocols/prcb/prcb.css',
   '/protocols/prcb/prcb.js',
+  '/protocols/aed/script.js',
+  '/protocols/mif/index.html',
+  '/protocols/mif/script.js',
 ];
 
 self.addEventListener('install', (event) => {
