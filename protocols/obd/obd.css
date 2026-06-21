@@ -33,86 +33,78 @@
     justify-content: center;
     min-height: 0;
     overflow: hidden;
-    background: #dbeafe;
+    background: #0c4a6e;
 }
 
-/* OKN ripple field — 36px/s horizontal scroll (clinical OKN velocity) */
+/* Animated water ripple field — deep river blues shifting to soft surface teal */
 .obd-ripple-layer {
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    --obd-ripple-period: 288px;
-    --obd-okn-speed: 36px;
-    --obd-ripple-duration: calc(var(--obd-ripple-period) / var(--obd-okn-speed) * 1s);
-    background-color: #dbeafe;
-    background-image:
-        repeating-linear-gradient(
-            105deg,
-            transparent 0,
-            transparent 18px,
-            rgba(37, 99, 235, 0.08) 18px,
-            rgba(37, 99, 235, 0.08) 22px
-        ),
-        repeating-linear-gradient(
-            -12deg,
-            rgba(29, 78, 216, 0.14) 0,
-            rgba(29, 78, 216, 0.14) 3px,
-            transparent 3px,
-            transparent 28px
-        ),
-        radial-gradient(ellipse 140% 55% at 50% 100%, rgba(37, 99, 235, 0.22) 0%, transparent 62%),
-        radial-gradient(ellipse 120% 45% at 50% 0%, rgba(147, 197, 253, 0.35) 0%, transparent 58%),
-        repeating-radial-gradient(
-            circle at 24px 18px,
-            rgba(37, 99, 235, 0.06) 0,
-            rgba(37, 99, 235, 0.06) 2px,
-            transparent 2px,
-            transparent 48px
-        ),
+    overflow: hidden;
+    --obd-wave-a: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 140' preserveAspectRatio='none'%3E%3Cpath d='M0,70 C200,110 400,30 600,70 C800,110 1000,30 1200,70 L1200,140 L0,140 Z' fill='rgba(255,255,255,0.09)'/%3E%3C/svg%3E");
+    --obd-wave-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 140' preserveAspectRatio='none'%3E%3Cpath d='M0,75 C180,35 420,105 600,75 C780,45 1020,115 1200,75 L1200,140 L0,140 Z' fill='rgba(186,230,253,0.12)'/%3E%3C/svg%3E");
+    --obd-wave-c: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,60 C250,95 550,25 850,60 C950,75 1100,45 1200,60 L1200,120 L0,120 Z' fill='rgba(45,212,191,0.08)'/%3E%3C/svg%3E");
+    background:
+        radial-gradient(ellipse 130% 50% at 50% 100%, rgba(14, 116, 144, 0.45) 0%, transparent 65%),
+        radial-gradient(ellipse 110% 40% at 50% 0%, rgba(45, 212, 191, 0.28) 0%, transparent 58%),
         linear-gradient(
             180deg,
-            #eff6ff 0%,
-            #dbeafe 38%,
-            #bfdbfe 62%,
-            #93c5fd 100%
+            #0c4a6e 0%,
+            #155e75 28%,
+            #2dd4bf 52%,
+            #0e7490 72%,
+            #164e63 100%
         );
-    background-size:
-        var(--obd-ripple-period) 100%,
-        calc(var(--obd-ripple-period) * 0.75) 100%,
-        200% 100%,
-        200% 100%,
-        96px 96px,
-        100% 100%;
-    background-position:
-        0 0,
-        0 0,
-        50% 100%,
-        50% 0%,
-        0 0,
-        0 0;
-    animation: obd-water-ripple-scroll var(--obd-ripple-duration) linear infinite;
+    background-size: 200% 100%, 200% 100%, 100% 200%;
+    animation: obd-water-gradient-shift 14s ease-in-out infinite alternate;
     will-change: background-position;
 }
 
-@keyframes obd-water-ripple-scroll {
+.obd-ripple-layer::before,
+.obd-ripple-layer::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 55%;
+    background-repeat: repeat-x;
+    background-size: 50% 100%;
+    pointer-events: none;
+}
+
+.obd-ripple-layer::before {
+    bottom: 18%;
+    background-image: var(--obd-wave-a), var(--obd-wave-b);
+    background-size: 50% 100%, 50% 100%;
+    background-position: 0 0, 25% 0;
+    opacity: 0.55;
+    animation: obd-ripple 9s linear infinite;
+}
+
+.obd-ripple-layer::after {
+    bottom: 8%;
+    background-image: var(--obd-wave-c);
+    opacity: 0.4;
+    animation: obd-ripple 13s linear infinite reverse;
+}
+
+@keyframes obd-water-gradient-shift {
     0% {
-        background-position:
-            0 0,
-            0 0,
-            50% 100%,
-            50% 0%,
-            0 0,
-            0 0;
+        background-position: 50% 0%, 50% 0%, 0% 0%;
     }
     100% {
-        background-position:
-            var(--obd-ripple-period) 0,
-            calc(var(--obd-ripple-period) * -0.5) 0,
-            50% 100%,
-            50% 0%,
-            48px 24px,
-            0 0;
+        background-position: 50% 100%, 50% 100%, 0% 100%;
+    }
+}
+
+@keyframes obd-ripple {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
     }
 }
 
@@ -196,7 +188,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .obd-ripple-layer {
+    .obd-ripple-layer,
+    .obd-ripple-layer::before,
+    .obd-ripple-layer::after {
         animation: none;
     }
 }

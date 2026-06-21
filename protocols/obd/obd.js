@@ -239,8 +239,9 @@
             pad.classList.add('obd-ground-pad--active');
             updatePausedBanner();
             setInst(fastPhase ? `${PROTOCOL_LABEL} · INCREASED LOOP SPEED` : `${PROTOCOL_LABEL} · INFINITY TRACKING`);
-            if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.prime) {
-                window.OBDAudio.prime();
+            if (typeof window.OBDAudio !== 'undefined') {
+                if (window.OBDAudio.prime) window.OBDAudio.prime();
+                if (window.OBDAudio.startBabblingCreek) window.OBDAudio.startBabblingCreek();
             }
         };
 
@@ -251,6 +252,9 @@
             pad.classList.remove('obd-ground-pad--active');
             updatePausedBanner();
             setInst(`${PROTOCOL_LABEL} · RE-ESTABLISH CONTACT`);
+            if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.stopBabblingCreek) {
+                window.OBDAudio.stopBabblingCreek();
+            }
         };
 
         pad.addEventListener('pointerdown', onDown, opts);
