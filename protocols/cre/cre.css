@@ -36,20 +36,28 @@
     padding: 0;
 }
 
-.cre-stability-wrap {
+.cre-stability-wrap,
+.stability-bar-container {
     position: absolute;
-    top: 20px;
+    top: calc(env(safe-area-inset-top, 32px) + 12px);
     left: max(12px, env(safe-area-inset-left, 0px));
     right: calc(max(12px, env(safe-area-inset-right, 0px)) + 5.5rem);
-    z-index: 1000;
+    z-index: 1001;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 0.65rem;
-    padding: 0;
+    padding-top: 24px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
     border: none;
     background: transparent !important;
     box-shadow: none;
+}
+
+#viewport.protocol-has-stability-bar .instruction-bar {
+    top: calc(env(safe-area-inset-top, 32px) + 72px);
 }
 
 .cre-stability-label {

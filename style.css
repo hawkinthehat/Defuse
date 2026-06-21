@@ -50,6 +50,11 @@ body {
     overflow-x: hidden;
 }
 
+body:has(#dashboard:not(.hidden)) {
+    background-color: #0d1117;
+    color: #e6edf3;
+}
+
 /* Protocol viewport — true edge-to-edge black canvas shell */
 html.protocol-viewport-active,
 html.protocol-viewport-active body {
@@ -69,8 +74,8 @@ html.protocol-viewport-active body {
     gap: 1.5rem;
     padding: 40px 20px calc(60px + 3.5rem);
     width: 100%;
-    background: var(--bg-page);
-    color: var(--text-primary);
+    background: #0d1117;
+    color: #e6edf3;
     box-sizing: border-box;
 }
 
@@ -804,9 +809,9 @@ html.protocol-viewport-active body {
 #dashboard .dzixw-triage-section {
     padding: 1rem 12px 0.5rem;
     border-radius: 12px;
-    background: var(--bg-surface);
-    border: 1.5px solid var(--healing-blue);
-    box-shadow: var(--shadow-md);
+    background: rgba(22, 27, 34, 0.92);
+    border: 1.5px solid rgba(56, 139, 253, 0.45);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 #dashboard .diagnostic-hero {
@@ -815,7 +820,7 @@ html.protocol-viewport-active body {
     font-weight: 700;
     line-height: 1.45;
     text-align: center;
-    color: var(--text-primary);
+    color: #f0f6fc;
 }
 
 #dashboard .symptom-grid {
@@ -834,10 +839,10 @@ html.protocol-viewport-active body {
     line-height: 1.5 !important;
     padding: 18px 24px !important;
     text-align: left;
-    border: 2px solid var(--healing-blue);
+    border: 2px solid rgba(56, 139, 253, 0.55);
     border-radius: 8px;
-    background: #ffffff;
-    color: var(--text-primary);
+    background: rgba(13, 17, 23, 0.88);
+    color: #e6edf3;
     font-weight: 700;
     cursor: pointer;
     font-family: inherit;
@@ -847,8 +852,8 @@ html.protocol-viewport-active body {
 
 #dashboard .symptom-grid > button:hover,
 #dashboard .symptom-grid > button:focus-visible {
-    border-color: var(--healing-blue-bright);
-    background: var(--healing-blue-soft);
+    border-color: #58a6ff;
+    background: rgba(56, 139, 253, 0.12);
     outline: none;
 }
 
@@ -857,20 +862,29 @@ html.protocol-viewport-active body {
 }
 
 #dashboard #protocol-prcb {
-    border-color: var(--warning-red);
-    background: #fff5f5;
-    color: #991b1b;
+    border-color: rgba(248, 113, 113, 0.55);
+    background: rgba(69, 10, 10, 0.45);
+    color: #fecaca;
 }
 
 #dashboard #protocol-prcb:hover,
 #dashboard #protocol-prcb:focus-visible {
-    border-color: #ef4444;
-    background: #fef2f2;
+    border-color: #f87171;
+    background: rgba(127, 29, 29, 0.55);
 }
 
 #dashboard .app-studio-brand,
 #dashboard #studio-brand-footer {
-    font-size: 1.1rem !important;
+    width: 100%;
+    max-width: 26rem;
+    margin: 1.25rem auto 0;
+    padding: 0 12px;
+    font-size: 0.85rem !important;
+    line-height: 1.45;
+    text-align: center;
+    color: rgba(230, 237, 243, 0.72);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    box-sizing: border-box;
 }
 
 .protocol-indicator {
@@ -1081,19 +1095,24 @@ html.protocol-viewport-active body {
 /* Dashboard home screen — slightly higher visibility without alert styling */
 #emergency-bypass-footer.home-footer .emergency-exit-link {
     padding: 10px 14px;
-    border: 1px solid var(--border-strong) !important;
+    border: 1px solid rgba(48, 54, 61, 0.95) !important;
     border-radius: 6px;
-    background: var(--bg-surface) !important;
-    color: var(--text-secondary) !important;
-    box-shadow: var(--shadow-sm);
+    background: rgba(22, 27, 34, 0.92) !important;
+    color: rgba(230, 237, 243, 0.72) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
     text-decoration: none;
 }
 
 #emergency-bypass-footer.home-footer .emergency-exit-link:hover,
 #emergency-bypass-footer.home-footer .emergency-exit-link:focus-visible {
-    background: var(--bg-subtle) !important;
-    border-color: var(--healing-blue) !important;
-    color: var(--text-primary) !important;
-    box-shadow: var(--shadow-sm);
+    background: rgba(33, 38, 45, 0.95) !important;
+    border-color: rgba(56, 139, 253, 0.55) !important;
+    color: #f0f6fc !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+body:has(#dashboard:not(.hidden)) .scanlines {
+    background: linear-gradient(rgba(13, 17, 23, 0) 50%, rgba(255, 255, 255, 0.02) 50%);
+    opacity: 0.22;
 }
 

@@ -4,8 +4,8 @@
  * Published by the Tribal Resilience Studio.
  */
 
-const STUDIO_NAME = 'Tribal Resilience Studio';
-const STUDIO_ATTRIBUTION = 'dᶻix̌ʷ (Return to Center) by the Tribal Resilience Studio.';
+const STUDIO_NAME = 'sq̓əx̣ ̌ax̌ə Studio';
+const STUDIO_ATTRIBUTION = 'sq̓əx̣ ̌ax̌ə Studio';
 
 /** Active retraining verbs for the locked home triage menu. */
 const TRIAGE_RETRAIN_LABELS = Object.freeze({

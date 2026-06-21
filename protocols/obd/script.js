@@ -5,7 +5,7 @@
     const MIN_RAMP_SEC = 0.001;
     const RESET_RAMP_SEC = 0.05;
 
-    const GRID_LINE = 'rgba(255, 255, 255, 0.12)';
+    const GRID_LINE = 'rgba(255, 255, 255, 0.2)';
     const DIAMOND_W = 58;
     const DIAMOND_H = 50;
     const HALF_DIAMOND_W = DIAMOND_W / 2;
@@ -127,14 +127,14 @@
         const shift = phase * 0.35;
 
         const river = ctx.createLinearGradient(0, 0, w * (0.5 + shift * 0.08), h);
-        river.addColorStop(0, '#0e7490');
-        river.addColorStop(0.18, '#0891b2');
-        river.addColorStop(0.38, '#22d3ee');
-        river.addColorStop(0.52, '#6ee7d6');
+        river.addColorStop(0, '#0891b2');
+        river.addColorStop(0.18, '#06b6d4');
+        river.addColorStop(0.38, '#67e8f9');
+        river.addColorStop(0.52, '#99f6e4');
         river.addColorStop(0.64, '#5eead4');
         river.addColorStop(0.78, '#2dd4bf');
         river.addColorStop(0.92, '#14b8a6');
-        river.addColorStop(1, '#0f766e');
+        river.addColorStop(1, '#0d9488');
         ctx.fillStyle = river;
         ctx.fillRect(0, 0, w, h);
 
@@ -146,8 +146,8 @@
             h * 0.12,
             h * 0.55
         );
-        surfaceGlow.addColorStop(0, 'rgba(167, 243, 232, 0.52)');
-        surfaceGlow.addColorStop(0.45, 'rgba(94, 234, 212, 0.28)');
+        surfaceGlow.addColorStop(0, 'rgba(204, 251, 241, 0.62)');
+        surfaceGlow.addColorStop(0.45, 'rgba(153, 246, 228, 0.38)');
         surfaceGlow.addColorStop(1, 'transparent');
         ctx.fillStyle = surfaceGlow;
         ctx.fillRect(0, 0, w, h);
@@ -160,42 +160,72 @@
             h,
             h * 0.72
         );
-        depthPool.addColorStop(0, 'rgba(45, 212, 191, 0.42)');
-        depthPool.addColorStop(0.55, 'rgba(20, 184, 166, 0.18)');
+        depthPool.addColorStop(0, 'rgba(94, 234, 212, 0.52)');
+        depthPool.addColorStop(0.55, 'rgba(45, 212, 191, 0.24)');
         depthPool.addColorStop(1, 'transparent');
         ctx.fillStyle = depthPool;
         ctx.fillRect(0, 0, w, h);
     }
 
     /**
-     * Organic staggered diamond net — each horizontal row alternates X by half a diamond width.
+     * Organic staggered diamond net — each horizontal row alternates X by half a diamond width,
+     * with a subtle sine warp for shifting water-ripple motion.
      */
-    function drawStaggeredDiamondGrid(ctx, w, h, driftX, driftY) {
+    function drawStaggeredDiamondGrid(ctx, w, h, driftX, driftY, ripplePhase) {
         ctx.save();
         ctx.strokeStyle = GRID_LINE;
-        ctx.lineWidth = 0.65;
+        ctx.lineWidth = 1.5;
         ctx.lineJoin = 'round';
 
         const span = w + h + DIAMOND_W;
+        const rippleAmp = 5.5;
+        const rippleFreq = 0.011;
+        const segmentStep = 10;
         let rowIndex = 0;
+
+        function traceWarpedLine(x1, y1, x2, y2) {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const length = Math.hypot(dx, dy);
+            const steps = Math.max(2, Math.ceil(length / segmentStep));
+            const nx = -dy / (length || 1);
+            const ny = dx / (length || 1);
+
+            ctx.beginPath();
+            for (let s = 0; s <= steps; s += 1) {
+                const t = s / steps;
+                const x = x1 + dx * t;
+                const y = y1 + dy * t;
+                const wave = Math.sin(ripplePhase + x * rippleFreq + y * rippleFreq * 0.65 + rowIndex * 0.45);
+                const px = x + nx * wave * rippleAmp;
+                const py = y + ny * wave * rippleAmp * 0.55;
+                if (s === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+        }
 
         for (let base = -span; base <= span; base += ROW_SPACING) {
             const rowOffset = (rowIndex % 2 === 0 ? 0 : HALF_DIAMOND_W) + driftX;
             const yStart = -20 + driftY;
-            ctx.beginPath();
-            ctx.moveTo(base + rowOffset, yStart);
-            ctx.lineTo(base + rowOffset + h + 40, h + 20 + driftY);
-            ctx.stroke();
+            traceWarpedLine(
+                base + rowOffset,
+                yStart,
+                base + rowOffset + h + 40,
+                h + 20 + driftY
+            );
             rowIndex += 1;
         }
 
         rowIndex = 0;
         for (let base = -span; base <= span; base += ROW_SPACING) {
             const rowOffset = (rowIndex % 2 === 0 ? 0 : HALF_DIAMOND_W) + driftX;
-            ctx.beginPath();
-            ctx.moveTo(base + rowOffset, -20 + driftY);
-            ctx.lineTo(base + rowOffset - h - 40, h + 20 + driftY);
-            ctx.stroke();
+            traceWarpedLine(
+                base + rowOffset,
+                -20 + driftY,
+                base + rowOffset - h - 40,
+                h + 20 + driftY
+            );
             rowIndex += 1;
         }
 
@@ -211,7 +241,7 @@
         const driftY = Math.cos(driftPhase * 0.85) * 2.2;
 
         drawWaterBackground(bgCtx, bgCssW, bgCssH, phase);
-        drawStaggeredDiamondGrid(bgCtx, bgCssW, bgCssH, driftX, driftY);
+        drawStaggeredDiamondGrid(bgCtx, bgCssW, bgCssH, driftX, driftY, driftPhase);
 
         bgRafId = requestAnimationFrame(drawBackgroundFrame);
     }
