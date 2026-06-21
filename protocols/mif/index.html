@@ -6,6 +6,7 @@
     <title>gʷədiʔ — Micro-Interoceptive Focus</title>
     <meta name="theme-color" content="#040506">
     <meta name="apple-mobile-web-app-title" content="gʷədiʔ">
+    <link rel="stylesheet" href="../../style.css">
     <style>
         :root {
             --mif-bg: #040506;
@@ -104,45 +105,6 @@
             -webkit-user-select: none;
             user-select: none;
         }
-
-        .mif-emergency-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 15000;
-            padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
-            background: rgba(8, 8, 10, 0.97);
-            border-top: 2px solid rgba(220, 38, 38, 0.55);
-            box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.45);
-            pointer-events: auto;
-        }
-
-        .mif-emergency-link {
-            display: block;
-            width: 100%;
-            max-width: 26rem;
-            margin: 0 auto;
-            padding: 12px 14px;
-            border: 2.5px solid #dc2626;
-            border-radius: 8px;
-            background: #1a0a0a;
-            color: #fecaca;
-            font-size: clamp(0.72rem, 3vw, 0.82rem);
-            font-weight: 900;
-            letter-spacing: 0.06em;
-            text-align: center;
-            cursor: pointer;
-            font-family: inherit;
-            touch-action: manipulation;
-        }
-
-        .mif-emergency-link:hover,
-        .mif-emergency-link:focus-visible {
-            background: #2a1010;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
-        }
     </style>
 </head>
 <body>
@@ -154,8 +116,8 @@
             <canvas id="mif-canvas" aria-hidden="true"></canvas>
         </main>
 
-        <footer class="mif-emergency-bar" aria-label="Crisis emergency resources — always available">
-            <button type="button" class="mif-emergency-link" data-emergency-dial>⚠️ EMERGENCY: DIAL 988 / 911</button>
+        <footer class="emergency-exit-bar emergency-exit-bar--global" aria-label="Crisis emergency resources — always available">
+            <button type="button" class="emergency-exit-link" data-emergency-dial>Emergency: dial 988 / 911</button>
         </footer>
     </div>
 
