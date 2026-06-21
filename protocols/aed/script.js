@@ -5,7 +5,6 @@
 (function () {
     const DIM_DURATION_MS = 60000;
     const MAX_DPR = 2;
-    const CHAOTIC_MIN = 4;
     const CHAOTIC_MAX = 5;
     const CALM_MIN = 3;
     const CALM_MAX = 4;
@@ -136,29 +135,61 @@
         aedCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
+    function assignChaoticTrajectory(node) {
+        const speed = rand(12, 16);
+        const angle = rand(0, Math.PI * 2);
+        node.vx = Math.cos(angle) * speed;
+        node.vy = Math.sin(angle) * speed;
+        node.framesUntilDirChange = Math.floor(rand(45, 61));
+        node.rotSpeed = rand(0.42, 0.78) * (Math.random() < 0.5 ? 1 : -1);
+    }
+
+    function recycleChaoticNode(node) {
+        const margin = node.size;
+        if (node.x < -margin) {
+            node.x = width + margin * 0.5;
+            node.y = rand(margin + 40, Math.max(margin + 41, height - margin));
+        } else if (node.x > width + margin) {
+            node.x = -margin * 0.5;
+            node.y = rand(margin + 40, Math.max(margin + 41, height - margin));
+        } else if (node.y < margin + 20) {
+            node.y = height - margin;
+            node.x = rand(margin, Math.max(margin + 1, width - margin));
+        } else if (node.y > height - margin) {
+            node.y = margin + 40;
+            node.x = rand(margin, Math.max(margin + 1, width - margin));
+        }
+        assignChaoticTrajectory(node);
+    }
+
     function makeChaoticNode() {
         const size = rand(22, 38);
         const pattern = Math.random() < 0.5 ? 'pure_trigon' : 'chevron';
-        return {
+        const node = {
             kind: 'chaotic',
             pattern,
             x: rand(size, Math.max(size + 1, width - size)),
             y: rand(size + 40, Math.max(size + 41, height - size)),
             size,
-            vx: rand(-1.8, 1.8),
-            vy: rand(-1.5, 1.5),
+            vx: 0,
+            vy: 0,
             pulsePhase: rand(0, Math.PI * 2),
             pulseSpeed: rand(0.28, 0.52),
             rot: rand(0, Math.PI * 2),
-            rotSpeed: rand(0.16, 0.38) * (Math.random() < 0.5 ? 1 : -1),
-            rotJitter: rand(0.06, 0.14),
+            rotSpeed: 0,
+            rotJitter: rand(0.12, 0.22),
+            framesUntilDirChange: 0,
             color: pick(CHAOTIC_COLORS),
             flashUntil: 0
         };
+        assignChaoticTrajectory(node);
+        return node;
     }
 
     function makeCalmNode() {
         const radius = rand(26, 38);
+        const speed = rand(2, 3);
+        const angle = rand(0, Math.PI * 2);
         return {
             kind: 'calm',
             x: rand(radius, Math.max(radius + 1, width - radius)),
@@ -168,10 +199,8 @@
             rx: radius * 1.08,
             ry: radius * 0.72,
             ovoidTilt: rand(-0.18, 0.18),
-            vx: rand(-0.35, 0.35),
-            vy: rand(-0.28, 0.28),
-            driftPhase: rand(0, Math.PI * 2),
-            driftSpeed: rand(0.0008, 0.0016),
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
             pulsePhase: rand(0, Math.PI * 2),
             pulseSpeed: rand(0.008, 0.016),
             alive: true
@@ -179,9 +208,8 @@
     }
 
     function spawnChaoticNodes() {
-        const count = CHAOTIC_MIN + Math.floor(Math.random() * (CHAOTIC_MAX - CHAOTIC_MIN + 1));
         chaoticNodes = [];
-        for (let i = 0; i < count; i += 1) {
+        for (let i = 0; i < CHAOTIC_MAX; i += 1) {
             chaoticNodes.push(makeChaoticNode());
         }
     }
@@ -440,17 +468,23 @@
     }
 
     function updateNodes(now) {
+        chaoticNodes = chaoticNodes.slice(0, CHAOTIC_MAX);
+
         chaoticNodes.forEach((node) => {
+            node.framesUntilDirChange -= 1;
+            if (node.framesUntilDirChange <= 0) {
+                assignChaoticTrajectory(node);
+            }
+
             node.pulsePhase += node.pulseSpeed;
-            node.rot += node.rotSpeed + Math.sin(node.pulsePhase * 5.1) * node.rotJitter;
+            node.rot += node.rotSpeed + Math.sin(node.pulsePhase * 9.4) * node.rotJitter;
             node.x += node.vx;
             node.y += node.vy;
 
             const margin = node.size;
-            if (node.x < margin || node.x > width - margin) node.vx *= -1;
-            if (node.y < margin + 20 || node.y > height - margin) node.vy *= -1;
-            node.x = clamp(node.x, margin, width - margin);
-            node.y = clamp(node.y, margin + 20, height - margin);
+            if (node.x < -margin || node.x > width + margin || node.y < margin + 20 || node.y > height - margin) {
+                recycleChaoticNode(node);
+            }
 
             if (now < node.flashUntil) {
                 node.vx *= 1.02;
@@ -461,9 +495,8 @@
         calmNodes.forEach((node) => {
             if (!node.alive) return;
             node.pulsePhase += node.pulseSpeed;
-            node.driftPhase += node.driftSpeed * 1000;
-            node.x += node.vx + Math.sin(node.driftPhase) * 0.08;
-            node.y += node.vy + Math.cos(node.driftPhase * 0.9) * 0.06;
+            node.x += node.vx;
+            node.y += node.vy;
 
             const margin = node.radius;
             if (node.x < margin || node.x > width - margin) node.vx *= -1;
@@ -504,8 +537,8 @@
         aedCtx.fillStyle = vignette;
         aedCtx.fillRect(0, 0, width, height);
 
-        calmNodes.forEach((node) => drawCalmNode(aedCtx, node));
         chaoticNodes.forEach((node) => drawChaoticShape(aedCtx, node, now));
+        calmNodes.forEach((node) => drawCalmNode(aedCtx, node));
         drawPopEffects(aedCtx, now);
 
         aedRafId = requestAnimationFrame(drawFrame);
