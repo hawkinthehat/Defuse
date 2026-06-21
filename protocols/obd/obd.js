@@ -10,7 +10,7 @@
     const MAX_DPR = 2;
     const TWO_PI = Math.PI * 2;
     const PADDLE_SRC = 'protocols/obd/assets/paddle-blade.svg';
-    const PROTOCOL_LABEL = 'dᶻix̌ʷ';
+    const PROTOCOL_LABEL = 'dᶻix̌ʷ (dzih-khw)';
 
     let obdRunning = false;
     let obdRafId = 0;

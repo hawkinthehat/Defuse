@@ -253,9 +253,9 @@
         lastPulseAt = now;
 
         if (successfulPulses >= 4 && synced) {
-            setInstruction('gʷədiʔ · STEADY RHYTHM · STAY WITH THE PATH');
+            setInstruction('gʷədiʔ (gwuh-dee) · STEADY RHYTHM · STAY WITH THE PATH');
         } else if (synced) {
-            setInstruction('gʷədiʔ · SYNCHRONIZED · FOLLOW THE SHIFTING LINE');
+            setInstruction('gʷədiʔ (gwuh-dee) · SYNCHRONIZED · FOLLOW THE SHIFTING LINE');
         }
     }
 
@@ -279,7 +279,7 @@
             onPathStreak = 0;
             onPath = false;
             if (fingerActive) {
-                setInstruction('gʷədiʔ · RETURN TO THE PATH · SLIDE SLOWLY');
+                setInstruction('gʷədiʔ (gwuh-dee) · RETURN TO THE PATH · SLIDE SLOWLY');
             }
         }
 
@@ -310,7 +310,7 @@
         onPathStreak = 0;
         synced = false;
         lastPulseAt = 0;
-        setInstruction('gʷədiʔ · SLIDE SLOWLY ALONG THE SHIFTING PATH');
+        setInstruction('gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH');
     }
 
     function onPointerMove(event) {
@@ -337,7 +337,7 @@
         onPath = false;
         onPathStreak = 0;
         synced = false;
-        setInstruction('gʷədiʔ · SLIDE SLOWLY ALONG THE SHIFTING PATH');
+        setInstruction('gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH');
     }
 
     function drawBackground(ctx) {
@@ -594,7 +594,7 @@
         mifCanvas.addEventListener('pointerleave', mifPointerUpHandler, { passive: false });
 
         mifRunning = true;
-        setInstruction('gʷədiʔ · SLIDE SLOWLY ALONG THE SHIFTING PATH');
+        setInstruction('gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH');
         mifRafId = requestAnimationFrame(drawFrame);
         return true;
     }
@@ -628,7 +628,7 @@
         if (typeof ensureEmergencyBypassFooter === 'function') ensureEmergencyBypassFooter();
 
         const inst = document.getElementById('inst');
-        if (inst) inst.textContent = 'gʷədiʔ · SLIDE SLOWLY ALONG THE SHIFTING PATH';
+        if (inst) inst.textContent = 'gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH';
 
         if (!mountSpaStage()) mountStandalone();
     }
