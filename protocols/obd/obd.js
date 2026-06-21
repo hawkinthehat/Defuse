@@ -59,6 +59,9 @@
                 pad.removeEventListener('pointercancel', obdCanvas._obdPadUp);
             }
         }
+        if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.reset) {
+            window.OBDBilateralAudio.reset();
+        }
         if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.stop) {
             window.OBDAudio.stop();
         }
@@ -245,6 +248,10 @@
         const ctx = obdCtx;
         ctx.clearRect(0, 0, obdCssW, obdCssH);
         drawPaddle(ctx, px, py, tangentAngle);
+
+        if (holding && typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.updateFromPaddle) {
+            window.OBDBilateralAudio.updateFromPaddle(px, obdCssW, dt);
+        }
 
         obdRafId = requestAnimationFrame(frame);
     }

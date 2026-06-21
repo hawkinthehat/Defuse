@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzixw-v17';
+const CACHE_NAME = 'dzixw-v18';
 
 const PRECACHE_URLS = [
   '/',
@@ -11,6 +11,7 @@ const PRECACHE_URLS = [
   '/icon-512.png',
   '/protocols/obd/obd.css',
   '/protocols/obd/obd.js',
+  '/protocols/obd/script.js',
   '/protocols/obd/audio/obd-audio.js',
   '/protocols/obd/audio/gunwale-strike.wav',
   '/protocols/obd/assets/paddle-blade.svg',
