@@ -12,6 +12,7 @@
     const POP_MS = 520;
 
     const CHAOTIC_COLORS = ['#ffffff', '#ff44aa', '#ff2288', '#ffe0ef'];
+    const CHAOS_SHAPES = ['trigon', 'extended_crescent', 'quinton'];
     const CALM_TEAL_STOPS = ['#0a3040', '#145568', '#1e7080', '#288c9c', '#34a8b8', '#48c4d4'];
 
     let aedRunning = false;
@@ -110,19 +111,19 @@
             .aed-root #instruction-overlay {
                 position: fixed;
                 inset: 0;
-                z-index: 11000;
+                z-index: 2000;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 margin: 0;
                 padding: 0 1.5rem;
-                background: rgba(0, 0, 0, 0.88);
+                background: transparent !important;
                 font-size: clamp(1.5rem, 5vw, 2.25rem);
                 font-weight: 600;
                 line-height: 1.35;
                 letter-spacing: 0.03em;
                 text-align: center;
-                color: #e2e8f0;
+                color: #ffffff;
                 pointer-events: none;
                 opacity: 1;
                 transition: opacity 500ms ease;
@@ -246,7 +247,7 @@
         const canvasW = aedCanvas ? aedCanvas.width : width;
         const canvasH = aedCanvas ? aedCanvas.height : height;
         const size = rand(22, 38);
-        const pattern = Math.random() < 0.5 ? 'pure_trigon' : 'chevron';
+        const pattern = pick(CHAOS_SHAPES);
         const node = {
             kind: 'chaotic',
             pattern,
@@ -405,16 +406,73 @@
         ctx.closePath();
     }
 
-    /** Shape A — Pure Trigon: sharp 3-pointed wedge, single fill path. */
-    function tracePureTrigon(ctx, s) {
+    /**
+     * Trigon — closed negative relief: three sharp points joined by concave,
+     * inward-curving sides (Coast Salish / Northwest Coast geometry).
+     */
+    function traceTrigon(ctx, s) {
+        const verts = [
+            { x: 0, y: -s },
+            { x: s * 0.866, y: s * 0.5 },
+            { x: -s * 0.866, y: s * 0.5 }
+        ];
+
         ctx.beginPath();
-        ctx.moveTo(0, -s);
-        ctx.lineTo(-s * 0.866, s * 0.5);
-        ctx.lineTo(s * 0.866, s * 0.5);
+        ctx.moveTo(verts[0].x, verts[0].y);
+        for (let i = 0; i < 3; i += 1) {
+            const from = verts[i];
+            const to = verts[(i + 1) % 3];
+            const mx = (from.x + to.x) * 0.5;
+            const my = (from.y + to.y) * 0.5;
+            ctx.quadraticCurveTo(mx * 0.42, my * 0.42, to.x, to.y);
+        }
         ctx.closePath();
     }
 
-    function drawPureTrigon(ctx, node, now) {
+    /**
+     * Extended Crescent — tapering u-form arc with sharp terminal points at each end.
+     */
+    function traceExtendedCrescent(ctx, s) {
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.94, -s * 0.2);
+        ctx.bezierCurveTo(-s * 0.58, s * 0.88, s * 0.58, s * 0.88, s * 0.94, -s * 0.2);
+        ctx.bezierCurveTo(s * 0.36, s * 0.38, -s * 0.36, s * 0.38, -s * 0.94, -s * 0.2);
+        ctx.closePath();
+    }
+
+    /**
+     * Quinton — closed five-sided form with softly curved edges and distinct vertices.
+     */
+    function traceQuinton(ctx, s) {
+        const sides = 5;
+        const radius = s * 0.92;
+        const curvePull = 0.64;
+
+        ctx.beginPath();
+        for (let i = 0; i < sides; i += 1) {
+            const a0 = (i / sides) * Math.PI * 2 - Math.PI / 2;
+            const a1 = ((i + 1) / sides) * Math.PI * 2 - Math.PI / 2;
+            const x0 = Math.cos(a0) * radius;
+            const y0 = Math.sin(a0) * radius;
+            const x1 = Math.cos(a1) * radius;
+            const y1 = Math.sin(a1) * radius;
+            const am = (a0 + a1) * 0.5;
+            const cx = Math.cos(am) * radius * curvePull;
+            const cy = Math.sin(am) * radius * curvePull;
+            if (i === 0) ctx.moveTo(x0, y0);
+            ctx.quadraticCurveTo(cx, cy, x1, y1);
+        }
+        ctx.closePath();
+    }
+
+    const CHAOS_TRACE_FNS = {
+        trigon: traceTrigon,
+        extended_crescent: traceExtendedCrescent,
+        quinton: traceQuinton
+    };
+
+    function drawChaoticShape(ctx, node, now) {
+        const trace = CHAOS_TRACE_FNS[node.pattern] || traceTrigon;
         const flash = now < node.flashUntil ? 1 : 0.88 + 0.12 * Math.abs(Math.sin(node.pulsePhase * 5.2));
 
         ctx.save();
@@ -422,47 +480,9 @@
         ctx.rotate(node.rot);
         ctx.globalAlpha = flash;
         ctx.fillStyle = node.color;
-        tracePureTrigon(ctx, node.size);
+        trace(ctx, node.size);
         ctx.fill();
         ctx.restore();
-    }
-
-    /** Shape B — Chevron/Spike: dual-line V stroke, Salish weaving accent. */
-    function drawChevron(ctx, node, now) {
-        const s = node.size;
-        const flash = now < node.flashUntil ? 1 : 0.9 + 0.1 * Math.abs(Math.sin(node.pulsePhase * 4.8));
-
-        ctx.save();
-        ctx.translate(node.x, node.y);
-        ctx.rotate(node.rot);
-        ctx.globalAlpha = flash;
-        ctx.strokeStyle = node.color;
-        ctx.lineCap = 'square';
-        ctx.lineJoin = 'miter';
-
-        ctx.lineWidth = 2.4;
-        ctx.beginPath();
-        ctx.moveTo(-s * 0.88, -s * 0.32);
-        ctx.lineTo(0, s * 0.58);
-        ctx.lineTo(s * 0.88, -s * 0.32);
-        ctx.stroke();
-
-        ctx.lineWidth = 1.8;
-        ctx.beginPath();
-        ctx.moveTo(-s * 0.58, -s * 0.1);
-        ctx.lineTo(0, s * 0.3);
-        ctx.lineTo(s * 0.58, -s * 0.1);
-        ctx.stroke();
-
-        ctx.restore();
-    }
-
-    function drawChaoticShape(ctx, node, now) {
-        if (node.pattern === 'chevron') {
-            drawChevron(ctx, node, now);
-        } else {
-            drawPureTrigon(ctx, node, now);
-        }
     }
 
     /** Three nested concentric ovoid rings: outer border, middle ring, inner core. */
