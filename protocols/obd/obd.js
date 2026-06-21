@@ -261,6 +261,10 @@
         ctx.clearRect(0, 0, obdCssW, obdCssH);
         drawPaddle(ctx, px, py, tangentAngle);
 
+        if (typeof window.OBDVisual !== 'undefined' && window.OBDVisual.setPaddleX) {
+            window.OBDVisual.setPaddleX(px);
+        }
+
         if (holding && typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.updateFromPaddle) {
             window.OBDBilateralAudio.updateFromPaddle(px, obdCssW, dt);
         }
