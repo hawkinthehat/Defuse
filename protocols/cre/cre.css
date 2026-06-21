@@ -57,7 +57,7 @@
 }
 
 #viewport.protocol-has-stability-bar .instruction-bar {
-    top: calc(env(safe-area-inset-top, 32px) + 72px);
+    top: calc(env(safe-area-inset-top, 0px) + 5.25rem);
 }
 
 .cre-stability-label {

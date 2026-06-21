@@ -521,6 +521,18 @@ function initStudioBrandFooter() {
     footer.setAttribute('aria-label', `Developer attribution — ${STUDIO_NAME}`);
 }
 
+function setProtocolWordHeader(label) {
+    const header = document.getElementById('protocol-word-header');
+    if (!header) return;
+    if (label) {
+        header.textContent = label;
+        header.removeAttribute('aria-hidden');
+    } else {
+        header.textContent = '';
+        header.setAttribute('aria-hidden', 'true');
+    }
+}
+
 function showProtocolViewport() {
     const vp = document.getElementById('viewport');
     if (!vp) return;
@@ -582,6 +594,7 @@ function exitProtocol() {
         inst.textContent = '';
         inst.removeAttribute('style');
     }
+    setProtocolWordHeader('');
     setEmergencyFooterHomeMode(true);
 }
 
@@ -608,6 +621,12 @@ if (typeof window !== 'undefined') {
     window.exitProtocol = exitProtocol;
     window.openSession = openSession;
     window.showProtocolViewport = showProtocolViewport;
+    window.setProtocolWordHeader = setProtocolWordHeader;
+    window.ProtocolWordHeaders = Object.freeze(
+        Object.fromEntries(
+            Object.entries(PROTOCOL_ENGAGE).map(([key, meta]) => [key, meta.name])
+        )
+    );
     window.promptEmergencyDial = promptEmergencyDial;
     window.ensureEmergencyBypassFooter = ensureEmergencyBypassFooter;
 }

@@ -51,19 +51,19 @@
             right: 0;
             z-index: 11998;
             margin: 0;
-            padding: calc(env(safe-area-inset-top, 0px) + 10px) max(12px, env(safe-area-inset-right, 12px)) 8px max(12px, env(safe-area-inset-left, 12px));
-            background: var(--aed-bg);
+            padding: calc(env(safe-area-inset-top, 0px) + 12px) max(12px, env(safe-area-inset-right, 12px)) 0 max(12px, env(safe-area-inset-left, 12px));
+            background: transparent;
             pointer-events: none;
         }
 
-        .aed-anchor {
+        .aed-anchor,
+        .protocol-word-header {
             margin: 0;
-            font-size: clamp(0.58rem, 2.2vw, 0.68rem);
+            font-size: 1.1rem;
             font-weight: 500;
             line-height: 1.35;
-            letter-spacing: 0.04em;
             text-align: center;
-            color: rgba(140, 156, 170, 0.38);
+            color: #cbd5e1;
         }
 
         .aed-exit {
@@ -137,7 +137,7 @@
 <body>
     <div class="aed-page" id="aed-page">
         <header class="aed-header" aria-hidden="true">
-            <p class="aed-anchor">ʔuʔəy̓ (oo-uh-ee)</p>
+            <p class="protocol-word-header aed-anchor">ʔuʔəy̓ (oo-uh-ee)</p>
         </header>
 
         <a class="aed-exit" href="../../" title="Return to dashboard">EXIT</a>

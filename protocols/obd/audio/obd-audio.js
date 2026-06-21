@@ -9,6 +9,7 @@
     const CREEK_FADE_OUT_SEC = 0.12;
     const CREEK_LFO_MIN_HZ = 0.2;
     const CREEK_LFO_MAX_HZ = 1.5;
+    const CREEK_SINE_TRACK_HZ = 0.042;
     const CREEK_FILTER_BASE_HZ = 680;
     const CREEK_FILTER_DEPTH_HZ = 520;
     const PINK_NOISE_BUFFER_SIZE = 4096;
@@ -94,7 +95,28 @@
         return source;
     }
 
+    function syncCreekLfoToVisualPhase() {
+        if (!creekNodes) return;
+        const ctx = getAudioContext();
+        if (!ctx) return;
+
+        const visual = window.OBDVisual;
+        const phase = visual && typeof visual.getWavePhase === 'function' ? visual.getWavePhase() : 0;
+        const cycleSec = visual && visual.GRADIENT_CYCLE_MS ? visual.GRADIENT_CYCLE_MS / 1000 : 24;
+        const trackHz = 1 / cycleSec;
+
+        try {
+            creekNodes.lfo.frequency.setValueAtTime(trackHz, ctx.currentTime);
+        } catch {
+            /* ignore */
+        }
+    }
+
     function randomLfoHz() {
+        const visual = window.OBDVisual;
+        if (visual && typeof visual.getWavePhase === 'function') {
+            return CREEK_SINE_TRACK_HZ;
+        }
         return CREEK_LFO_MIN_HZ + Math.random() * (CREEK_LFO_MAX_HZ - CREEK_LFO_MIN_HZ);
     }
 
@@ -159,6 +181,7 @@
             lfo.start(now);
 
             creekNodes = { noise, filter, lfo, lfoGain, gain };
+            syncCreekLfoToVisualPhase();
         });
     }
 
@@ -265,6 +288,7 @@
         stopBabblingCreek,
         setCreekSink,
         reconnectCreekOutput,
+        syncCreekLfoToVisualPhase,
         stop: stopOBDAudio
     };
 })();

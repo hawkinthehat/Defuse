@@ -269,7 +269,7 @@
             lastFrame = performance.now();
             pad.classList.add('obd-ground-pad--active');
             updatePausedBanner();
-            setInst(fastPhase ? `${PROTOCOL_LABEL} · INCREASED LOOP SPEED` : `${PROTOCOL_LABEL} · INFINITY TRACKING`);
+            setInst(fastPhase ? 'INCREASED LOOP SPEED' : 'INFINITY TRACKING');
             if (typeof window.OBDAudio !== 'undefined') {
                 if (window.OBDAudio.prime) window.OBDAudio.prime();
                 if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.prepare) {
@@ -285,7 +285,7 @@
             holding = false;
             pad.classList.remove('obd-ground-pad--active');
             updatePausedBanner();
-            setInst(`${PROTOCOL_LABEL} · RE-ESTABLISH CONTACT`);
+            setInst('RE-ESTABLISH CONTACT');
             if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.stopBabblingCreek) {
                 window.OBDAudio.stopBabblingCreek();
             }
@@ -352,7 +352,10 @@
         lastApexIndex = -1;
 
         showProtocolViewport();
-        setInst(`${PROTOCOL_LABEL} · HOLD GROUNDING PAD TO BEGIN`);
+        if (typeof setProtocolWordHeader === 'function') {
+            setProtocolWordHeader(PROTOCOL_LABEL);
+        }
+        setInst('HOLD GROUNDING PAD TO BEGIN');
 
         renderShell();
         updatePausedBanner();
@@ -369,7 +372,7 @@
             if (!obdRunning) return;
             fastPhase = true;
             loopPeriodSec = LOOP_PERIOD_FAST;
-            if (holding) setInst(`${PROTOCOL_LABEL} · INCREASED LOOP SPEED`);
+            if (holding) setInst('INCREASED LOOP SPEED');
         }, PHASE_MS);
 
         obdExitTimeoutId = window.setTimeout(() => {
