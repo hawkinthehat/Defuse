@@ -57,8 +57,8 @@
             #0e7490 72%,
             #164e63 100%
         );
-    background-size: 200% 100%, 200% 100%, 100% 200%;
-    animation: obd-water-gradient-shift 14s ease-in-out infinite alternate;
+    background-size: 200% 100%, 200% 100%, 200% 100%;
+    animation: obd-water-gradient-shift var(--obd-gradient-cycle, 24s) linear infinite;
     will-change: background-position;
 }
 
@@ -80,31 +80,31 @@
     background-size: 50% 100%, 50% 100%;
     background-position: 0 0, 25% 0;
     opacity: 0.55;
-    animation: obd-ripple 9s linear infinite;
+    animation: obd-ripple var(--obd-ripple-cycle-primary, 24s) linear infinite;
 }
 
 .obd-ripple-layer::after {
     bottom: 8%;
     background-image: var(--obd-wave-c);
     opacity: 0.4;
-    animation: obd-ripple 13s linear infinite reverse;
+    animation: obd-ripple var(--obd-ripple-cycle-secondary, 24s) linear infinite;
 }
 
 @keyframes obd-water-gradient-shift {
     0% {
-        background-position: 50% 0%, 50% 0%, 0% 0%;
+        background-position: 0% 50%, 100% 50%, 50% 50%;
     }
     100% {
-        background-position: 50% 100%, 50% 100%, 0% 100%;
+        background-position: 100% 50%, 0% 50%, 150% 50%;
     }
 }
 
 @keyframes obd-ripple {
     0% {
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0);
     }
     100% {
-        transform: translateX(-50%);
+        transform: translate3d(-50%, 0, 0);
     }
 }
 

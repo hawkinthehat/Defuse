@@ -152,8 +152,27 @@
         ctx.rotate(tangentAngle + Math.PI / 2);
 
         if (paddleImage && paddleImage.complete) {
-            ctx.drawImage(paddleImage, -paddleW * 0.5, -paddleH * 0.42, paddleW, paddleH);
+            const paddleX = -paddleW * 0.5;
+            const paddleY = -paddleH * 0.42;
+            /* High-contrast halo — sharp silhouette against blue/teal gradient phases */
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.82)';
+            ctx.shadowBlur = 14;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.drawImage(paddleImage, paddleX, paddleY, paddleW, paddleH);
+            ctx.shadowColor = 'rgba(15, 23, 42, 0.5)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetY = 2;
+            ctx.drawImage(paddleImage, paddleX, paddleY, paddleW, paddleH);
+            ctx.shadowBlur = 0;
+            ctx.shadowColor = 'transparent';
+            ctx.shadowOffsetY = 0;
+            ctx.drawImage(paddleImage, paddleX, paddleY, paddleW, paddleH);
         } else {
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.82)';
+            ctx.shadowBlur = 14;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
             const grad = ctx.createLinearGradient(-paddleW * 0.5, 0, paddleW * 0.5, 0);
             grad.addColorStop(0, '#5C3D24');
             grad.addColorStop(0.35, '#A67C52');
@@ -171,6 +190,8 @@
             ctx.stroke();
             ctx.fillStyle = '#6B4423';
             ctx.fillRect(-paddleW * 0.12, paddleH * 0.12, paddleW * 0.24, paddleH * 0.38);
+            ctx.shadowBlur = 0;
+            ctx.shadowColor = 'transparent';
         }
 
         ctx.restore();
