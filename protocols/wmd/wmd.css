@@ -26,6 +26,8 @@
     width: 100%;
     padding: 0;
     justify-content: stretch;
+    background: #000000;
+    color: #e2e8f0;
 }
 
 .wmd-preflight-card {

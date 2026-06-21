@@ -237,19 +237,67 @@
     justify-content: center;
     padding: calc(env(safe-area-inset-top, 32px) + 5rem) 1.25rem 1.5rem;
     box-sizing: border-box;
-    background: rgba(248, 250, 252, 0.94);
-    backdrop-filter: blur(12px);
+    background: #000000;
+    backdrop-filter: none;
 }
 
 .ics-onboarding-card {
     width: min(100%, 24rem);
     padding: clamp(1.25rem, 5vw, 1.7rem);
-    border: 1.5px solid rgba(37, 99, 235, 0.38);
+    border: 1px solid rgba(148, 163, 184, 0.28);
     border-radius: 18px;
-    background: #ffffff;
-    box-shadow:
-        var(--shadow-md, 0 4px 14px rgba(15, 23, 42, 0.08)),
-        0 0 0 5px rgba(37, 99, 235, 0.06);
+    background: #161b22;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.ics-onboarding .ics-kicker {
+    color: #94a3b8;
+}
+
+.ics-onboarding-title {
+    margin: 0 0 0.9rem;
+    font-size: clamp(1.35rem, 6vw, 1.85rem);
+    line-height: 1.1;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: #e2e8f0;
+    text-align: center;
+}
+
+.ics-onboarding-copy {
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    font-weight: 650;
+    color: #94a3b8;
+    text-align: center;
+}
+
+.ics-onboarding-list {
+    margin: 0 0 1.35rem;
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    color: #94a3b8;
+}
+
+.ics-onboarding-list li {
+    font-size: 0.9rem;
+    line-height: 1.45;
+    font-weight: 750;
+}
+
+.ics-onboarding .ics-start-btn {
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    background: transparent;
+    color: #e2e8f0;
+    box-shadow: none;
+}
+
+.ics-onboarding .ics-start-btn:hover {
+    background: rgba(22, 27, 34, 0.85);
+    border-color: rgba(148, 163, 184, 0.55);
 }
 
 .ics-kicker {
@@ -261,40 +309,6 @@
     text-transform: uppercase;
     color: #2563eb;
     text-align: center;
-}
-
-.ics-onboarding-title {
-    margin: 0 0 0.9rem;
-    font-size: clamp(1.35rem, 6vw, 1.85rem);
-    line-height: 1.1;
-    font-weight: 900;
-    letter-spacing: -0.04em;
-    color: #0f172a;
-    text-align: center;
-}
-
-.ics-onboarding-copy {
-    margin: 0 0 1rem;
-    font-size: 0.95rem;
-    line-height: 1.55;
-    font-weight: 650;
-    color: #334155;
-    text-align: center;
-}
-
-.ics-onboarding-list {
-    margin: 0 0 1.35rem;
-    padding-left: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.55rem;
-    color: #0f172a;
-}
-
-.ics-onboarding-list li {
-    font-size: 0.9rem;
-    line-height: 1.45;
-    font-weight: 750;
 }
 
 .ics-start-btn,

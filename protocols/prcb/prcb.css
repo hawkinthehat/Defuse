@@ -12,7 +12,7 @@
     padding: clamp(1rem, 4vw, 2rem);
     padding-bottom: calc(clamp(1rem, 4vw, 2rem) + var(--emergency-footer-reserve, 92px));
     box-sizing: border-box;
-    background: radial-gradient(ellipse at 50% 30%, rgba(220, 38, 38, 0.12) 0%, #0f172a 70%);
+    background: #0d1117;
     z-index: 2;
     overflow: auto;
 }
@@ -21,12 +21,10 @@
     width: min(100%, 32rem);
     max-width: 100%;
     padding: clamp(1.5rem, 4vw, 2.25rem);
-    border: 1px solid rgba(220, 38, 38, 0.45);
+    border: 1px solid rgba(148, 163, 184, 0.28);
     border-radius: 10px;
-    background: rgba(15, 23, 42, 0.96);
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.06),
-        0 24px 48px rgba(0, 0, 0, 0.65);
+    background: #161b22;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
 }
 
 .prcb-warning-kicker {
@@ -34,7 +32,7 @@
     font-size: 0.65rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(248, 113, 113, 0.9);
+    color: #94a3b8;
 }
 
 .prcb-warning-title {
@@ -42,14 +40,14 @@
     font-size: clamp(1.35rem, 3.5vw, 1.75rem);
     font-weight: 800;
     letter-spacing: 0.06em;
-    color: #f8fafc;
+    color: #e2e8f0;
 }
 
 .prcb-warning-text {
     margin: 0 0 1rem;
     font-size: clamp(0.9rem, 2.2vw, 1.05rem);
     line-height: 1.55;
-    color: rgba(226, 232, 240, 0.92);
+    color: #94a3b8;
 }
 
 .prcb-warning-text:last-of-type {
@@ -69,20 +67,20 @@
     letter-spacing: 0.06em;
     border-radius: 6px;
     cursor: pointer;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    background: rgba(30, 41, 59, 0.95);
-    color: #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: transparent;
+    color: #94a3b8;
 }
 
 .prcb-warn-btn-cancel {
-    border-color: rgba(255, 255, 255, 0.25);
-    color: rgba(255, 255, 255, 0.75);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #94a3b8;
 }
 
 .prcb-warn-btn-ok {
-    border-color: rgba(220, 38, 38, 0.65);
-    background: rgba(220, 38, 38, 0.22);
-    color: #fecaca;
+    border-color: rgba(96, 165, 250, 0.35);
+    background: transparent;
+    color: #e2e8f0;
     font-weight: 700;
 }
 

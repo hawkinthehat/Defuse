@@ -1,5 +1,53 @@
 /* IEC — imaginal exposure canvas */
 
+.iec-root--onboarding,
+.iec-root--complete {
+    background: #0d1117;
+    color: #e2e8f0;
+}
+
+.iec-root--onboarding .iec-card,
+.iec-root--complete .iec-card {
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: #161b22;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.iec-root--onboarding .iec-kicker,
+.iec-root--complete .iec-kicker {
+    color: #94a3b8;
+}
+
+.iec-root--onboarding .iec-title,
+.iec-root--onboarding .iec-steps,
+.iec-root--complete .iec-title,
+.iec-root--complete .iec-steps {
+    color: #e2e8f0;
+}
+
+.iec-root--onboarding .iec-steps li,
+.iec-root--complete .iec-steps li {
+    color: #94a3b8;
+}
+
+.iec-root--onboarding .iec-start-btn,
+.iec-root--complete .iec-start-btn {
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    background: transparent;
+    color: #e2e8f0;
+    box-shadow: none;
+}
+
+.iec-root--onboarding .iec-start-btn:hover,
+.iec-root--onboarding .iec-start-btn:focus-visible,
+.iec-root--complete .iec-start-btn:hover,
+.iec-root--complete .iec-start-btn:focus-visible {
+    outline: none;
+    background: rgba(22, 27, 34, 0.85);
+    border-color: rgba(148, 163, 184, 0.55);
+    box-shadow: none;
+}
+
 .iec-root {
     width: 100%;
     height: 100%;

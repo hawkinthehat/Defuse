@@ -32,6 +32,14 @@
     --obd-gradient-cycle: 24s;
     --obd-ripple-cycle-primary: 24s;
     --obd-ripple-cycle-secondary: 24s;
+    /* Low-stimulation dark onboarding / disclaimer palette */
+    --onboarding-bg: #0d1117;
+    --onboarding-bg-deep: #000000;
+    --onboarding-surface: #161b22;
+    --onboarding-text: #e2e8f0;
+    --onboarding-text-muted: #94a3b8;
+    --onboarding-border: rgba(148, 163, 184, 0.28);
+    --onboarding-accent-border: rgba(96, 165, 250, 0.35);
 }
 
 html,
@@ -48,6 +56,12 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     color: var(--text-primary);
     overflow-x: hidden;
+}
+
+body:has(.onboarding-overlay),
+body:has(.master-init-overlay) {
+    background-color: var(--onboarding-bg);
+    color: var(--onboarding-text);
 }
 
 body:has(#dashboard:not(.hidden)) {
@@ -311,14 +325,14 @@ html.protocol-viewport-active body {
     align-items: flex-start;
     justify-content: center;
     padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px));
-    background: #ffffff;
+    background: var(--onboarding-bg);
     box-sizing: border-box;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
 
 .onboarding-overlay {
-    background: #ffffff;
+    background: var(--onboarding-bg);
     padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
 }
 
@@ -326,10 +340,10 @@ html.protocol-viewport-active body {
     width: 100%;
     max-width: 32rem;
     padding: 1.5rem 1.25rem 1.35rem;
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--onboarding-border);
     border-radius: 12px;
-    background: #ffffff;
-    box-shadow: var(--shadow-md);
+    background: var(--onboarding-surface);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
     display: flex;
     flex-direction: column;
     gap: 18px;
@@ -338,7 +352,7 @@ html.protocol-viewport-active body {
 }
 
 .onboarding-card {
-    color: #0f172a;
+    color: var(--onboarding-text);
 }
 
 .onboarding-header {
@@ -347,7 +361,7 @@ html.protocol-viewport-active body {
 
 .onboarding-title {
     margin: 0;
-    color: #0f172a;
+    color: var(--onboarding-text);
     font-size: clamp(1rem, 4.2vw, 1.2rem);
     font-weight: 800;
     line-height: 1.4;
@@ -367,14 +381,14 @@ html.protocol-viewport-active body {
 
 .onboarding-section--privacy {
     padding: 12px 14px;
-    border: 2px solid #2563eb;
+    border: 1px solid var(--onboarding-accent-border);
     border-radius: 10px;
-    background: #eff6ff;
+    background: rgba(22, 27, 34, 0.85);
 }
 
 .onboarding-section-heading {
     margin: 0 0 0.55rem;
-    color: #0f172a;
+    color: var(--onboarding-text);
     font-size: 0.82rem;
     font-weight: 800;
     line-height: 1.35;
@@ -382,10 +396,16 @@ html.protocol-viewport-active body {
 
 .onboarding-body {
     margin: 0 0 0.65rem;
-    color: #0f172a;
+    color: var(--onboarding-text-muted);
     font-size: 0.78rem;
     font-weight: 600;
     line-height: 1.55;
+}
+
+.onboarding-body a {
+    color: var(--onboarding-text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
 
 .onboarding-body--emphasis {
@@ -395,7 +415,7 @@ html.protocol-viewport-active body {
 .onboarding-divider {
     margin: 1rem 0;
     border: 0;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--onboarding-border);
 }
 
 .onboarding-audio-panel {
@@ -403,9 +423,9 @@ html.protocol-viewport-active body {
     flex-direction: column;
     gap: 10px;
     padding: 14px 14px 12px;
-    border: 1.5px solid rgba(37, 99, 235, 0.35);
+    border: 1px solid var(--onboarding-border);
     border-radius: 10px;
-    background: rgba(37, 99, 235, 0.06);
+    background: rgba(22, 27, 34, 0.65);
 }
 
 .onboarding-toggle {
@@ -431,7 +451,7 @@ html.protocol-viewport-active body {
     height: 1.45rem;
     margin-top: 0.1rem;
     border-radius: 999px;
-    background: #cbd5e1;
+    background: rgba(148, 163, 184, 0.35);
     transition: background 0.18s ease;
 }
 
@@ -443,13 +463,13 @@ html.protocol-viewport-active body {
     width: 1.1rem;
     height: 1.1rem;
     border-radius: 50%;
-    background: #ffffff;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.18);
+    background: #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
     transition: transform 0.18s ease;
 }
 
 .onboarding-toggle-input:checked + .onboarding-toggle-switch {
-    background: #2563eb;
+    background: rgba(96, 165, 250, 0.45);
 }
 
 .onboarding-toggle-input:checked + .onboarding-toggle-switch::after {
@@ -457,12 +477,12 @@ html.protocol-viewport-active body {
 }
 
 .onboarding-toggle-input:focus-visible + .onboarding-toggle-switch {
-    outline: 2px solid #2563eb;
+    outline: 2px solid rgba(96, 165, 250, 0.55);
     outline-offset: 2px;
 }
 
 .onboarding-toggle-label {
-    color: #0f172a;
+    color: var(--onboarding-text);
     font-size: 0.8rem;
     font-weight: 800;
     line-height: 1.4;
@@ -470,7 +490,7 @@ html.protocol-viewport-active body {
 
 .onboarding-frequency-label {
     margin: 2px 0 0;
-    color: #0f172a;
+    color: var(--onboarding-text-muted);
     font-size: 0.68rem;
     font-weight: 800;
     letter-spacing: 0.06em;
@@ -480,10 +500,10 @@ html.protocol-viewport-active body {
 .onboarding-frequency-select {
     width: 100%;
     padding: 10px 12px;
-    border: 1.5px solid #2563eb;
+    border: 1px solid var(--onboarding-border);
     border-radius: 8px;
-    background: #ffffff;
-    color: #0f172a;
+    background: var(--onboarding-bg);
+    color: var(--onboarding-text);
     font-size: 0.76rem;
     font-weight: 700;
     line-height: 1.35;
@@ -495,12 +515,12 @@ html.protocol-viewport-active body {
 .onboarding-frequency-select:disabled {
     opacity: 0.45;
     cursor: not-allowed;
-    border-color: #cbd5e1;
+    border-color: var(--onboarding-border);
 }
 
 .onboarding-frequency-hint {
     margin: 0;
-    color: #475569;
+    color: var(--onboarding-text-muted);
     font-size: 0.68rem;
     line-height: 1.4;
 }
@@ -509,9 +529,18 @@ html.protocol-viewport-active body {
     margin-top: 2px;
 }
 
+a.onboarding-enter-btn,
+button.onboarding-enter-btn {
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    text-decoration: none;
+}
+
 .master-init-kicker {
     margin: 0;
-    color: var(--text-muted);
+    color: var(--onboarding-text-muted);
     font-size: 0.58rem;
     font-weight: 800;
     letter-spacing: 0.24em;
@@ -522,16 +551,16 @@ html.protocol-viewport-active body {
 
 .headphone-required-notice {
     padding: 14px 15px;
-    border: 1px solid var(--healing-blue-ring);
+    border: 1px solid var(--onboarding-border);
     border-radius: 10px;
-    background: var(--healing-blue-soft);
-    color: var(--text-primary);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+    background: rgba(22, 27, 34, 0.65);
+    color: var(--onboarding-text);
+    box-shadow: none;
 }
 
 .headphone-required-title {
     margin: 0;
-    color: var(--text-primary);
+    color: var(--onboarding-text);
     font-size: clamp(0.82rem, 3.4vw, 0.96rem);
     font-weight: 900;
     line-height: 1.35;
@@ -543,7 +572,7 @@ html.protocol-viewport-active body {
 
 .headphone-required-sub {
     margin: 8px 0 0;
-    color: var(--text-secondary);
+    color: var(--onboarding-text-muted);
     font-size: 0.72rem;
     line-height: 1.45;
     text-align: center;
@@ -553,25 +582,25 @@ html.protocol-viewport-active body {
     width: 100%;
     min-height: 3rem;
     padding: 13px 16px;
-    border: 1.5px solid var(--healing-blue);
+    border: 1px solid var(--onboarding-accent-border);
     border-radius: 8px;
-    background: var(--bg-surface);
-    color: var(--healing-blue);
+    background: transparent;
+    color: var(--onboarding-text);
     cursor: pointer;
     font-size: 0.68rem;
     font-weight: 800;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 }
 
 .master-init-btn:hover {
-    border-color: var(--healing-blue-bright);
-    background: var(--healing-blue-soft);
-    color: var(--healing-blue);
+    border-color: rgba(148, 163, 184, 0.55);
+    background: rgba(22, 27, 34, 0.85);
+    color: var(--onboarding-text);
 }
 
 .master-init-btn:active {
@@ -746,17 +775,17 @@ html.protocol-viewport-active body {
     justify-content: center;
     padding: calc(env(safe-area-inset-top, 32px) + 3.5rem) 1.25rem calc(1.5rem + var(--emergency-footer-reserve));
     box-sizing: border-box;
-    background: rgba(248, 250, 252, 0.96);
+    background: var(--onboarding-bg-deep);
 }
 
 .protocol-preflight-card {
     width: 100%;
     max-width: 22rem;
     padding: 1.35rem 1.25rem 1.5rem;
-    border: 2px solid var(--healing-blue);
+    border: 1px solid var(--onboarding-border);
     border-radius: 10px;
-    background: var(--bg-surface);
-    box-shadow: var(--shadow-md);
+    background: var(--onboarding-surface);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
     text-align: left;
 }
 
@@ -767,7 +796,7 @@ html.protocol-viewport-active body {
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #0f172a;
+    color: var(--onboarding-text);
     text-align: center;
 }
 
@@ -783,7 +812,7 @@ html.protocol-viewport-active body {
     font-size: clamp(0.95rem, 4.2vw, 1.08rem);
     line-height: 1.5;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--onboarding-text-muted);
 }
 
 .protocol-preflight-start {
@@ -795,14 +824,19 @@ html.protocol-viewport-active body {
     font-weight: 800;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #ffffff;
-    background: var(--healing-blue);
-    border: 2px solid var(--healing-blue);
+    color: var(--onboarding-text);
+    background: transparent;
+    border: 1px solid var(--onboarding-accent-border);
     border-radius: 6px;
     cursor: pointer;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.28);
+    box-shadow: none;
+}
+
+.protocol-preflight-start:hover {
+    border-color: rgba(148, 163, 184, 0.55);
+    background: rgba(22, 27, 34, 0.85);
 }
 
 .protocol-preflight-start:active {
@@ -960,7 +994,7 @@ html.protocol-viewport-active body {
     font-size: clamp(0.88rem, 3vw, 1.05rem);
     line-height: 1.5;
     font-weight: 800;
-    color: #f1f5f9;
+    color: #e2e8f0;
     text-align: center;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -972,7 +1006,7 @@ html.protocol-viewport-active body {
     font-size: 0.58rem;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: #cbd5e1;
+    color: #94a3b8;
     text-align: center;
     font-family: monospace;
     font-weight: 600;
@@ -982,11 +1016,11 @@ html.protocol-viewport-active body {
 .protocol-pending-root {
     width: min(90vw, 28rem);
     padding: 1.5rem 1.25rem;
-    border: 1.5px solid var(--healing-blue);
+    border: 1px solid var(--onboarding-border);
     border-radius: 12px;
-    background: #ffffff;
-    color: var(--text-primary);
-    box-shadow: var(--shadow-md), 0 0 0 3px var(--healing-blue-soft);
+    background: var(--onboarding-surface);
+    color: var(--onboarding-text);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
     text-align: center;
 }
 
@@ -1002,7 +1036,7 @@ html.protocol-viewport-active body {
 
 .protocol-pending-line {
     margin: 0;
-    color: var(--text-primary);
+    color: var(--onboarding-text);
     font-size: 0.95rem;
     font-weight: 800;
     line-height: 1.45;
@@ -1015,16 +1049,16 @@ html.protocol-viewport-active body {
 
 .protocol-pending-sub {
     margin: 0.75rem 0 1rem;
-    color: var(--text-secondary);
+    color: var(--onboarding-text-muted);
     font-size: 0.78rem;
     line-height: 1.45;
 }
 
 .protocol-pending-done {
-    border: 1.5px solid var(--healing-blue);
+    border: 1px solid var(--onboarding-accent-border);
     border-radius: 8px;
-    background: var(--healing-blue);
-    color: #ffffff;
+    background: transparent;
+    color: var(--onboarding-text);
     cursor: pointer;
     padding: 0.8rem 1rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -1032,6 +1066,11 @@ html.protocol-viewport-active body {
     font-weight: 900;
     letter-spacing: 0.14em;
     text-transform: uppercase;
+}
+
+.protocol-pending-done:hover {
+    border-color: rgba(148, 163, 184, 0.55);
+    background: rgba(22, 27, 34, 0.85);
 }
 
 /* Emergency lifeline — muted protocol anchor (global across app + standalone protocol pages) */

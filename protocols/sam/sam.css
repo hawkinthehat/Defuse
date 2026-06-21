@@ -33,6 +33,58 @@
 .sam-root--onboarding,
 .sam-root--complete {
     overflow-y: auto;
+    background: #0d1117;
+    color: #e2e8f0;
+}
+
+.sam-root--onboarding .sam-card,
+.sam-root--complete .sam-card {
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 20px;
+    background: #161b22;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.sam-root--onboarding .sam-kicker,
+.sam-root--complete .sam-kicker {
+    color: #94a3b8;
+}
+
+.sam-root--onboarding .sam-title,
+.sam-root--onboarding .sam-steps,
+.sam-root--complete .sam-title,
+.sam-root--complete .sam-steps {
+    color: #e2e8f0;
+}
+
+.sam-root--onboarding .sam-steps li,
+.sam-root--complete .sam-steps li {
+    color: #94a3b8;
+}
+
+.sam-root--onboarding .sam-start-btn,
+.sam-root--onboarding .sam-done-btn,
+.sam-root--complete .sam-start-btn,
+.sam-root--complete .sam-done-btn {
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    border-radius: 12px;
+    background: transparent;
+    color: #e2e8f0;
+    box-shadow: none;
+}
+
+.sam-root--onboarding .sam-start-btn:hover,
+.sam-root--onboarding .sam-start-btn:focus-visible,
+.sam-root--onboarding .sam-done-btn:hover,
+.sam-root--onboarding .sam-done-btn:focus-visible,
+.sam-root--complete .sam-start-btn:hover,
+.sam-root--complete .sam-start-btn:focus-visible,
+.sam-root--complete .sam-done-btn:hover,
+.sam-root--complete .sam-done-btn:focus-visible {
+    outline: none;
+    background: rgba(22, 27, 34, 0.85);
+    border-color: rgba(148, 163, 184, 0.55);
+    box-shadow: none;
 }
 
 .sam-card {
