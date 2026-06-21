@@ -138,7 +138,8 @@
 
     function makeChaoticNode() {
         const size = rand(22, 38);
-        const pattern = Math.random() < 0.5 ? 'trigon' : 'salish_eye';
+        const roll = Math.random();
+        const pattern = roll < 0.34 ? 'trigon' : roll < 0.67 ? 'salish_eye' : 'negative_trigon_stack';
         const node = {
             kind: 'chaotic',
             pattern,
@@ -160,9 +161,12 @@
             node.trigonTilt = rand(-0.25, 0.25);
             node.pulseSpeed = rand(0.22, 0.38);
             node.rotSpeed = rand(-0.08, 0.08);
-        } else {
+        } else if (pattern === 'salish_eye') {
             node.eyeTilt = rand(-0.45, 0.45);
             node.pulseSpeed = rand(0.18, 0.34);
+        } else {
+            node.stackTilt = rand(-0.35, 0.35);
+            node.pulseSpeed = rand(0.16, 0.3);
         }
 
         return node;
@@ -419,11 +423,80 @@
         ctx.restore();
     }
 
+    /** Upward negative-space trigon with concave sides (void outline). */
+    function traceNegativeTrigonVoid(ctx, s) {
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 0.34);
+        ctx.quadraticCurveTo(-s * 0.3, s * 0.04, -s * 0.13, s * 0.38);
+        ctx.lineTo(s * 0.13, s * 0.38);
+        ctx.quadraticCurveTo(s * 0.3, s * 0.04, 0, -s * 0.34);
+        ctx.closePath();
+    }
+
+    /**
+     * Three-part chaos stack from reference callout 1:
+     * curved brow band, negative-space upward trigon, bottom center bar.
+     */
+    function drawNegativeTrigonStack(ctx, node) {
+        const flash = 0.42 + 0.58 * Math.abs(Math.sin(node.pulsePhase * 3.1));
+        const s = node.size * (0.88 + 0.22 * Math.sin(node.pulsePhase * 2.4));
+
+        ctx.save();
+        ctx.translate(node.x, node.y);
+        ctx.rotate(node.rot + node.stackTilt);
+        ctx.fillStyle = node.color;
+        ctx.strokeStyle = node.color;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowColor = node.color;
+        ctx.shadowBlur = 10 + 14 * flash;
+        ctx.globalAlpha = flash * 0.92;
+
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.92, -s * 0.06);
+        ctx.quadraticCurveTo(0, -s * 0.58, s * 0.92, -s * 0.06);
+        ctx.quadraticCurveTo(0, -s * 0.26, -s * 0.92, -s * 0.06);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.92, -s * 0.06);
+        ctx.quadraticCurveTo(-s * 0.56, s * 0.14, -s * 0.14, s * 0.42);
+        ctx.lineTo(-s * 0.5, s * 0.42);
+        ctx.quadraticCurveTo(-s * 0.8, s * 0.06, -s * 0.92, -s * 0.06);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(s * 0.92, -s * 0.06);
+        ctx.quadraticCurveTo(s * 0.56, s * 0.14, s * 0.14, s * 0.42);
+        ctx.lineTo(s * 0.5, s * 0.42);
+        ctx.quadraticCurveTo(s * 0.8, s * 0.06, s * 0.92, -s * 0.06);
+        ctx.fill();
+
+        ctx.globalAlpha = flash;
+        ctx.lineWidth = s * 0.13;
+        ctx.beginPath();
+        ctx.arc(0, s * 0.52, s * 0.22, Math.PI * 1.07, Math.PI * 1.93);
+        ctx.stroke();
+
+        ctx.globalAlpha = flash * 0.5;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.9;
+        traceNegativeTrigonVoid(ctx, s);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
     function drawChaoticShape(ctx, node) {
-        if (node.pattern === 'salish_eye') {
-            drawSalishEye(ctx, node);
-        } else {
-            drawTrigon(ctx, node);
+        switch (node.pattern) {
+            case 'salish_eye':
+                drawSalishEye(ctx, node);
+                break;
+            case 'negative_trigon_stack':
+                drawNegativeTrigonStack(ctx, node);
+                break;
+            default:
+                drawTrigon(ctx, node);
         }
     }
 
