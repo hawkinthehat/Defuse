@@ -13,7 +13,10 @@
     const POP_MS = 520;
 
     const CHAOTIC_COLORS = ['#ff2244', '#ff8800', '#ffffff', '#00e5ff', '#ff44aa'];
-    const CALM_COLORS = ['#4a8fb8', '#5a9a7a', '#6ba8c4', '#4d9a82'];
+    const FRANTIC_TRIGON_COLORS = ['#1a9dff', '#33bbff', '#0088ee', '#55ccff', '#0066cc'];
+    const CHAOS_PURPLE = ['#c044ff', '#aa22ee', '#dd66ff', '#8833cc'];
+    const CHAOS_YELLOW = ['#ffee00', '#ffcc00', '#ffaa22', '#ffe566'];
+    const CALM_TEAL_STOPS = ['#0a3040', '#145568', '#1e7080', '#288c9c', '#34a8b8', '#48c4d4'];
 
     let aedRunning = false;
     let aedRafId = 0;
@@ -136,23 +139,62 @@
         aedCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
+    function buildChaosLayers(size) {
+        const layers = [];
+        const count = 3 + Math.floor(rand(0, 3));
+        for (let i = 0; i < count; i += 1) {
+            layers.push({
+                radius: size * rand(0.45, 1.15),
+                startAngle: rand(0, Math.PI * 2),
+                sweep: rand(Math.PI * 0.35, Math.PI * 1.25),
+                offsetX: rand(-size * 0.35, size * 0.35),
+                offsetY: rand(-size * 0.35, size * 0.35),
+                lineWidth: rand(1.1, 2.6),
+                waveAmp: rand(0.08, 0.22),
+                colorIndex: i % 2
+            });
+        }
+        return layers;
+    }
+
     function makeChaoticNode() {
         const size = rand(22, 38);
-        return {
+        const roll = Math.random();
+        const pattern = roll < 0.34 ? 'frantic_trigon' : roll < 0.67 ? 'chaos_linework' : 'salish_eye';
+        const node = {
             kind: 'chaotic',
+            pattern,
             x: rand(size, Math.max(size + 1, width - size)),
             y: rand(size + 40, Math.max(size + 41, height - size)),
             size,
             vx: rand(-1.8, 1.8),
             vy: rand(-1.5, 1.5),
             pulsePhase: rand(0, Math.PI * 2),
-            pulseSpeed: rand(0.16, 0.28),
             rot: rand(0, Math.PI * 2),
             rotSpeed: rand(-0.05, 0.05),
-            color: pick(CHAOTIC_COLORS),
-            wedgeSpread: rand(Math.PI / 4, Math.PI / 2.2),
             flashUntil: 0
         };
+
+        if (pattern === 'frantic_trigon') {
+            node.trigonCount = 2 + Math.floor(rand(0, 2));
+            node.trigonSpread = rand(0.32, 0.58);
+            node.trigonTilt = rand(-0.25, 0.25);
+            node.color = pick(FRANTIC_TRIGON_COLORS);
+            node.pulseSpeed = rand(0.22, 0.38);
+            node.rotSpeed = rand(-0.08, 0.08);
+        } else if (pattern === 'chaos_linework') {
+            node.layers = buildChaosLayers(size);
+            node.colorA = pick(CHAOS_PURPLE);
+            node.colorB = pick(CHAOS_YELLOW);
+            node.pulseSpeed = rand(0.15, 0.28);
+        } else {
+            node.eyeTilt = rand(-0.45, 0.45);
+            node.color = pick(CHAOTIC_COLORS);
+            node.lidColor = pick(CHAOS_PURPLE.concat(CHAOS_YELLOW));
+            node.pulseSpeed = rand(0.18, 0.34);
+        }
+
+        return node;
     }
 
     function makeCalmNode() {
@@ -163,14 +205,16 @@
             y: rand(radius + 40, Math.max(radius + 41, height - radius)),
             radius,
             baseRadius: radius,
+            rx: radius * 1.12,
+            ry: radius * 0.78,
+            ringCount: 4 + Math.floor(rand(0, 2)),
+            ovoidTilt: rand(-0.18, 0.18),
             vx: rand(-0.35, 0.35),
             vy: rand(-0.28, 0.28),
             driftPhase: rand(0, Math.PI * 2),
             driftSpeed: rand(0.0008, 0.0016),
             pulsePhase: rand(0, Math.PI * 2),
-            pulseSpeed: rand(0.012, 0.022),
-            color: pick(CALM_COLORS),
-            crescentTilt: rand(-0.35, 0.35),
+            pulseSpeed: rand(0.008, 0.016),
             alive: true
         };
     }
@@ -232,8 +276,13 @@
             if (!node.alive) continue;
             const dx = px - node.x;
             const dy = py - node.y;
-            const hitR = node.radius * 1.15;
-            if (dx * dx + dy * dy <= hitR * hitR) return node;
+            const cos = Math.cos(-node.ovoidTilt);
+            const sin = Math.sin(-node.ovoidTilt);
+            const lx = dx * cos - dy * sin;
+            const ly = dx * sin + dy * cos;
+            const hitRx = node.rx * 1.12;
+            const hitRy = node.ry * 1.12;
+            if ((lx * lx) / (hitRx * hitRx) + (ly * ly) / (hitRy * hitRy) <= 1) return node;
         }
         return null;
     }
@@ -259,7 +308,7 @@
         const calmHit = hitTestCalm(px, py);
         if (calmHit) {
             calmHit.alive = false;
-            addPopEffect(calmHit.x, calmHit.y, calmHit.color);
+            addPopEffect(calmHit.x, calmHit.y, CALM_TEAL_STOPS[4]);
             triggerRegulationStep();
             if (typeof navigator !== 'undefined' && navigator.vibrate) {
                 try {
@@ -277,77 +326,255 @@
         }
     }
 
-    function drawChaoticShape(ctx, node) {
-        const fastPulse = node.pulsePhase * 2.6;
-        const pulse = 0.62 + 0.48 * Math.sin(fastPulse);
+    /** Coast Salish formline trigon: sharp apex, straight legs, concave curved base. */
+    function traceSalishTrigon(ctx, scale) {
+        const s = scale;
+        const leftX = -s * 0.74;
+        const leftY = s * 0.52;
+        const rightX = s * 0.74;
+        const rightY = s * 0.52;
+        ctx.beginPath();
+        ctx.moveTo(0, -s);
+        ctx.lineTo(leftX, leftY);
+        ctx.quadraticCurveTo(0, s * 0.78, rightX, rightY);
+        ctx.lineTo(0, -s);
+        ctx.closePath();
+    }
+
+    /** Formline ovoid outline via four cubic-bezier quarters. */
+    function traceOvoid(ctx, rx, ry) {
+        const k = 0.5522847498;
+        ctx.beginPath();
+        ctx.moveTo(0, -ry);
+        ctx.bezierCurveTo(rx * k, -ry, rx, -ry * k, rx, 0);
+        ctx.bezierCurveTo(rx, ry * k, rx * k, ry, 0, ry);
+        ctx.bezierCurveTo(-rx * k, ry, -rx, ry * k, -rx, 0);
+        ctx.bezierCurveTo(-rx, -ry * k, -rx * k, -ry, 0, -ry);
+        ctx.closePath();
+    }
+
+    function drawFranticTrigon(ctx, node) {
+        const fastPulse = node.pulsePhase * 3.1;
+        const pulse = 0.58 + 0.52 * Math.sin(fastPulse);
         const reach = node.size * pulse;
-        const spread = node.wedgeSpread;
-        const halfSpread = spread * 0.5;
 
         ctx.save();
         ctx.translate(node.x, node.y);
-        ctx.rotate(node.rot);
+        ctx.rotate(node.rot + node.trigonTilt);
         ctx.fillStyle = node.color;
-        ctx.globalAlpha = 0.76 + 0.24 * Math.sin(fastPulse * 1.35);
+        ctx.strokeStyle = node.color;
+        ctx.lineJoin = 'miter';
+        ctx.lineCap = 'butt';
         ctx.shadowColor = node.color;
-        ctx.shadowBlur = 18;
+        ctx.shadowBlur = 14 + 10 * Math.sin(fastPulse * 1.4);
 
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(Math.cos(-halfSpread - Math.PI / 2) * reach * 1.45, Math.sin(-halfSpread - Math.PI / 2) * reach * 1.45);
-        ctx.lineTo(Math.cos(halfSpread - Math.PI / 2) * reach * 1.45, Math.sin(halfSpread - Math.PI / 2) * reach * 1.45);
-        ctx.closePath();
-        ctx.fill();
+        for (let i = 0; i < node.trigonCount; i += 1) {
+            const phase = fastPulse + i * node.trigonSpread * Math.PI * 2;
+            const microPulse = 0.72 + 0.38 * Math.sin(phase);
+            const offset = reach * 0.38 * i;
+            const angle = i * node.trigonSpread * Math.PI * 2;
 
-        ctx.globalAlpha = 0.5 + 0.4 * Math.sin(fastPulse * 1.8);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, -reach * 0.92);
-        ctx.lineTo(reach * 0.78, reach * 0.58);
-        ctx.closePath();
-        ctx.fill();
+            ctx.save();
+            ctx.translate(Math.cos(angle) * offset, Math.sin(angle) * offset);
+            ctx.rotate(Math.sin(phase * 0.7) * 0.18);
+            ctx.globalAlpha = 0.68 + 0.32 * Math.sin(phase * 1.25);
+
+            traceSalishTrigon(ctx, reach * microPulse);
+            ctx.fill();
+            ctx.globalAlpha = 0.85 + 0.15 * Math.sin(phase);
+            ctx.lineWidth = 1.4;
+            ctx.stroke();
+
+            ctx.globalAlpha = 0.42 + 0.35 * Math.sin(phase * 1.6);
+            traceSalishTrigon(ctx, reach * microPulse * 0.58);
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 0.9;
+            ctx.stroke();
+            ctx.restore();
+        }
 
         ctx.restore();
     }
 
-    function drawCalmNode(ctx, node, now) {
-        if (!node.alive) return;
-        const breathe = 0.92 + 0.08 * Math.sin(node.pulsePhase);
-        const r = node.baseRadius * breathe;
-        const arcSpan = Math.PI * 0.62;
-        const outerR = r;
-        const innerR = r * 0.74;
-        const crescentShift = r * 0.36;
+    function drawChaosLinework(ctx, node) {
+        const flash = 0.45 + 0.55 * Math.abs(Math.sin(node.pulsePhase * 2.8));
+        const flicker = 0.35 + 0.65 * Math.abs(Math.sin(node.pulsePhase * 4.2 + 1.1));
 
         ctx.save();
         ctx.translate(node.x, node.y);
-        ctx.rotate(node.crescentTilt);
-        ctx.shadowColor = node.color;
-        ctx.shadowBlur = 24;
-
-        ctx.beginPath();
-        ctx.arc(crescentShift, 0, outerR, -arcSpan * 0.5, arcSpan * 0.5);
-        ctx.arc(crescentShift - r * 0.18, 0, innerR, arcSpan * 0.5, -arcSpan * 0.5, true);
-        ctx.closePath();
-
-        const glow = ctx.createLinearGradient(-r, -r * 0.4, r, r * 0.4);
-        glow.addColorStop(0, `${node.color}22`);
-        glow.addColorStop(0.4, `${node.color}bb`);
-        glow.addColorStop(0.7, `${node.color}dd`);
-        glow.addColorStop(1, `${node.color}33`);
-        ctx.fillStyle = glow;
-        ctx.fill();
-
-        ctx.strokeStyle = `${node.color}77`;
-        ctx.lineWidth = 1.8;
+        ctx.rotate(node.rot);
+        ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
+        ctx.shadowBlur = 8 + 14 * flicker;
+
+        node.layers.forEach((layer, idx) => {
+            const color = layer.colorIndex === 0 ? node.colorA : node.colorB;
+            ctx.strokeStyle = color;
+            ctx.shadowColor = color;
+            ctx.globalAlpha = flash * (0.55 + 0.25 * Math.sin(node.pulsePhase * 3 + idx));
+            ctx.lineWidth = layer.lineWidth * (0.85 + 0.3 * Math.sin(node.pulsePhase * 2.2 + idx * 0.7));
+
+            ctx.beginPath();
+            const cx = layer.offsetX;
+            const cy = layer.offsetY;
+            const r = layer.radius * (0.88 + 0.24 * Math.sin(node.pulsePhase * 1.9 + idx));
+            const steps = 14;
+            for (let s = 0; s <= steps; s += 1) {
+                const t = s / steps;
+                const angle = layer.startAngle + layer.sweep * t;
+                const wobble = Math.sin(angle * 3 + node.pulsePhase * 2.5) * layer.waveAmp * r;
+                const px = cx + Math.cos(angle) * (r + wobble);
+                const py = cy + Math.sin(angle) * (r + wobble);
+                if (s === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(cx - r * 0.35, cy + r * 0.15);
+            ctx.quadraticCurveTo(cx, cy - r * 0.55, cx + r * 0.42, cy + r * 0.08);
+            ctx.strokeStyle = idx % 2 === 0 ? node.colorB : node.colorA;
+            ctx.lineWidth = layer.lineWidth * 0.75;
+            ctx.stroke();
+        });
+
+        ctx.globalAlpha = flash * 0.5;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(-node.size * 0.2, -node.size * 0.55);
+        ctx.lineTo(node.size * 0.15, node.size * 0.45);
+        ctx.moveTo(node.size * 0.25, -node.size * 0.35);
+        ctx.lineTo(-node.size * 0.1, node.size * 0.6);
         ctx.stroke();
 
-        ctx.globalAlpha = 0.35 + 0.15 * Math.sin(node.pulsePhase);
+        ctx.restore();
+    }
+
+    function drawSalishEyeChaos(ctx, node) {
+        const flash = 0.4 + 0.6 * Math.abs(Math.sin(node.pulsePhase * 3.4));
+        const s = node.size * (0.82 + 0.28 * Math.sin(node.pulsePhase * 2.1));
+        const rx = s * 0.98;
+        const ry = s * 0.58;
+
+        ctx.save();
+        ctx.translate(node.x, node.y);
+        ctx.rotate(node.rot + node.eyeTilt);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowColor = node.lidColor;
+        ctx.shadowBlur = 12 + 16 * flash;
+
+        ctx.globalAlpha = flash * 0.9;
+        ctx.strokeStyle = node.lidColor;
+        ctx.lineWidth = 2.4;
         ctx.beginPath();
-        ctx.arc(crescentShift * 0.85, 0, outerR * 1.08, -arcSpan * 0.42, arcSpan * 0.42);
-        ctx.strokeStyle = `${node.color}44`;
-        ctx.lineWidth = 3;
+        ctx.moveTo(-rx, 0);
+        ctx.bezierCurveTo(-rx * 0.55, -ry * 1.35, rx * 0.55, -ry * 1.35, rx, 0);
+        ctx.stroke();
+
+        ctx.lineWidth = 2.1;
+        ctx.beginPath();
+        ctx.moveTo(-rx * 0.92, 0);
+        ctx.bezierCurveTo(-rx * 0.45, ry * 1.25, rx * 0.45, ry * 1.25, rx * 0.92, 0);
+        ctx.stroke();
+
+        ctx.globalAlpha = flash;
+        ctx.fillStyle = node.color;
+        traceOvoid(ctx, rx * 0.38, ry * 0.38);
+        ctx.fill();
+
+        ctx.globalAlpha = flash * 0.85;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(rx * 0.12, -ry * 0.08, s * 0.09, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.globalAlpha = flash * 0.55;
+        ctx.strokeStyle = node.color;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(-rx * 1.05, -ry * 0.05);
+        ctx.quadraticCurveTo(0, -ry * 0.65, rx * 1.05, -ry * 0.05);
+        ctx.stroke();
+
+        ctx.globalAlpha = flash * 0.45;
+        ctx.beginPath();
+        ctx.moveTo(-rx * 0.15, -ry * 0.55);
+        ctx.lineTo(-rx * 0.05, -ry * 0.75);
+        ctx.moveTo(rx * 0.15, -ry * 0.55);
+        ctx.lineTo(rx * 0.05, -ry * 0.75);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    function drawChaoticShape(ctx, node) {
+        switch (node.pattern) {
+            case 'frantic_trigon':
+                drawFranticTrigon(ctx, node);
+                break;
+            case 'chaos_linework':
+                drawChaosLinework(ctx, node);
+                break;
+            case 'salish_eye':
+                drawSalishEyeChaos(ctx, node);
+                break;
+            default:
+                drawFranticTrigon(ctx, node);
+        }
+    }
+
+    function drawCalmNode(ctx, node) {
+        if (!node.alive) return;
+
+        const breathe = 0.94 + 0.06 * Math.sin(node.pulsePhase);
+        const auraPulse = 0.5 + 0.5 * Math.sin(node.pulsePhase * 0.55);
+        const rx = node.rx * breathe;
+        const ry = node.ry * breathe;
+
+        ctx.save();
+        ctx.translate(node.x, node.y);
+        ctx.rotate(node.ovoidTilt);
+
+        ctx.globalAlpha = 0.12 + auraPulse * 0.14;
+        ctx.shadowColor = CALM_TEAL_STOPS[4];
+        ctx.shadowBlur = 28 + auraPulse * 22;
+        traceOvoid(ctx, rx * 1.22, ry * 1.22);
+        ctx.strokeStyle = CALM_TEAL_STOPS[3];
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        for (let ring = 0; ring < node.ringCount; ring += 1) {
+            const t = ring / (node.ringCount - 1 || 1);
+            const ringRx = rx * (1 - t * 0.62);
+            const ringRy = ry * (1 - t * 0.62);
+            const stopIdx = Math.min(CALM_TEAL_STOPS.length - 1, Math.floor(t * (CALM_TEAL_STOPS.length - 1)));
+            const innerIdx = Math.min(CALM_TEAL_STOPS.length - 1, stopIdx + 1);
+            const blend = (t * (CALM_TEAL_STOPS.length - 1)) - stopIdx;
+
+            ctx.globalAlpha = 0.55 + 0.35 * (1 - t) + auraPulse * 0.08;
+            ctx.shadowBlur = ring === 0 ? 16 + auraPulse * 10 : 0;
+            ctx.lineWidth = 2.2 - t * 0.9;
+            ctx.strokeStyle = CALM_TEAL_STOPS[stopIdx];
+            traceOvoid(ctx, ringRx, ringRy);
+            ctx.stroke();
+
+            if (ring < node.ringCount - 1) {
+                const grad = ctx.createRadialGradient(0, 0, ringRx * 0.2, 0, 0, ringRx);
+                grad.addColorStop(0, `${CALM_TEAL_STOPS[stopIdx]}55`);
+                grad.addColorStop(1, `${CALM_TEAL_STOPS[innerIdx]}22`);
+                ctx.globalAlpha = 0.18 + 0.12 * (1 - t);
+                ctx.fillStyle = grad;
+                traceOvoid(ctx, ringRx * 0.96, ringRy * 0.96);
+                ctx.fill();
+            }
+        }
+
+        ctx.globalAlpha = 0.28 + auraPulse * 0.18;
+        ctx.strokeStyle = CALM_TEAL_STOPS[5] || CALM_TEAL_STOPS[4];
+        ctx.lineWidth = 1.2;
+        traceOvoid(ctx, rx * 1.08, ry * 1.08);
         ctx.stroke();
 
         ctx.restore();
@@ -360,17 +587,21 @@
             const t = age / POP_MS;
             const alpha = 1 - easeOutCubic(t);
             const radius = pop.maxR * easeOutCubic(t);
+            const rx = radius * 1.12;
+            const ry = radius * 0.78;
+
+            ctx.save();
+            ctx.translate(pop.x, pop.y);
             ctx.strokeStyle = pop.color;
             ctx.globalAlpha = alpha * 0.65;
             ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(pop.x, pop.y, radius, 0, Math.PI * 2);
+            traceOvoid(ctx, rx, ry);
             ctx.stroke();
             ctx.globalAlpha = alpha * 0.35;
             ctx.fillStyle = pop.color;
-            ctx.beginPath();
-            ctx.arc(pop.x, pop.y, radius * 0.35, 0, Math.PI * 2);
+            traceOvoid(ctx, rx * 0.35, ry * 0.35);
             ctx.fill();
+            ctx.restore();
             ctx.globalAlpha = 1;
             return true;
         });
@@ -441,7 +672,7 @@
         aedCtx.fillStyle = vignette;
         aedCtx.fillRect(0, 0, width, height);
 
-        calmNodes.forEach((node) => drawCalmNode(aedCtx, node, now));
+        calmNodes.forEach((node) => drawCalmNode(aedCtx, node));
         chaoticNodes.forEach((node) => drawChaoticShape(aedCtx, node));
         drawPopEffects(aedCtx, now);
 
