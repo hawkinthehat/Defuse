@@ -56,7 +56,7 @@
     box-shadow: none;
 }
 
-#viewport.protocol-has-stability-bar .instruction-bar {
+#viewport.protocol-has-stability-bar .protocol-header {
     top: calc(env(safe-area-inset-top, 32px) + 72px);
 }
 

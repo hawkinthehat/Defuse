@@ -1,17 +1,16 @@
 /**
- * dᶻix̌ʷ (OBD) — Acoustic bilateral panning + water background / staggered diamond grid.
+ * dᶻix̌ʷ (OBD) — Acoustic bilateral panning + dark water background / light sine-wave reflections.
  */
 (function () {
     const MIN_RAMP_SEC = 0.001;
     const RESET_RAMP_SEC = 0.05;
 
-    const GRID_LINE = 'rgba(255, 255, 255, 0.2)';
-    const DIAMOND_W = 58;
-    const DIAMOND_H = 50;
-    const HALF_DIAMOND_W = DIAMOND_W / 2;
-    const ROW_SPACING = DIAMOND_H / 2;
-    const MAX_DPR = 2;
+    const SINE_STROKE = 'rgba(45, 212, 191, 0.3)';
+    const SINE_WAVE_COUNT = 7;
+    const SINE_SEGMENT_STEP = 6;
     const GRADIENT_CYCLE_MS = 24000;
+    const SINE_TRACK_CYCLE_MS = 24000;
+    const MAX_DPR = 2;
 
     let stereoPanner = null;
     let pannerContext = null;
@@ -24,6 +23,7 @@
     let bgRunning = false;
     let bgResizeHandler = null;
     let gradientStart = 0;
+    let wavePhase = 0;
 
     function getSharedAudioContext() {
         if (typeof window.OBDAudio === 'undefined' || !window.OBDAudio.getAudioContext) return null;
@@ -121,112 +121,74 @@
     }
 
     /**
-     * Bright, open river gradient — expanded mid-tones and surface teal highlights.
+     * Ultra-dark water pool — rich teal depth fading to black.
      */
     function drawWaterBackground(ctx, w, h, phase) {
         const shift = phase * 0.35;
 
-        const river = ctx.createLinearGradient(0, 0, w * (0.5 + shift * 0.08), h);
-        river.addColorStop(0, '#0891b2');
-        river.addColorStop(0.18, '#06b6d4');
-        river.addColorStop(0.38, '#67e8f9');
-        river.addColorStop(0.52, '#99f6e4');
-        river.addColorStop(0.64, '#5eead4');
-        river.addColorStop(0.78, '#2dd4bf');
-        river.addColorStop(0.92, '#14b8a6');
-        river.addColorStop(1, '#0d9488');
-        ctx.fillStyle = river;
+        const pool = ctx.createLinearGradient(0, 0, 0, h);
+        pool.addColorStop(0, '#022c22');
+        pool.addColorStop(0.42, '#011916');
+        pool.addColorStop(0.72, '#010a08');
+        pool.addColorStop(1, '#000000');
+        ctx.fillStyle = pool;
         ctx.fillRect(0, 0, w, h);
 
-        const surfaceGlow = ctx.createRadialGradient(
-            w * (0.42 + shift * 0.12),
-            h * 0.08,
+        const surfaceSheen = ctx.createLinearGradient(
+            w * (0.18 + shift * 0.06),
             0,
-            w * 0.5,
-            h * 0.12,
-            h * 0.55
+            w * (0.82 - shift * 0.05),
+            h * 0.38
         );
-        surfaceGlow.addColorStop(0, 'rgba(204, 251, 241, 0.62)');
-        surfaceGlow.addColorStop(0.45, 'rgba(153, 246, 228, 0.38)');
-        surfaceGlow.addColorStop(1, 'transparent');
-        ctx.fillStyle = surfaceGlow;
+        surfaceSheen.addColorStop(0, 'rgba(45, 212, 191, 0.06)');
+        surfaceSheen.addColorStop(0.5, 'rgba(20, 184, 166, 0.04)');
+        surfaceSheen.addColorStop(1, 'transparent');
+        ctx.fillStyle = surfaceSheen;
         ctx.fillRect(0, 0, w, h);
 
-        const depthPool = ctx.createRadialGradient(
-            w * (0.58 - shift * 0.1),
-            h,
+        const depthVeil = ctx.createRadialGradient(
+            w * (0.52 - shift * 0.08),
+            h * 0.92,
             0,
             w * 0.5,
             h,
-            h * 0.72
+            h * 0.78
         );
-        depthPool.addColorStop(0, 'rgba(94, 234, 212, 0.52)');
-        depthPool.addColorStop(0.55, 'rgba(45, 212, 191, 0.24)');
-        depthPool.addColorStop(1, 'transparent');
-        ctx.fillStyle = depthPool;
+        depthVeil.addColorStop(0, 'rgba(2, 44, 34, 0.55)');
+        depthVeil.addColorStop(0.6, 'rgba(0, 0, 0, 0.35)');
+        depthVeil.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
+        ctx.fillStyle = depthVeil;
         ctx.fillRect(0, 0, w, h);
     }
 
     /**
-     * Organic staggered diamond net — each horizontal row alternates X by half a diamond width,
-     * with a subtle sine warp for shifting water-ripple motion.
+     * Flowing horizontal sine-wave light reflections drifting across dark water.
+     * Phase is shared with the creek LFO baseline for future audio-visual sync.
      */
-    function drawStaggeredDiamondGrid(ctx, w, h, driftX, driftY, ripplePhase) {
+    function drawLightSineWaves(ctx, w, h, driftPhase) {
         ctx.save();
-        ctx.strokeStyle = GRID_LINE;
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = SINE_STROKE;
+        ctx.lineWidth = 1.25;
         ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
 
-        const span = w + h + DIAMOND_W;
-        const rippleAmp = 5.5;
-        const rippleFreq = 0.011;
-        const segmentStep = 10;
-        let rowIndex = 0;
+        const rowGap = h / (SINE_WAVE_COUNT + 1);
 
-        function traceWarpedLine(x1, y1, x2, y2) {
-            const dx = x2 - x1;
-            const dy = y2 - y1;
-            const length = Math.hypot(dx, dy);
-            const steps = Math.max(2, Math.ceil(length / segmentStep));
-            const nx = -dy / (length || 1);
-            const ny = dx / (length || 1);
+        for (let row = 0; row < SINE_WAVE_COUNT; row += 1) {
+            const baseY = rowGap * (row + 1);
+            const amplitude = 10 + (row % 3) * 4;
+            const wavelength = 0.012 + (row % 4) * 0.0035;
+            const phaseOffset = driftPhase + row * 0.85;
+            const driftX = Math.sin(driftPhase * 0.7 + row * 0.55) * 18;
 
             ctx.beginPath();
-            for (let s = 0; s <= steps; s += 1) {
-                const t = s / steps;
-                const x = x1 + dx * t;
-                const y = y1 + dy * t;
-                const wave = Math.sin(ripplePhase + x * rippleFreq + y * rippleFreq * 0.65 + rowIndex * 0.45);
-                const px = x + nx * wave * rippleAmp;
-                const py = y + ny * wave * rippleAmp * 0.55;
-                if (s === 0) ctx.moveTo(px, py);
-                else ctx.lineTo(px, py);
+            for (let x = -20; x <= w + 20; x += SINE_SEGMENT_STEP) {
+                const y = baseY + Math.sin(x * wavelength + phaseOffset) * amplitude
+                    + Math.sin(driftPhase * 0.45 + x * 0.004) * 2.5;
+                if (x === -20) ctx.moveTo(x + driftX, y);
+                else ctx.lineTo(x + driftX, y);
             }
             ctx.stroke();
-        }
-
-        for (let base = -span; base <= span; base += ROW_SPACING) {
-            const rowOffset = (rowIndex % 2 === 0 ? 0 : HALF_DIAMOND_W) + driftX;
-            const yStart = -20 + driftY;
-            traceWarpedLine(
-                base + rowOffset,
-                yStart,
-                base + rowOffset + h + 40,
-                h + 20 + driftY
-            );
-            rowIndex += 1;
-        }
-
-        rowIndex = 0;
-        for (let base = -span; base <= span; base += ROW_SPACING) {
-            const rowOffset = (rowIndex % 2 === 0 ? 0 : HALF_DIAMOND_W) + driftX;
-            traceWarpedLine(
-                base + rowOffset,
-                -20 + driftY,
-                base + rowOffset - h - 40,
-                h + 20 + driftY
-            );
-            rowIndex += 1;
         }
 
         ctx.restore();
@@ -237,11 +199,14 @@
 
         const phase = ((now - gradientStart) % GRADIENT_CYCLE_MS) / GRADIENT_CYCLE_MS;
         const driftPhase = phase * Math.PI * 2;
-        const driftX = Math.sin(driftPhase) * 3.5;
-        const driftY = Math.cos(driftPhase * 0.85) * 2.2;
+        wavePhase = driftPhase;
 
         drawWaterBackground(bgCtx, bgCssW, bgCssH, phase);
-        drawStaggeredDiamondGrid(bgCtx, bgCssW, bgCssH, driftX, driftY, driftPhase);
+        drawLightSineWaves(bgCtx, bgCssW, bgCssH, driftPhase);
+
+        if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.syncCreekLfoToWavePhase) {
+            window.OBDAudio.syncCreekLfoToWavePhase(driftPhase);
+        }
 
         bgRafId = requestAnimationFrame(drawBackgroundFrame);
     }
@@ -296,6 +261,8 @@
         mount: mountBackgroundCanvas,
         unmount: unmountBackgroundCanvas,
         drawWaterBackground,
-        drawStaggeredDiamondGrid
+        drawLightSineWaves,
+        getWavePhase: () => wavePhase,
+        SINE_TRACK_CYCLE_MS
     };
 })();

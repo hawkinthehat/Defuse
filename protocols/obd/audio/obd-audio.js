@@ -162,6 +162,17 @@
         });
     }
 
+    function syncCreekLfoToWavePhase(phase) {
+        if (!creekNodes) return;
+
+        const ctx = getAudioContext();
+        if (!ctx) return;
+
+        const normalized = 0.5 + 0.5 * Math.sin(phase);
+        const hz = CREEK_LFO_MIN_HZ + normalized * (CREEK_LFO_MAX_HZ - CREEK_LFO_MIN_HZ);
+        creekNodes.lfo.frequency.setTargetAtTime(hz, ctx.currentTime, 0.08);
+    }
+
     function setCreekSink(node) {
         creekSink = node || null;
     }
@@ -265,6 +276,7 @@
         stopBabblingCreek,
         setCreekSink,
         reconnectCreekOutput,
+        syncCreekLfoToWavePhase,
         stop: stopOBDAudio
     };
 })();

@@ -6,6 +6,7 @@
     const STABILITY_DRAIN = 15;
     const SPAWN_MS = 2600;
     const FALL_PX_PER_SEC = 72;
+    const PROTOCOL_HEADER = 'k̓ʷəč (kuh-wutch)';
 
     /** threat + neutral third-person reframe + two catastrophizing traps */
     const SCRIPT_MATRIX = [
@@ -163,9 +164,9 @@
         }
     }
 
-    function setInst(text) {
+    function setProtocolHeader() {
         const inst = document.getElementById('inst');
-        if (inst) inst.textContent = text;
+        if (inst) inst.textContent = PROTOCOL_HEADER;
     }
 
     function successHaptic() {
@@ -223,7 +224,6 @@
 
     function updateInstTimer() {
         const left = creSessionEndAt - Date.now();
-        setInst(`k̓ʷəč (kuh-wutch) · ${formatTimeLeft(left)} · Stability ${Math.max(0, stability)}%`);
         if (left <= 0 && creRunning) {
             endSession(stability > 0);
         }
@@ -268,7 +268,7 @@
     function renderPreflight() {
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
-        setInst('k̓ʷəč (kuh-wutch) · READ INSTRUCTIONS');
+        setProtocolHeader();
         stage.innerHTML = `
             <div class="cre-root cre-root--preflight">
                 <div class="protocol-preflight-overlay">
@@ -465,7 +465,7 @@
 
     function renderComplete(won) {
         stopCRE();
-        setInst(won ? 'k̓ʷəč (kuh-wutch) · LOOPS BROKEN' : 'k̓ʷəč (kuh-wutch) · STABILITY LOST');
+        setProtocolHeader();
 
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
@@ -545,6 +545,7 @@
             showProtocolViewport();
         }
 
+        setProtocolHeader();
         renderPreflight();
     }
 

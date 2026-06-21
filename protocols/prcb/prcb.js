@@ -13,6 +13,13 @@
     let prcbCtx = null;
     let prcbResizeHandler = null;
 
+    const PROTOCOL_HEADER = 'tix̌ix̌dubut (tee-khuh-khuh-doo-but)';
+
+    function setProtocolHeader() {
+        const inst = document.getElementById('inst');
+        if (inst) inst.textContent = PROTOCOL_HEADER;
+    }
+
     function clearTimers() {
         if (prcbRafId) {
             cancelAnimationFrame(prcbRafId);
@@ -105,8 +112,7 @@
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
 
-        const inst = document.getElementById('inst');
-        if (inst) inst.textContent = 'PERCEPTUAL RIVALRY · CIRCUIT BREAKER ACTIVE';
+        setProtocolHeader();
 
         stage.innerHTML = `
             <div class="prcb-root" id="prcb-root">
@@ -193,8 +199,7 @@
         const stage = document.getElementById('protocol-stage');
         if (typeof showProtocolViewport === 'function') showProtocolViewport();
 
-        const inst = document.getElementById('inst');
-        if (inst) inst.textContent = 'Emergency circuit breaker — read safety notice.';
+        setProtocolHeader();
 
         if (!stage) return;
 

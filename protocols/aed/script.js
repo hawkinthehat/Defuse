@@ -97,14 +97,11 @@
                 background: #050608;
                 pointer-events: none;
             }
-            .aed-root .aed-anchor {
-                margin: 0;
-                font-size: clamp(0.58rem, 2.2vw, 0.68rem);
-                font-weight: 500;
-                line-height: 1.35;
-                letter-spacing: 0.04em;
-                text-align: center;
-                color: rgba(140, 156, 170, 0.38);
+            .aed-root .aed-header .protocol-header {
+                position: static;
+                left: auto;
+                right: auto;
+                z-index: auto;
             }
             .aed-root #instruction-overlay {
                 position: fixed;
@@ -666,9 +663,6 @@
 
         stage.innerHTML = `
             <div class="aed-root" id="aed-root">
-                <header class="aed-header" aria-hidden="true">
-                    <p class="aed-anchor">ʔuʔəy̓ (oo-uh-ee)</p>
-                </header>
                 <main class="aed-shell" id="aed-shell" aria-label="Attention bias modification canvas">
                     <canvas id="aed-canvas" aria-hidden="true"></canvas>
                 </main>
@@ -685,7 +679,7 @@
         if (typeof ensureEmergencyBypassFooter === 'function') ensureEmergencyBypassFooter();
 
         const inst = document.getElementById('inst');
-        if (inst) inst.textContent = '';
+        if (inst) inst.textContent = 'ʔuʔəy̓ (oo-uh-ee)';
 
         if (!mountSpaStage()) mountStandalone();
     }

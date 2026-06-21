@@ -56,14 +56,11 @@
             pointer-events: none;
         }
 
-        .aed-anchor {
-            margin: 0;
-            font-size: clamp(0.58rem, 2.2vw, 0.68rem);
-            font-weight: 500;
-            line-height: 1.35;
-            letter-spacing: 0.04em;
-            text-align: center;
-            color: rgba(140, 156, 170, 0.38);
+        .aed-header .protocol-header {
+            position: static;
+            left: auto;
+            right: auto;
+            z-index: auto;
         }
 
         .aed-exit {
@@ -137,7 +134,7 @@
 <body>
     <div class="aed-page" id="aed-page">
         <header class="aed-header" aria-hidden="true">
-            <p class="aed-anchor">ʔuʔəy̓ (oo-uh-ee)</p>
+            <p class="protocol-header">ʔuʔəy̓ (oo-uh-ee)</p>
         </header>
 
         <a class="aed-exit" href="../../" title="Return to dashboard">EXIT</a>
