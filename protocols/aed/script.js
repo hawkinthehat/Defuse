@@ -14,7 +14,6 @@
 
     const CHAOTIC_COLORS = ['#ff2244', '#ff8800', '#ffffff', '#00e5ff', '#ff44aa'];
     const CALM_COLORS = ['#4a8fb8', '#5a9a7a', '#6ba8c4', '#4d9a82'];
-    const CHAOTIC_SHAPES = ['triangle', 'square', 'diamond', 'star', 'cross'];
 
     let aedRunning = false;
     let aedRafId = 0;
@@ -147,11 +146,11 @@
             vx: rand(-1.8, 1.8),
             vy: rand(-1.5, 1.5),
             pulsePhase: rand(0, Math.PI * 2),
-            pulseSpeed: rand(0.09, 0.16),
+            pulseSpeed: rand(0.16, 0.28),
             rot: rand(0, Math.PI * 2),
-            rotSpeed: rand(-0.04, 0.04),
+            rotSpeed: rand(-0.05, 0.05),
             color: pick(CHAOTIC_COLORS),
-            shape: pick(CHAOTIC_SHAPES),
+            wedgeSpread: rand(Math.PI / 4, Math.PI / 2.2),
             flashUntil: 0
         };
     }
@@ -171,6 +170,7 @@
             pulsePhase: rand(0, Math.PI * 2),
             pulseSpeed: rand(0.012, 0.022),
             color: pick(CALM_COLORS),
+            crescentTilt: rand(-0.35, 0.35),
             alive: true
         };
     }
@@ -278,58 +278,35 @@
     }
 
     function drawChaoticShape(ctx, node) {
-        const pulse = 0.72 + 0.38 * Math.sin(node.pulsePhase);
-        const half = node.size * pulse;
+        const fastPulse = node.pulsePhase * 2.6;
+        const pulse = 0.62 + 0.48 * Math.sin(fastPulse);
+        const reach = node.size * pulse;
+        const spread = node.wedgeSpread;
+        const halfSpread = spread * 0.5;
+
         ctx.save();
         ctx.translate(node.x, node.y);
         ctx.rotate(node.rot);
         ctx.fillStyle = node.color;
-        ctx.globalAlpha = 0.82 + 0.18 * Math.sin(node.pulsePhase * 1.4);
+        ctx.globalAlpha = 0.76 + 0.24 * Math.sin(fastPulse * 1.35);
         ctx.shadowColor = node.color;
-        ctx.shadowBlur = 14;
+        ctx.shadowBlur = 18;
 
-        switch (node.shape) {
-            case 'triangle':
-                ctx.beginPath();
-                ctx.moveTo(0, -half);
-                ctx.lineTo(half, half);
-                ctx.lineTo(-half, half);
-                ctx.closePath();
-                ctx.fill();
-                break;
-            case 'diamond':
-                ctx.beginPath();
-                ctx.moveTo(0, -half);
-                ctx.lineTo(half, 0);
-                ctx.lineTo(0, half);
-                ctx.lineTo(-half, 0);
-                ctx.closePath();
-                ctx.fill();
-                break;
-            case 'star': {
-                ctx.beginPath();
-                for (let i = 0; i < 5; i += 1) {
-                    const outerA = (i * Math.PI * 2) / 5 - Math.PI / 2;
-                    const innerA = outerA + Math.PI / 5;
-                    const ox = Math.cos(outerA) * half;
-                    const oy = Math.sin(outerA) * half;
-                    const ix = Math.cos(innerA) * half * 0.45;
-                    const iy = Math.sin(innerA) * half * 0.45;
-                    if (i === 0) ctx.moveTo(ox, oy);
-                    else ctx.lineTo(ox, oy);
-                    ctx.lineTo(ix, iy);
-                }
-                ctx.closePath();
-                ctx.fill();
-                break;
-            }
-            case 'cross':
-                ctx.fillRect(-half * 0.28, -half, half * 0.56, half * 2);
-                ctx.fillRect(-half, -half * 0.28, half * 2, half * 0.56);
-                break;
-            default:
-                ctx.fillRect(-half, -half, half * 2, half * 2);
-        }
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(-halfSpread - Math.PI / 2) * reach * 1.45, Math.sin(-halfSpread - Math.PI / 2) * reach * 1.45);
+        ctx.lineTo(Math.cos(halfSpread - Math.PI / 2) * reach * 1.45, Math.sin(halfSpread - Math.PI / 2) * reach * 1.45);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.globalAlpha = 0.5 + 0.4 * Math.sin(fastPulse * 1.8);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, -reach * 0.92);
+        ctx.lineTo(reach * 0.78, reach * 0.58);
+        ctx.closePath();
+        ctx.fill();
+
         ctx.restore();
     }
 
@@ -337,20 +314,43 @@
         if (!node.alive) return;
         const breathe = 0.92 + 0.08 * Math.sin(node.pulsePhase);
         const r = node.baseRadius * breathe;
-        const grad = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r);
-        grad.addColorStop(0, `${node.color}cc`);
-        grad.addColorStop(0.55, `${node.color}66`);
-        grad.addColorStop(1, `${node.color}00`);
-        ctx.fillStyle = grad;
+        const arcSpan = Math.PI * 0.62;
+        const outerR = r;
+        const innerR = r * 0.74;
+        const crescentShift = r * 0.36;
+
+        ctx.save();
+        ctx.translate(node.x, node.y);
+        ctx.rotate(node.crescentTilt);
+        ctx.shadowColor = node.color;
+        ctx.shadowBlur = 24;
+
         ctx.beginPath();
-        ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
+        ctx.arc(crescentShift, 0, outerR, -arcSpan * 0.5, arcSpan * 0.5);
+        ctx.arc(crescentShift - r * 0.18, 0, innerR, arcSpan * 0.5, -arcSpan * 0.5, true);
+        ctx.closePath();
+
+        const glow = ctx.createLinearGradient(-r, -r * 0.4, r, r * 0.4);
+        glow.addColorStop(0, `${node.color}22`);
+        glow.addColorStop(0.4, `${node.color}bb`);
+        glow.addColorStop(0.7, `${node.color}dd`);
+        glow.addColorStop(1, `${node.color}33`);
+        ctx.fillStyle = glow;
         ctx.fill();
 
-        ctx.strokeStyle = `${node.color}88`;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, r * 0.72, 0, Math.PI * 2);
+        ctx.strokeStyle = `${node.color}77`;
+        ctx.lineWidth = 1.8;
+        ctx.lineJoin = 'round';
         ctx.stroke();
+
+        ctx.globalAlpha = 0.35 + 0.15 * Math.sin(node.pulsePhase);
+        ctx.beginPath();
+        ctx.arc(crescentShift * 0.85, 0, outerR * 1.08, -arcSpan * 0.42, arcSpan * 0.42);
+        ctx.strokeStyle = `${node.color}44`;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.restore();
     }
 
     function drawPopEffects(ctx, now) {
