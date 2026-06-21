@@ -22,6 +22,58 @@
 .gcm-root--complete {
     justify-content: center;
     padding-top: calc(env(safe-area-inset-top, 0px) + 5.25rem);
+    background: #0d1117;
+    color: #e2e8f0;
+}
+
+.gcm-root--onboarding .gcm-onboarding-card,
+.gcm-root--onboarding .gcm-complete-card,
+.gcm-root--complete .gcm-onboarding-card,
+.gcm-root--complete .gcm-complete-card {
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: #161b22;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.gcm-root--onboarding .gcm-kicker,
+.gcm-root--complete .gcm-kicker {
+    color: #94a3b8;
+}
+
+.gcm-root--onboarding .gcm-onboarding-title,
+.gcm-root--onboarding .gcm-complete-title,
+.gcm-root--complete .gcm-onboarding-title,
+.gcm-root--complete .gcm-complete-title {
+    color: #e2e8f0;
+}
+
+.gcm-root--onboarding .gcm-instructions,
+.gcm-root--complete .gcm-instructions {
+    color: #94a3b8;
+}
+
+.gcm-root--onboarding .gcm-start-btn,
+.gcm-root--onboarding .gcm-done-btn,
+.gcm-root--complete .gcm-start-btn,
+.gcm-root--complete .gcm-done-btn {
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    background: transparent;
+    color: #e2e8f0;
+    box-shadow: none;
+}
+
+.gcm-root--onboarding .gcm-start-btn:hover,
+.gcm-root--onboarding .gcm-start-btn:focus-visible,
+.gcm-root--onboarding .gcm-done-btn:hover,
+.gcm-root--onboarding .gcm-done-btn:focus-visible,
+.gcm-root--complete .gcm-start-btn:hover,
+.gcm-root--complete .gcm-start-btn:focus-visible,
+.gcm-root--complete .gcm-done-btn:hover,
+.gcm-root--complete .gcm-done-btn:focus-visible {
+    outline: none;
+    background: rgba(22, 27, 34, 0.85);
+    border-color: rgba(148, 163, 184, 0.55);
+    box-shadow: none;
 }
 
 .gcm-shell,

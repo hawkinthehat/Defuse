@@ -115,13 +115,13 @@
                 justify-content: center;
                 margin: 0;
                 padding: 0 1.5rem;
-                background: transparent;
+                background: rgba(0, 0, 0, 0.88);
                 font-size: clamp(1.5rem, 5vw, 2.25rem);
                 font-weight: 600;
                 line-height: 1.35;
                 letter-spacing: 0.03em;
                 text-align: center;
-                color: #ffffff;
+                color: #e2e8f0;
                 pointer-events: none;
                 opacity: 1;
                 transition: opacity 500ms ease;
