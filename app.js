@@ -513,12 +513,12 @@ function initMasterInitializationOverlay() {
     });
 }
 
-function initStudioBrandFooter() {
-    const footer = document.getElementById('studio-brand-footer');
-    if (!footer) return;
+function initStudioBrandHeader() {
+    const header = document.getElementById('studio-brand-header');
+    if (!header) return;
 
-    footer.textContent = STUDIO_ATTRIBUTION;
-    footer.setAttribute('aria-label', `Developer attribution — ${STUDIO_NAME}`);
+    header.textContent = STUDIO_ATTRIBUTION;
+    header.setAttribute('aria-label', `Developer attribution — ${STUDIO_NAME}`);
 }
 
 function showProtocolViewport() {
@@ -617,13 +617,13 @@ if (typeof document !== 'undefined') {
         document.addEventListener('DOMContentLoaded', () => {
             initMasterInitializationOverlay();
             initDashboardPrimary();
-            initStudioBrandFooter();
+            initStudioBrandHeader();
             initEmergencyExitLinks();
         });
     } else {
         initMasterInitializationOverlay();
         initDashboardPrimary();
-        initStudioBrandFooter();
+        initStudioBrandHeader();
         initEmergencyExitLinks();
     }
 }
