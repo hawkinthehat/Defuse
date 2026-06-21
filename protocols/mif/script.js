@@ -151,6 +151,8 @@
         lastPulseAt = 0;
     }
 
+    const MIF_WORD = 'gʷədiʔ (gwuh-dee)';
+
     function setInstruction(text) {
         if (mifInst) mifInst.textContent = text;
         const globalInst = document.getElementById('inst');
@@ -253,9 +255,9 @@
         lastPulseAt = now;
 
         if (successfulPulses >= 4 && synced) {
-            setInstruction('gʷədiʔ (gwuh-dee) · STEADY RHYTHM · STAY WITH THE PATH');
+            setInstruction('STEADY RHYTHM · STAY WITH THE PATH');
         } else if (synced) {
-            setInstruction('gʷədiʔ (gwuh-dee) · SYNCHRONIZED · FOLLOW THE SHIFTING LINE');
+            setInstruction('SYNCHRONIZED · FOLLOW THE SHIFTING LINE');
         }
     }
 
@@ -279,7 +281,7 @@
             onPathStreak = 0;
             onPath = false;
             if (fingerActive) {
-                setInstruction('gʷədiʔ (gwuh-dee) · RETURN TO THE PATH · SLIDE SLOWLY');
+                setInstruction('RETURN TO THE PATH · SLIDE SLOWLY');
             }
         }
 
@@ -310,7 +312,7 @@
         onPathStreak = 0;
         synced = false;
         lastPulseAt = 0;
-        setInstruction('gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH');
+        setInstruction('SLIDE SLOWLY ALONG THE SHIFTING PATH');
     }
 
     function onPointerMove(event) {
@@ -337,7 +339,7 @@
         onPath = false;
         onPathStreak = 0;
         synced = false;
-        setInstruction('gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH');
+        setInstruction('SLIDE SLOWLY ALONG THE SHIFTING PATH');
     }
 
     function drawBackground(ctx) {
@@ -594,7 +596,7 @@
         mifCanvas.addEventListener('pointerleave', mifPointerUpHandler, { passive: false });
 
         mifRunning = true;
-        setInstruction('gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH');
+        setInstruction('SLIDE SLOWLY ALONG THE SHIFTING PATH');
         mifRafId = requestAnimationFrame(drawFrame);
         return true;
     }
@@ -627,8 +629,8 @@
         if (typeof showProtocolViewport === 'function') showProtocolViewport();
         if (typeof ensureEmergencyBypassFooter === 'function') ensureEmergencyBypassFooter();
 
-        const inst = document.getElementById('inst');
-        if (inst) inst.textContent = 'gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH';
+        if (typeof setProtocolWordHeader === 'function') setProtocolWordHeader(MIF_WORD);
+        setInstruction('SLIDE SLOWLY ALONG THE SHIFTING PATH');
 
         if (!mountSpaStage()) mountStandalone();
     }

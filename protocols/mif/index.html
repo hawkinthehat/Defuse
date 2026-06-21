@@ -72,7 +72,7 @@
 
         .mif-inst {
             position: fixed;
-            top: calc(env(safe-area-inset-top, 12px) + 14px);
+            top: calc(env(safe-area-inset-top, 12px) + 2.75rem);
             left: max(16px, env(safe-area-inset-left, 0px));
             right: calc(max(20px, env(safe-area-inset-right, 0px)) + 5.75rem);
             margin: 0;
@@ -110,7 +110,8 @@
 <body>
     <div class="mif-page" id="mif-page">
         <a class="mif-exit" href="../../" title="Return to dashboard">EXIT</a>
-        <p class="mif-inst" id="mif-inst" role="status">gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH</p>
+        <p class="protocol-word-header" id="mif-word-header">gʷədiʔ (gwuh-dee)</p>
+        <p class="mif-inst" id="mif-inst" role="status">SLIDE SLOWLY ALONG THE SHIFTING PATH</p>
 
         <main class="mif-shell" id="mif-shell" aria-label="Micro-interoceptive focus touch canvas">
             <canvas id="mif-canvas" aria-hidden="true"></canvas>

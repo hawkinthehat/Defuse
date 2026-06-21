@@ -170,7 +170,7 @@
 
 .prcb-hud {
     position: absolute;
-    top: calc(env(safe-area-inset-top, 32px) + 5.5rem);
+    top: calc(env(safe-area-inset-top, 32px) + 6.5rem);
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;

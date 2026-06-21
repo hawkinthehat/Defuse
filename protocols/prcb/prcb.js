@@ -192,6 +192,9 @@
 
         const stage = document.getElementById('protocol-stage');
         if (typeof showProtocolViewport === 'function') showProtocolViewport();
+        if (typeof setProtocolWordHeader === 'function') {
+            setProtocolWordHeader('tix̌ix̌dubut (tee-khuh-khuh-doo-but)');
+        }
 
         const inst = document.getElementById('inst');
         if (inst) inst.textContent = 'Emergency circuit breaker — read safety notice.';
@@ -201,7 +204,7 @@
         stage.innerHTML = `
             <div class="prcb-warning-screen" id="prcb-warning-screen">
                 <div class="prcb-warning-panel" role="dialog" aria-labelledby="prcb-warning-heading" aria-modal="true">
-                    <p class="prcb-warning-kicker">tix̌ix̌dubut (tee-khuh-khuh-doo-but) · Emergency reset</p>
+                    <p class="prcb-warning-kicker">Emergency reset</p>
                     <h2 class="prcb-warning-title" id="prcb-warning-heading">High-intensity visual override</h2>
                     <p class="prcb-warning-text">
                         This module uses <strong>competing high-contrast visual fields</strong> and rapid perceptual switching

@@ -244,6 +244,33 @@ html.protocol-viewport-active body {
     align-items: stretch;
 }
 
+/* Universal Lushootseed word header — "Word (Phonetic Helper)" top-center across primary protocols */
+.protocol-word-header {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    left: max(16px, env(safe-area-inset-left, 0px));
+    right: calc(max(20px, env(safe-area-inset-right, 0px)) + 5.75rem);
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    line-height: 1.35;
+    text-align: center;
+    color: #cbd5e1;
+    pointer-events: none;
+    z-index: 12002;
+}
+
+.protocol-word-header:empty {
+    display: none;
+}
+
+#viewport:not(.hidden) .protocol-word-header {
+    position: absolute;
+    z-index: 1002;
+}
+
 .instruction-bar {
     position: fixed;
     top: calc(env(safe-area-inset-top, 32px) + 52px);
@@ -263,7 +290,7 @@ html.protocol-viewport-active body {
 
 #viewport:not(.hidden) .instruction-bar {
     position: absolute;
-    top: 20px;
+    top: calc(env(safe-area-inset-top, 0px) + 2.75rem);
     left: max(16px, env(safe-area-inset-left, 0px));
     right: calc(max(20px, env(safe-area-inset-right, 0px)) + 5.75rem);
     z-index: 1000;
