@@ -1,11 +1,11 @@
 /**
  * dᶻix̌ʷ — global viewport shell for protocol modules.
  * Home triage is locked to five primary routes: k̓ʷəč (CRE), dᶻix̌ʷ (OBD), gʷədiʔ (MIF), ʔuʔəy̓ (AED), tix̌ix̌dubut (PRCB).
- * Published by the Tulalip Resilience Studio.
+ * Published by the Tribal Resilience Studio.
  */
 
-const STUDIO_NAME = 'Tulalip Resilience Studio';
-const STUDIO_ATTRIBUTION = 'dᶻix̌ʷ (Return to Center) by the Tulalip Resilience Studio.';
+const STUDIO_NAME = 'Tribal Resilience Studio';
+const STUDIO_ATTRIBUTION = 'dᶻix̌ʷ (Return to Center) by the Tribal Resilience Studio.';
 
 /** Active retraining verbs for the locked home triage menu. */
 const TRIAGE_RETRAIN_LABELS = Object.freeze({
