@@ -114,12 +114,24 @@ html.protocol-viewport-active body {
 }
 
 #dashboard .app-brand {
-    margin-bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: none;
+    margin: 0 auto;
+    padding: 20px 0;
+    background: transparent !important;
+    border: none;
+    box-shadow: none;
 }
 
 #dashboard .app-brand-logo {
-    max-width: 150px;
+    display: block;
     margin: 0 auto;
+    width: auto;
+    max-width: 150px;
+    height: auto;
 }
 
 .protocol-card {
