@@ -19,17 +19,19 @@
 
 .obd-instruct {
     position: absolute;
-    top: calc(20px + env(safe-area-inset-top, 0px) + 2.75rem);
+    top: calc(env(safe-area-inset-top, 0px) + 2.75rem);
     left: 0;
     right: 0;
     z-index: 5;
     flex-shrink: 0;
     margin: 0;
     padding: 0 1.1rem;
-    font-size: clamp(0.78rem, 3vw, 0.88rem);
+    font-size: clamp(0.58rem, 2.2vw, 0.68rem);
     line-height: 1.5;
     text-align: center;
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(148, 163, 184, 0.72);
+    font-weight: 600;
+    letter-spacing: 0.04em;
     border: none;
     background: transparent !important;
     pointer-events: none;

@@ -5,6 +5,7 @@
  */
 (function () {
     const MAX_DPR = 2;
+    const PROTOCOL_HEADER = 'gʷədiʔ (gwuh-dee)';
     const PATH_SAMPLES = 160;
     const PATH_TOLERANCE = 38;
     const RESTING_BPM = 65;
@@ -33,6 +34,7 @@
     let mifCanvas = null;
     let mifCtx = null;
     let mifInst = null;
+    let mifStatus = null;
     let mifResizeHandler = null;
     let mifPointerDownHandler = null;
     let mifPointerMoveHandler = null;
@@ -95,7 +97,22 @@
                 min-height: 0;
                 overflow: hidden;
             }
-            .mif-root #mif-canvas {
+            .mif-root .mif-status {
+                position: absolute;
+                top: calc(env(safe-area-inset-top, 0px) + 2.75rem);
+                left: max(16px, env(safe-area-inset-left, 0px));
+                right: calc(max(20px, env(safe-area-inset-right, 0px)) + 5.75rem);
+                margin: 0;
+                z-index: 4;
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                font-size: clamp(0.58rem, 2.2vw, 0.68rem);
+                font-weight: 600;
+                line-height: 1.35;
+                letter-spacing: 0.06em;
+                text-align: center;
+                color: rgba(148, 163, 184, 0.72);
+                pointer-events: none;
+            }
                 display: block;
                 width: 100%;
                 height: 100%;
@@ -140,6 +157,7 @@
         mifCanvas = null;
         mifCtx = null;
         mifInst = null;
+        mifStatus = null;
         fingerActive = false;
         onPath = false;
         onPathStreak = 0;
@@ -151,10 +169,14 @@
         lastPulseAt = 0;
     }
 
-    function setInstruction(text) {
-        if (mifInst) mifInst.textContent = text;
+    function setProtocolHeader() {
         const globalInst = document.getElementById('inst');
-        if (globalInst) globalInst.textContent = text;
+        if (globalInst) globalInst.textContent = PROTOCOL_HEADER;
+        if (mifInst) mifInst.textContent = PROTOCOL_HEADER;
+    }
+
+    function setInstruction(text) {
+        if (mifStatus) mifStatus.textContent = text;
     }
 
     function resizeCanvas() {
@@ -253,9 +275,9 @@
         lastPulseAt = now;
 
         if (successfulPulses >= 4 && synced) {
-            setInstruction('gʷədiʔ (gwuh-dee) · STEADY RHYTHM · STAY WITH THE PATH');
+            setInstruction('Steady rhythm — stay with the path');
         } else if (synced) {
-            setInstruction('gʷədiʔ (gwuh-dee) · SYNCHRONIZED · FOLLOW THE SHIFTING LINE');
+            setInstruction('Synchronized — follow the shifting line');
         }
     }
 
@@ -279,7 +301,7 @@
             onPathStreak = 0;
             onPath = false;
             if (fingerActive) {
-                setInstruction('gʷədiʔ (gwuh-dee) · RETURN TO THE PATH · SLIDE SLOWLY');
+                setInstruction('Return to the path — slide slowly');
             }
         }
 
@@ -310,7 +332,7 @@
         onPathStreak = 0;
         synced = false;
         lastPulseAt = 0;
-        setInstruction('gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH');
+        setInstruction('Slide slowly along the shifting path');
     }
 
     function onPointerMove(event) {
@@ -337,7 +359,7 @@
         onPath = false;
         onPathStreak = 0;
         synced = false;
-        setInstruction('gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH');
+        setInstruction('Slide slowly along the shifting path');
     }
 
     function drawBackground(ctx) {
@@ -564,6 +586,7 @@
     function bindEngine(root) {
         mifCanvas = root.querySelector('#mif-canvas');
         mifInst = root.querySelector('#mif-inst');
+        mifStatus = root.querySelector('#mif-status');
 
         if (!mifCanvas) return false;
         mifCtx = mifCanvas.getContext('2d');
@@ -594,7 +617,7 @@
         mifCanvas.addEventListener('pointerleave', mifPointerUpHandler, { passive: false });
 
         mifRunning = true;
-        setInstruction('gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH');
+        setInstruction('Slide slowly along the shifting path');
         mifRafId = requestAnimationFrame(drawFrame);
         return true;
     }
@@ -613,6 +636,7 @@
 
         stage.innerHTML = `
             <div class="mif-root" id="mif-root">
+                <p class="mif-status" id="mif-status" role="status">Slide slowly along the shifting path</p>
                 <main class="mif-shell" id="mif-shell" aria-label="Micro-interoceptive focus touch canvas">
                     <canvas id="mif-canvas" aria-hidden="true"></canvas>
                 </main>
@@ -628,9 +652,11 @@
         if (typeof ensureEmergencyBypassFooter === 'function') ensureEmergencyBypassFooter();
 
         const inst = document.getElementById('inst');
-        if (inst) inst.textContent = 'gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH';
+        if (inst) inst.textContent = PROTOCOL_HEADER;
 
         if (!mountSpaStage()) mountStandalone();
+        setProtocolHeader();
+        setInstruction('Slide slowly along the shifting path');
     }
 
     window.launchMIF = launchMIF;

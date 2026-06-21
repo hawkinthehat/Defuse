@@ -12,6 +12,16 @@
     const PADDLE_SRC = 'protocols/obd/assets/paddle-blade.svg';
     const PROTOCOL_LABEL = 'dᶻix̌ʷ (dzih-khw)';
 
+    function setProtocolHeader() {
+        const inst = document.getElementById('inst');
+        if (inst) inst.textContent = PROTOCOL_LABEL;
+    }
+
+    function setObdInstruct(text) {
+        const el = document.querySelector('.obd-instruct');
+        if (el) el.textContent = text;
+    }
+
     let obdRunning = false;
     let obdRafId = 0;
     let obdPhaseTimeoutId = 0;
@@ -80,8 +90,7 @@
     }
 
     function setInst(text) {
-        const inst = document.getElementById('inst');
-        if (inst) inst.textContent = text;
+        setObdInstruct(text);
     }
 
     function centerHaptic() {
@@ -269,7 +278,7 @@
             lastFrame = performance.now();
             pad.classList.add('obd-ground-pad--active');
             updatePausedBanner();
-            setInst(fastPhase ? `${PROTOCOL_LABEL} · INCREASED LOOP SPEED` : `${PROTOCOL_LABEL} · INFINITY TRACKING`);
+            setInst(fastPhase ? 'Increased loop speed — maintain smooth tracking' : 'Infinity tracking — follow the paddle blade');
             if (typeof window.OBDAudio !== 'undefined') {
                 if (window.OBDAudio.prime) window.OBDAudio.prime();
                 if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.prepare) {
@@ -285,7 +294,7 @@
             holding = false;
             pad.classList.remove('obd-ground-pad--active');
             updatePausedBanner();
-            setInst(`${PROTOCOL_LABEL} · RE-ESTABLISH CONTACT`);
+            setInst('Re-establish contact with the grounding pad');
             if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.stopBabblingCreek) {
                 window.OBDAudio.stopBabblingCreek();
             }
@@ -352,7 +361,8 @@
         lastApexIndex = -1;
 
         showProtocolViewport();
-        setInst(`${PROTOCOL_LABEL} · HOLD GROUNDING PAD TO BEGIN`);
+        setProtocolHeader();
+        setInst('Hold the grounding pad to begin');
 
         renderShell();
         updatePausedBanner();
@@ -369,7 +379,7 @@
             if (!obdRunning) return;
             fastPhase = true;
             loopPeriodSec = LOOP_PERIOD_FAST;
-            if (holding) setInst(`${PROTOCOL_LABEL} · INCREASED LOOP SPEED`);
+            if (holding) setInst('Increased loop speed — maintain smooth tracking');
         }, PHASE_MS);
 
         obdExitTimeoutId = window.setTimeout(() => {

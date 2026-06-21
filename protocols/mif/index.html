@@ -77,12 +77,22 @@
             right: calc(max(20px, env(safe-area-inset-right, 0px)) + 5.75rem);
             margin: 0;
             z-index: 11999;
-            font-size: clamp(0.68rem, 2.6vw, 0.8rem);
+            pointer-events: none;
+        }
+
+        .mif-status {
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 12px) + 2.75rem);
+            left: max(16px, env(safe-area-inset-left, 0px));
+            right: calc(max(20px, env(safe-area-inset-right, 0px)) + 5.75rem);
+            margin: 0;
+            z-index: 11998;
+            font-size: clamp(0.58rem, 2.2vw, 0.68rem);
             line-height: 1.35;
-            letter-spacing: 0.08em;
-            font-weight: 700;
+            letter-spacing: 0.06em;
+            font-weight: 600;
             text-align: center;
-            color: rgba(92, 148, 132, 0.78);
+            color: rgba(148, 163, 184, 0.72);
             pointer-events: none;
         }
 
@@ -110,7 +120,8 @@
 <body>
     <div class="mif-page" id="mif-page">
         <a class="mif-exit" href="../../" title="Return to dashboard">EXIT</a>
-        <p class="mif-inst" id="mif-inst" role="status">gʷədiʔ (gwuh-dee) · SLIDE SLOWLY ALONG THE SHIFTING PATH</p>
+        <p class="mif-inst protocol-header" id="mif-inst" role="status">gʷədiʔ (gwuh-dee)</p>
+        <p class="mif-status" id="mif-status" role="status">Slide slowly along the shifting path</p>
 
         <main class="mif-shell" id="mif-shell" aria-label="Micro-interoceptive focus touch canvas">
             <canvas id="mif-canvas" aria-hidden="true"></canvas>
