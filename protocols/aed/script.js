@@ -81,9 +81,13 @@
                 transition: filter 0.4s linear;
             }
             .aed-root #aed-canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100vw !important;
+                height: 100vh !important;
                 display: block;
-                width: 100%;
-                height: 100%;
+                z-index: 1;
                 touch-action: none;
             }
             .aed-root .aed-header {
@@ -199,14 +203,14 @@
     }
 
     function resizeCanvas() {
-        if (!aedCanvas || !aedCtx) return;
-        const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
-        const rect = aedCanvas.getBoundingClientRect();
-        width = rect.width;
-        height = rect.height;
-        aedCanvas.width = Math.floor(width * dpr);
-        aedCanvas.height = Math.floor(height * dpr);
-        aedCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        if (!aedCanvas) return;
+        aedCanvas.width = window.innerWidth;
+        aedCanvas.height = window.innerHeight;
+        width = aedCanvas.width;
+        height = aedCanvas.height;
+        if (aedCtx) {
+            aedCtx.setTransform(1, 0, 0, 1, 0, 0);
+        }
     }
 
     function assignChaoticTrajectory(node) {
@@ -219,31 +223,35 @@
     }
 
     function recycleChaoticNode(node) {
+        const canvasW = aedCanvas ? aedCanvas.width : width;
+        const canvasH = aedCanvas ? aedCanvas.height : height;
         const margin = node.size;
         if (node.x < -margin) {
-            node.x = width + margin * 0.5;
-            node.y = rand(margin + 40, Math.max(margin + 41, height - margin));
-        } else if (node.x > width + margin) {
+            node.x = canvasW + margin * 0.5;
+            node.y = rand(margin + 40, Math.max(margin + 41, canvasH - margin));
+        } else if (node.x > canvasW + margin) {
             node.x = -margin * 0.5;
-            node.y = rand(margin + 40, Math.max(margin + 41, height - margin));
+            node.y = rand(margin + 40, Math.max(margin + 41, canvasH - margin));
         } else if (node.y < margin + 20) {
-            node.y = height - margin;
-            node.x = rand(margin, Math.max(margin + 1, width - margin));
-        } else if (node.y > height - margin) {
+            node.y = canvasH - margin;
+            node.x = rand(margin, Math.max(margin + 1, canvasW - margin));
+        } else if (node.y > canvasH - margin) {
             node.y = margin + 40;
-            node.x = rand(margin, Math.max(margin + 1, width - margin));
+            node.x = rand(margin, Math.max(margin + 1, canvasW - margin));
         }
         assignChaoticTrajectory(node);
     }
 
     function makeChaoticNode() {
+        const canvasW = aedCanvas ? aedCanvas.width : width;
+        const canvasH = aedCanvas ? aedCanvas.height : height;
         const size = rand(22, 38);
         const pattern = Math.random() < 0.5 ? 'pure_trigon' : 'chevron';
         const node = {
             kind: 'chaotic',
             pattern,
-            x: rand(size, Math.max(size + 1, width - size)),
-            y: rand(size + 40, Math.max(size + 41, height - size)),
+            x: rand(size, Math.max(size + 1, canvasW - size)),
+            y: rand(size + 40, Math.max(size + 41, canvasH - size)),
             size,
             vx: 0,
             vy: 0,
@@ -261,13 +269,15 @@
     }
 
     function makeCalmNode() {
+        const canvasW = aedCanvas ? aedCanvas.width : width;
+        const canvasH = aedCanvas ? aedCanvas.height : height;
         const radius = rand(26, 38);
         const speed = rand(2, 3);
         const angle = rand(0, Math.PI * 2);
         return {
             kind: 'calm',
-            x: rand(radius, Math.max(radius + 1, width - radius)),
-            y: rand(radius + 40, Math.max(radius + 41, height - radius)),
+            x: rand(radius, Math.max(radius + 1, canvasW - radius)),
+            y: rand(radius + 40, Math.max(radius + 41, canvasH - radius)),
             radius,
             baseRadius: radius,
             rx: radius * 1.08,
@@ -359,9 +369,8 @@
     function onPointerDown(event) {
         if (!aedRunning || !aedCanvas) return;
         event.preventDefault();
-        const rect = aedCanvas.getBoundingClientRect();
-        const px = event.clientX - rect.left;
-        const py = event.clientY - rect.top;
+        const px = event.clientX;
+        const py = event.clientY;
 
         const calmHit = hitTestCalm(px, py);
         if (calmHit) {

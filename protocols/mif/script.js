@@ -113,9 +113,14 @@
                 color: rgba(148, 163, 184, 0.72);
                 pointer-events: none;
             }
+            .mif-root #mif-canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100vw !important;
+                height: 100vh !important;
                 display: block;
-                width: 100%;
-                height: 100%;
+                z-index: 1;
                 touch-action: none;
                 -webkit-user-select: none;
                 user-select: none;
@@ -180,17 +185,17 @@
     }
 
     function resizeCanvas() {
-        if (!mifCanvas || !mifCtx) return;
-        const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
-        const rect = mifCanvas.getBoundingClientRect();
-        width = rect.width;
-        height = rect.height;
+        if (!mifCanvas) return;
+        mifCanvas.width = window.innerWidth;
+        mifCanvas.height = window.innerHeight;
+        width = mifCanvas.width;
+        height = mifCanvas.height;
         cx = width * 0.5;
         cy = height * 0.48;
         baseRadius = Math.min(width, height) * 0.28;
-        mifCanvas.width = Math.floor(width * dpr);
-        mifCanvas.height = Math.floor(height * dpr);
-        mifCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        if (mifCtx) {
+            mifCtx.setTransform(1, 0, 0, 1, 0, 0);
+        }
     }
 
     /**
@@ -198,6 +203,11 @@
      * The curve slowly rotates and breathes to require continuous spatial tracking.
      */
     function samplePath(now) {
+        const canvasW = mifCanvas ? mifCanvas.width : width;
+        const canvasH = mifCanvas ? mifCanvas.height : height;
+        const centerX = canvasW * 0.5;
+        const centerY = canvasH * 0.48;
+        const radius = Math.min(canvasW, canvasH) * 0.28;
         const tSec = now * 0.001;
         const rot = tSec * 0.09;
         const breathe = 0.88 + 0.12 * Math.sin(tSec * 0.35);
@@ -209,14 +219,17 @@
             const theta = (i / PATH_SAMPLES) * Math.PI * 2;
             const petalMod = 1 + 0.24 * Math.cos(petals * theta + tSec * 0.28);
             const innerWave = 1 + waveShift * Math.sin(theta * 2.5 - tSec * 0.45);
-            const r = baseRadius * breathe * petalMod * innerWave;
+            const r = radius * breathe * petalMod * innerWave;
             points.push({
-                x: cx + r * Math.cos(theta + rot),
-                y: cy + r * Math.sin(theta + rot),
+                x: centerX + r * Math.cos(theta + rot),
+                y: centerY + r * Math.sin(theta + rot),
                 theta: theta + rot
             });
         }
 
+        cx = centerX;
+        cy = centerY;
+        baseRadius = radius;
         pathPoints = points;
         return points;
     }
@@ -240,10 +253,9 @@
     }
 
     function canvasCoords(event) {
-        const rect = mifCanvas.getBoundingClientRect();
         return {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top
+            x: event.clientX,
+            y: event.clientY
         };
     }
 
