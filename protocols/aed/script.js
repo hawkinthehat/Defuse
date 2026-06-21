@@ -14,7 +14,6 @@
 
     const CHAOTIC_COLORS = ['#ff2244', '#ff8800', '#ffffff', '#00e5ff', '#ff44aa'];
     const CALM_COLORS = ['#4a8fb8', '#5a9a7a', '#6ba8c4', '#4d9a82'];
-    const CHAOTIC_SHAPES = ['triangle', 'square', 'diamond', 'star', 'cross'];
 
     let aedRunning = false;
     let aedRafId = 0;
@@ -147,11 +146,11 @@
             vx: rand(-1.8, 1.8),
             vy: rand(-1.5, 1.5),
             pulsePhase: rand(0, Math.PI * 2),
-            pulseSpeed: rand(0.09, 0.16),
+            pulseSpeed: rand(0.22, 0.38),
             rot: rand(0, Math.PI * 2),
-            rotSpeed: rand(-0.04, 0.04),
+            rotSpeed: rand(-0.05, 0.05),
             color: pick(CHAOTIC_COLORS),
-            shape: pick(CHAOTIC_SHAPES),
+            wedgeBias: rand(0.55, 0.78),
             flashUntil: 0
         };
     }
@@ -169,8 +168,9 @@
             driftPhase: rand(0, Math.PI * 2),
             driftSpeed: rand(0.0008, 0.0016),
             pulsePhase: rand(0, Math.PI * 2),
-            pulseSpeed: rand(0.012, 0.022),
+            pulseSpeed: rand(0.008, 0.016),
             color: pick(CALM_COLORS),
+            crescentFacing: Math.random() < 0.5 ? -1 : 1,
             alive: true
         };
     }
@@ -241,12 +241,41 @@
     function hitTestChaotic(px, py) {
         for (let i = 0; i < chaoticNodes.length; i += 1) {
             const node = chaoticNodes[i];
-            const half = node.size * (0.85 + 0.25 * Math.sin(node.pulsePhase));
-            if (px >= node.x - half && px <= node.x + half && py >= node.y - half && py <= node.y + half) {
+            const pulse = 0.72 + 0.38 * Math.sin(node.pulsePhase);
+            const half = node.size * pulse;
+            const dx = px - node.x;
+            const dy = py - node.y;
+            if (Math.sqrt(dx * dx + dy * dy) <= half * 1.05) {
                 return node;
             }
         }
         return null;
+    }
+
+    /**
+     * Coast Salish Trigon — sharp three-cornered wedge (hostile node motif).
+     */
+    function trigonPath(ctx, half, wedgeBias) {
+        const tipY = -half;
+        const baseLeftX = -half * wedgeBias;
+        const baseRightX = half * wedgeBias;
+        const baseY = half * 0.92;
+        ctx.moveTo(0, tipY);
+        ctx.lineTo(baseRightX, baseY);
+        ctx.lineTo(baseLeftX, baseY);
+        ctx.closePath();
+    }
+
+    /**
+     * Coast Salish Crescent — soft curved moon arc (calm node motif).
+     */
+    function crescentPath(ctx, r, facing) {
+        const outerR = r;
+        const innerR = r * 0.72;
+        const offsetX = r * 0.38 * facing;
+        ctx.arc(0, 0, outerR, 0.15 * Math.PI, 1.85 * Math.PI, false);
+        ctx.arc(offsetX, 0, innerR, 1.85 * Math.PI, 0.15 * Math.PI, true);
+        ctx.closePath();
     }
 
     function onPointerDown(event) {
@@ -277,80 +306,57 @@
         }
     }
 
-    function drawChaoticShape(ctx, node) {
-        const pulse = 0.72 + 0.38 * Math.sin(node.pulsePhase);
+    function drawTrigonNode(ctx, node) {
+        const pulse = 0.68 + 0.42 * Math.sin(node.pulsePhase);
         const half = node.size * pulse;
+        const highFreq = 0.78 + 0.22 * Math.sin(node.pulsePhase * 2.6);
         ctx.save();
         ctx.translate(node.x, node.y);
         ctx.rotate(node.rot);
         ctx.fillStyle = node.color;
-        ctx.globalAlpha = 0.82 + 0.18 * Math.sin(node.pulsePhase * 1.4);
+        ctx.globalAlpha = highFreq;
         ctx.shadowColor = node.color;
-        ctx.shadowBlur = 14;
+        ctx.shadowBlur = 16 + 8 * Math.sin(node.pulsePhase * 3.1);
 
-        switch (node.shape) {
-            case 'triangle':
-                ctx.beginPath();
-                ctx.moveTo(0, -half);
-                ctx.lineTo(half, half);
-                ctx.lineTo(-half, half);
-                ctx.closePath();
-                ctx.fill();
-                break;
-            case 'diamond':
-                ctx.beginPath();
-                ctx.moveTo(0, -half);
-                ctx.lineTo(half, 0);
-                ctx.lineTo(0, half);
-                ctx.lineTo(-half, 0);
-                ctx.closePath();
-                ctx.fill();
-                break;
-            case 'star': {
-                ctx.beginPath();
-                for (let i = 0; i < 5; i += 1) {
-                    const outerA = (i * Math.PI * 2) / 5 - Math.PI / 2;
-                    const innerA = outerA + Math.PI / 5;
-                    const ox = Math.cos(outerA) * half;
-                    const oy = Math.sin(outerA) * half;
-                    const ix = Math.cos(innerA) * half * 0.45;
-                    const iy = Math.sin(innerA) * half * 0.45;
-                    if (i === 0) ctx.moveTo(ox, oy);
-                    else ctx.lineTo(ox, oy);
-                    ctx.lineTo(ix, iy);
-                }
-                ctx.closePath();
-                ctx.fill();
-                break;
-            }
-            case 'cross':
-                ctx.fillRect(-half * 0.28, -half, half * 0.56, half * 2);
-                ctx.fillRect(-half, -half * 0.28, half * 2, half * 0.56);
-                break;
-            default:
-                ctx.fillRect(-half, -half, half * 2, half * 2);
-        }
+        ctx.beginPath();
+        trigonPath(ctx, half, node.wedgeBias);
+        ctx.fill();
+
+        ctx.globalAlpha = highFreq * 0.45;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
         ctx.restore();
     }
 
-    function drawCalmNode(ctx, node, now) {
+    function drawCrescentNode(ctx, node) {
         if (!node.alive) return;
-        const breathe = 0.92 + 0.08 * Math.sin(node.pulsePhase);
+        const breathe = 0.94 + 0.06 * Math.sin(node.pulsePhase);
         const r = node.baseRadius * breathe;
-        const grad = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r);
-        grad.addColorStop(0, `${node.color}cc`);
-        grad.addColorStop(0.55, `${node.color}66`);
+        const facing = node.crescentFacing || 1;
+        ctx.save();
+        ctx.translate(node.x, node.y);
+        ctx.rotate(node.driftPhase * 0.04);
+
+        const grad = ctx.createRadialGradient(0, 0, r * 0.1, 0, 0, r * 1.4);
+        grad.addColorStop(0, `${node.color}dd`);
+        grad.addColorStop(0.5, `${node.color}88`);
         grad.addColorStop(1, `${node.color}00`);
         ctx.fillStyle = grad;
+        ctx.globalAlpha = 0.88;
+        ctx.shadowColor = node.color;
+        ctx.shadowBlur = 22;
         ctx.beginPath();
-        ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
+        crescentPath(ctx, r, facing);
         ctx.fill();
 
-        ctx.strokeStyle = `${node.color}88`;
-        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = 0.55;
+        ctx.strokeStyle = `${node.color}aa`;
+        ctx.lineWidth = 1.4;
         ctx.beginPath();
-        ctx.arc(node.x, node.y, r * 0.72, 0, Math.PI * 2);
+        crescentPath(ctx, r * 0.92, facing);
         ctx.stroke();
+        ctx.restore();
     }
 
     function drawPopEffects(ctx, now) {
@@ -441,8 +447,8 @@
         aedCtx.fillStyle = vignette;
         aedCtx.fillRect(0, 0, width, height);
 
-        calmNodes.forEach((node) => drawCalmNode(aedCtx, node, now));
-        chaoticNodes.forEach((node) => drawChaoticShape(aedCtx, node));
+        calmNodes.forEach((node) => drawCrescentNode(aedCtx, node));
+        chaoticNodes.forEach((node) => drawTrigonNode(aedCtx, node));
         drawPopEffects(aedCtx, now);
 
         aedRafId = requestAnimationFrame(drawFrame);

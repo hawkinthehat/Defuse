@@ -13,6 +13,10 @@
     const PULSE_MAX_RADIUS = 56;
     const TRACK_HAPTIC_MS = 12;
     const CONSECUTIVE_ON_PATH_FOR_SYNC = 3;
+    const TRAIL_MAX_POINTS = 48;
+    const TRAIL_FADE_MS = 1400;
+    const ICON_PULSE_INTERVAL_MS = PULSE_INTERVAL_MS;
+    const ICON_PULSE_DURATION_MS = PULSE_DURATION_MS;
 
     const COLORS = {
         bg: '#040506',
@@ -52,6 +56,10 @@
     let pulses = [];
     let pathPoints = [];
     let wavePhase = 0;
+    let trailPoints = [];
+    let iconPulsePhase = 0;
+    let lastIconPulseAt = 0;
+    let iconOrganicRings = [];
 
     function clamp(v, lo, hi) {
         return Math.max(lo, Math.min(hi, v));
@@ -143,6 +151,10 @@
         pathPoints = [];
         successfulPulses = 0;
         lastPulseAt = 0;
+        trailPoints = [];
+        iconPulsePhase = 0;
+        lastIconPulseAt = 0;
+        iconOrganicRings = [];
     }
 
     function setInstruction(text) {
@@ -219,6 +231,44 @@
         };
     }
 
+    function appendTrailPoint(x, y, now) {
+        const last = trailPoints[trailPoints.length - 1];
+        if (last) {
+            const dx = x - last.x;
+            const dy = y - last.y;
+            if (dx * dx + dy * dy < 4) return;
+        }
+        trailPoints.push({ x, y, born: now });
+        if (trailPoints.length > TRAIL_MAX_POINTS) {
+            trailPoints.shift();
+        }
+    }
+
+    function pruneTrail(now) {
+        trailPoints = trailPoints.filter((pt) => now - pt.born < TRAIL_FADE_MS);
+    }
+
+    /**
+     * Stylized cedar seed / water droplet silhouette anchored at touch point.
+     */
+    function dropletPath(ctx, scale) {
+        const s = scale;
+        ctx.moveTo(0, -s * 1.05);
+        ctx.bezierCurveTo(s * 0.62, -s * 0.35, s * 0.58, s * 0.55, 0, s * 0.95);
+        ctx.bezierCurveTo(-s * 0.58, s * 0.55, -s * 0.62, -s * 0.35, 0, -s * 1.05);
+        ctx.closePath();
+    }
+
+    function spawnOrganicRing(x, y, now, intensity) {
+        iconOrganicRings.push({
+            x,
+            y,
+            born: now,
+            maxR: PULSE_MAX_RADIUS * (0.75 + intensity * 0.35),
+            intensity
+        });
+    }
+
     function softHaptic() {
         if (typeof navigator === 'undefined' || !navigator.vibrate) return;
         try {
@@ -235,6 +285,7 @@
             born: now,
             maxR: PULSE_MAX_RADIUS * (0.85 + Math.random() * 0.2)
         });
+        spawnOrganicRing(x, y, now, onPath ? 1 : 0.55);
         successfulPulses += 1;
         softHaptic();
         lastPulseAt = now;
@@ -276,6 +327,15 @@
                 spawnPulse(fingerX, fingerY, now);
             }
         }
+
+        if (fingerActive && onPath) {
+            iconPulsePhase += 0.018;
+            const iconElapsed = now - lastIconPulseAt;
+            if (lastIconPulseAt === 0 || iconElapsed >= ICON_PULSE_INTERVAL_MS) {
+                spawnOrganicRing(fingerX, fingerY, now, 0.85 + 0.15 * Math.sin(iconPulsePhase));
+                lastIconPulseAt = now;
+            }
+        }
     }
 
     function onPointerDown(event) {
@@ -295,6 +355,9 @@
         onPathStreak = 0;
         synced = false;
         lastPulseAt = 0;
+        lastIconPulseAt = 0;
+        trailPoints = [];
+        appendTrailPoint(coords.x, coords.y, performance.now());
         setInstruction('gʷədiʔ · SLIDE SLOWLY ALONG THE SHIFTING PATH');
     }
 
@@ -304,6 +367,7 @@
         const coords = canvasCoords(event);
         fingerX = coords.x;
         fingerY = coords.y;
+        appendTrailPoint(coords.x, coords.y, performance.now());
     }
 
     function onPointerUp(event) {
@@ -320,6 +384,7 @@
         onPath = false;
         onPathStreak = 0;
         synced = false;
+        lastIconPulseAt = 0;
         setInstruction('gʷədiʔ · SLIDE SLOWLY ALONG THE SHIFTING PATH');
     }
 
@@ -385,24 +450,104 @@
         ctx.restore();
     }
 
-    function drawFingerGuide(ctx) {
+    function drawTrail(ctx, now) {
+        if (trailPoints.length < 2) return;
+
+        pruneTrail(now);
+        ctx.save();
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        for (let i = 1; i < trailPoints.length; i += 1) {
+            const prev = trailPoints[i - 1];
+            const curr = trailPoints[i];
+            const age = now - curr.born;
+            const alpha = clamp(1 - age / TRAIL_FADE_MS, 0, 1) * (onPath ? 0.72 : 0.38);
+            const width = 2 + (i / trailPoints.length) * 5;
+
+            ctx.strokeStyle = onPath
+                ? `rgba(118, 178, 158, ${alpha})`
+                : `rgba(88, 138, 122, ${alpha * 0.65})`;
+            ctx.lineWidth = width;
+            ctx.shadowColor = 'rgba(100, 168, 148, 0.45)';
+            ctx.shadowBlur = 12 * alpha;
+            ctx.beginPath();
+            ctx.moveTo(prev.x, prev.y);
+            ctx.lineTo(curr.x, curr.y);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function drawTrackingIcon(ctx) {
         if (!fingerActive) return;
 
-        const alpha = onPath ? 0.55 : 0.28;
-        const r = onPath ? 14 : 10;
-        const grad = ctx.createRadialGradient(fingerX, fingerY, 0, fingerX, fingerY, r * 2.2);
-        grad.addColorStop(0, `rgba(120, 178, 158, ${alpha})`);
-        grad.addColorStop(1, 'rgba(80, 130, 114, 0)');
-        ctx.fillStyle = grad;
+        const scale = onPath ? 11 : 9;
+        ctx.save();
+        ctx.translate(fingerX, fingerY);
+
+        const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, scale * 2.8);
+        glow.addColorStop(0, onPath ? 'rgba(130, 190, 168, 0.55)' : 'rgba(100, 150, 132, 0.28)');
+        glow.addColorStop(1, 'rgba(80, 130, 114, 0)');
+        ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(fingerX, fingerY, r * 2.2, 0, Math.PI * 2);
+        ctx.arc(0, 0, scale * 2.8, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.strokeStyle = onPath ? 'rgba(130, 188, 168, 0.65)' : 'rgba(100, 140, 124, 0.35)';
-        ctx.lineWidth = 1.5;
+        ctx.shadowColor = 'rgba(108, 168, 148, 0.65)';
+        ctx.shadowBlur = 14;
+        ctx.fillStyle = onPath ? 'rgba(118, 178, 158, 0.92)' : 'rgba(92, 142, 126, 0.72)';
         ctx.beginPath();
-        ctx.arc(fingerX, fingerY, r, 0, Math.PI * 2);
+        dropletPath(ctx, scale);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = onPath ? 'rgba(160, 210, 192, 0.75)' : 'rgba(120, 168, 152, 0.45)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        dropletPath(ctx, scale * 0.88);
         ctx.stroke();
+        ctx.restore();
+    }
+
+    function drawOrganicIconPulses(ctx, now) {
+        iconOrganicRings = iconOrganicRings.filter((ring) => {
+            const age = now - ring.born;
+            if (age > ICON_PULSE_DURATION_MS) return false;
+
+            const t = age / ICON_PULSE_DURATION_MS;
+            const eased = easeOutCubic(t);
+            const radius = ring.maxR * eased;
+            const alpha = (1 - easeOutQuad(t)) * 0.62 * ring.intensity;
+
+            ctx.save();
+            ctx.globalAlpha = alpha * 0.5;
+            ctx.strokeStyle = COLORS.pulseRing;
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            ctx.arc(ring.x, ring.y, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.globalAlpha = alpha * 0.32;
+            ctx.strokeStyle = COLORS.pulseRing;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(ring.x, ring.y, radius * 0.68, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.globalAlpha = alpha * 0.22;
+            const grad = ctx.createRadialGradient(ring.x, ring.y, 0, ring.x, ring.y, radius);
+            grad.addColorStop(0, COLORS.pulseCore);
+            grad.addColorStop(0.55, 'rgba(108, 168, 148, 0.12)');
+            grad.addColorStop(1, 'rgba(108, 168, 148, 0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(ring.x, ring.y, radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            return true;
+        });
     }
 
     function drawPulses(ctx, now) {
@@ -453,8 +598,10 @@
         drawBackground(mifCtx);
         drawConcentricWaves(mifCtx, now);
         drawPath(mifCtx, points, now);
+        drawTrail(mifCtx, now);
         drawPulses(mifCtx, now);
-        drawFingerGuide(mifCtx);
+        drawOrganicIconPulses(mifCtx, now);
+        drawTrackingIcon(mifCtx);
 
         mifRafId = requestAnimationFrame(drawFrame);
     }
@@ -474,6 +621,10 @@
         pulses = [];
         successfulPulses = 0;
         lastPulseAt = 0;
+        trailPoints = [];
+        iconPulsePhase = 0;
+        lastIconPulseAt = 0;
+        iconOrganicRings = [];
 
         resizeCanvas();
 
