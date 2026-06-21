@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzixw-v15';
+const CACHE_NAME = 'dzixw-v17';
 
 const PRECACHE_URLS = [
   '/',
@@ -6,7 +6,7 @@ const PRECACHE_URLS = [
   '/style.css',
   '/app.js',
   '/manifest.json',
-  '/logo.png',
+  '/dzixw-logo.png',
   '/icon-192.png',
   '/icon-512.png',
   '/protocols/obd/obd.css',
@@ -16,15 +16,15 @@ const PRECACHE_URLS = [
   '/protocols/obd/assets/paddle-blade.svg',
   '/protocols/cre/cre.css',
   '/protocols/cre/cre.js',
-  '/protocols/mif/mif.css',
-  '/protocols/mif/mif.js',
-  '/protocols/mif/index.html',
   '/protocols/sam/sam.css',
   '/protocols/sam/app.js',
   '/protocols/iec/iec.css',
   '/protocols/iec/app.js',
   '/protocols/prcb/prcb.css',
   '/protocols/prcb/prcb.js',
+  '/protocols/aed/script.js',
+  '/protocols/mif/index.html',
+  '/protocols/mif/script.js',
 ];
 
 self.addEventListener('install', (event) => {

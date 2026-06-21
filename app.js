@@ -553,6 +553,9 @@ function exitProtocol() {
     if (typeof stopMIF === 'function') {
         stopMIF();
     }
+    if (typeof stopAED === 'function') {
+        stopAED();
+    }
     const vp = document.getElementById('viewport');
     if (vp) {
         vp.classList.remove('viewport-obs', 'viewport-ics', 'viewport-sam', 'viewport-iec', 'viewport-mif');

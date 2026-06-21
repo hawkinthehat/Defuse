@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>gʷədiʔ — Micro-Interoceptive Focus</title>
-    <meta name="theme-color" content="#040506">
-    <meta name="apple-mobile-web-app-title" content="gʷədiʔ">
+    <title>ʔuʔəy̓ — Autonomic Exposure Desensitization</title>
+    <meta name="theme-color" content="#050608">
+    <meta name="apple-mobile-web-app-title" content="ʔuʔəy̓">
     <style>
         :root {
-            --mif-bg: #040506;
-            --mif-bg-soft: #080a0c;
-            --mif-path: rgba(92, 148, 132, 0.55);
-            --mif-path-glow: rgba(72, 128, 112, 0.28);
-            --mif-pulse: rgba(110, 168, 148, 0.72);
-            --mif-text: rgba(160, 178, 168, 0.68);
-            --mif-exit-border: rgba(92, 148, 132, 0.5);
+            --aed-bg: #050608;
+            --aed-bg-soft: #0a0d12;
+            --aed-calm-blue: #4a8fb8;
+            --aed-calm-green: #5a9a7a;
+            --aed-text: rgba(180, 196, 210, 0.72);
+            --aed-exit-border: rgba(74, 143, 184, 0.55);
             --emergency-footer-height: 80px;
         }
 
@@ -31,29 +30,29 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: var(--mif-bg);
-            color: var(--mif-text);
+            background: var(--aed-bg);
+            color: var(--aed-text);
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             -webkit-tap-highlight-color: transparent;
         }
 
-        .mif-page {
+        .aed-page {
             position: fixed;
             inset: 0;
             display: flex;
             flex-direction: column;
             padding-bottom: 80px;
-            background: var(--mif-bg);
+            background: var(--aed-bg);
         }
 
-        .mif-exit {
+        .aed-exit {
             position: fixed;
             top: calc(env(safe-area-inset-top, 12px) + 12px);
             right: max(12px, env(safe-area-inset-right, 12px));
             z-index: 12000;
-            border: 1.5px solid var(--mif-exit-border);
-            background: rgba(8, 10, 12, 0.92);
-            color: rgba(110, 168, 148, 0.92);
+            border: 1.5px solid var(--aed-exit-border);
+            background: rgba(10, 13, 18, 0.92);
+            color: var(--aed-calm-blue);
             padding: 11px 14px;
             font-size: 0.58rem;
             font-weight: 800;
@@ -64,12 +63,12 @@
             touch-action: manipulation;
         }
 
-        .mif-exit:focus-visible {
-            outline: 2px solid rgba(110, 168, 148, 0.85);
+        .aed-exit:focus-visible {
+            outline: 2px solid var(--aed-calm-blue);
             outline-offset: 2px;
         }
 
-        .mif-inst {
+        .aed-inst {
             position: fixed;
             top: calc(env(safe-area-inset-top, 12px) + 14px);
             left: max(16px, env(safe-area-inset-left, 0px));
@@ -81,11 +80,11 @@
             letter-spacing: 0.08em;
             font-weight: 700;
             text-align: center;
-            color: rgba(92, 148, 132, 0.78);
+            color: rgba(90, 154, 122, 0.82);
             pointer-events: none;
         }
 
-        .mif-shell {
+        .aed-shell {
             flex: 1;
             position: relative;
             width: 100%;
@@ -93,19 +92,18 @@
             padding-top: calc(env(safe-area-inset-top, 0px) + 3.25rem);
             padding-bottom: 80px;
             overflow: hidden;
+            transition: filter 0.4s linear;
         }
 
-        #mif-canvas {
+        #aed-canvas {
             display: block;
             width: 100%;
             height: 100%;
             touch-action: none;
             cursor: default;
-            -webkit-user-select: none;
-            user-select: none;
         }
 
-        .mif-emergency-bar {
+        .aed-emergency-bar {
             position: fixed;
             bottom: 0;
             left: 0;
@@ -118,7 +116,7 @@
             pointer-events: auto;
         }
 
-        .mif-emergency-link {
+        .aed-emergency-link {
             display: block;
             width: 100%;
             max-width: 26rem;
@@ -137,8 +135,8 @@
             touch-action: manipulation;
         }
 
-        .mif-emergency-link:hover,
-        .mif-emergency-link:focus-visible {
+        .aed-emergency-link:hover,
+        .aed-emergency-link:focus-visible {
             background: #2a1010;
             outline: none;
             box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
@@ -146,16 +144,16 @@
     </style>
 </head>
 <body>
-    <div class="mif-page" id="mif-page">
-        <a class="mif-exit" href="../../" title="Return to dashboard">EXIT</a>
-        <p class="mif-inst" id="mif-inst" role="status">gʷədiʔ · SLIDE SLOWLY ALONG THE SHIFTING PATH</p>
+    <div class="aed-page" id="aed-page">
+        <a class="aed-exit" href="../../" title="Return to dashboard">EXIT</a>
+        <p class="aed-inst" id="aed-inst" role="status">ʔuʔəy̓ · IGNORE NOISE · TAP SLOW CALM NODES</p>
 
-        <main class="mif-shell" id="mif-shell" aria-label="Micro-interoceptive focus touch canvas">
-            <canvas id="mif-canvas" aria-hidden="true"></canvas>
+        <main class="aed-shell" id="aed-shell" aria-label="Attention bias modification canvas">
+            <canvas id="aed-canvas" aria-hidden="true"></canvas>
         </main>
 
-        <footer class="mif-emergency-bar" aria-label="Crisis emergency resources — always available">
-            <button type="button" class="mif-emergency-link" data-emergency-dial>⚠️ EMERGENCY: DIAL 988 / 911</button>
+        <footer class="aed-emergency-bar" aria-label="Crisis emergency resources — always available">
+            <button type="button" class="aed-emergency-link" data-emergency-dial>⚠️ EMERGENCY: DIAL 988 / 911</button>
         </footer>
     </div>
 
