@@ -299,6 +299,7 @@
                 <p class="obd-instruct">Maintain contact with the grounding pad. Allow your eyes to smoothly track the paddle blade through the infinity loop.</p>
                 <div class="obd-stage">
                     <div class="obd-ripple-layer" aria-hidden="true"></div>
+                    <div class="obd-diamond-lattice" aria-hidden="true"></div>
                     <canvas class="obd-canvas" id="obd-canvas" aria-label="Infinity loop tracking field with canoe paddle blade"></canvas>
                     <p class="obd-paused-banner" id="obd-paused-banner" role="status">Paused — re-establish contact</p>
                 </div>
