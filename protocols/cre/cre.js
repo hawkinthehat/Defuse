@@ -137,11 +137,18 @@
         return a;
     }
 
+    function setStabilityBarViewport(active) {
+        const vp = document.getElementById('viewport');
+        if (!vp) return;
+        vp.classList.toggle('protocol-has-stability-bar', Boolean(active));
+    }
+
     function stopCRE() {
         creRunning = false;
         choiceOpen = false;
         sessionEnded = false;
         thoughts = [];
+        setStabilityBarViewport(false);
         if (creSpawnId) {
             clearInterval(creSpawnId);
             creSpawnId = 0;
@@ -235,7 +242,7 @@
         if (!stage) return;
         stage.innerHTML = `
             <div class="cre-root" id="cre-root">
-                <div class="cre-stability-wrap">
+                <div class="cre-stability-wrap stability-bar-container">
                     <span class="cre-stability-label">Stability</span>
                     <div class="cre-stability-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
                         <div class="cre-stability-fill" id="cre-stability-fill"></div>
@@ -254,6 +261,7 @@
                 </div>
             </div>
         `;
+        setStabilityBarViewport(true);
         updateStabilityUI();
     }
 
