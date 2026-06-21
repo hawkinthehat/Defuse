@@ -13,6 +13,7 @@
     const PULSE_MAX_RADIUS = 56;
     const TRACK_HAPTIC_MS = 12;
     const CONSECUTIVE_ON_PATH_FOR_SYNC = 3;
+    const TRAIL_LENGTH = 15;
 
     const COLORS = {
         bg: '#040506',
@@ -21,7 +22,10 @@
         pathCore: 'rgba(118, 172, 152, 0.62)',
         pulseRing: 'rgba(108, 168, 148, 0.55)',
         pulseCore: 'rgba(130, 188, 168, 0.35)',
-        wave: 'rgba(72, 118, 104, 0.08)'
+        wave: 'rgba(72, 118, 104, 0.08)',
+        trail: 'rgba(108, 168, 148, 0.55)',
+        anchorCore: 'rgba(140, 198, 178, 0.92)',
+        anchorGlow: 'rgba(96, 152, 134, 0.38)'
     };
 
     let mifRunning = false;
@@ -51,6 +55,7 @@
 
     let pulses = [];
     let pathPoints = [];
+    let touchTrail = [];
     let wavePhase = 0;
 
     function clamp(v, lo, hi) {
@@ -141,6 +146,7 @@
         synced = false;
         pulses = [];
         pathPoints = [];
+        touchTrail = [];
         successfulPulses = 0;
         lastPulseAt = 0;
     }
@@ -219,6 +225,13 @@
         };
     }
 
+    function pushTouchTrail(x, y) {
+        touchTrail.push({ x, y });
+        if (touchTrail.length > TRAIL_LENGTH) {
+            touchTrail.shift();
+        }
+    }
+
     function softHaptic() {
         if (typeof navigator === 'undefined' || !navigator.vibrate) return;
         try {
@@ -292,6 +305,8 @@
         fingerX = coords.x;
         fingerY = coords.y;
         fingerActive = true;
+        touchTrail = [];
+        pushTouchTrail(fingerX, fingerY);
         onPathStreak = 0;
         synced = false;
         lastPulseAt = 0;
@@ -304,6 +319,7 @@
         const coords = canvasCoords(event);
         fingerX = coords.x;
         fingerY = coords.y;
+        pushTouchTrail(fingerX, fingerY);
     }
 
     function onPointerUp(event) {
@@ -317,6 +333,7 @@
             }
         }
         fingerActive = false;
+        touchTrail = [];
         onPath = false;
         onPathStreak = 0;
         synced = false;
@@ -335,18 +352,22 @@
     }
 
     function drawConcentricWaves(ctx, now) {
+        if (!fingerActive) return;
+
         const tSec = now * 0.001;
         wavePhase = tSec * 0.35;
         const ringCount = 4;
+        const pulseScale = onPath ? 1 : 0.72;
 
         for (let i = 0; i < ringCount; i += 1) {
             const phase = (wavePhase + i * 0.55) % (Math.PI * 2);
             const expand = 0.72 + 0.28 * Math.sin(phase);
-            const r = baseRadius * (0.35 + i * 0.22) * expand;
-            ctx.strokeStyle = COLORS.wave;
+            const r = (18 + i * 16) * expand * pulseScale;
+            const alpha = (0.14 - i * 0.02) * (onPath ? 1 : 0.65);
+            ctx.strokeStyle = `rgba(72, 118, 104, ${alpha})`;
             ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.arc(fingerX, fingerY, r, 0, Math.PI * 2);
             ctx.stroke();
         }
     }
@@ -385,24 +406,104 @@
         ctx.restore();
     }
 
-    function drawFingerGuide(ctx) {
+    function drawTouchTrail(ctx) {
+        if (!fingerActive || touchTrail.length < 2) return;
+
+        ctx.save();
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        for (let i = 1; i < touchTrail.length; i += 1) {
+            const prev = touchTrail[i - 1];
+            const curr = touchTrail[i];
+            const fade = i / (touchTrail.length - 1);
+            const alpha = fade * (onPath ? 0.42 : 0.24);
+            const width = 2 + fade * 5;
+
+            ctx.strokeStyle = `rgba(108, 168, 148, ${alpha})`;
+            ctx.lineWidth = width;
+            ctx.shadowColor = COLORS.trail;
+            ctx.shadowBlur = 8 + fade * 14;
+            ctx.beginPath();
+            ctx.moveTo(prev.x, prev.y);
+            ctx.lineTo(curr.x, curr.y);
+            ctx.stroke();
+        }
+
+        for (let i = 0; i < touchTrail.length; i += 1) {
+            const pt = touchTrail[i];
+            const fade = (i + 1) / touchTrail.length;
+            const alpha = fade * (onPath ? 0.35 : 0.18);
+            const r = 1.5 + fade * 4.5;
+
+            ctx.shadowBlur = 0;
+            const grad = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r * 2.4);
+            grad.addColorStop(0, `rgba(130, 188, 168, ${alpha})`);
+            grad.addColorStop(1, 'rgba(80, 130, 114, 0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, r * 2.4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.shadowBlur = 0;
+        ctx.restore();
+    }
+
+    function drawTrackingAnchor(ctx) {
         if (!fingerActive) return;
 
-        const alpha = onPath ? 0.55 : 0.28;
-        const r = onPath ? 14 : 10;
-        const grad = ctx.createRadialGradient(fingerX, fingerY, 0, fingerX, fingerY, r * 2.2);
-        grad.addColorStop(0, `rgba(120, 178, 158, ${alpha})`);
-        grad.addColorStop(1, 'rgba(80, 130, 114, 0)');
-        ctx.fillStyle = grad;
+        const x = fingerX;
+        const y = fingerY;
+        const scale = onPath ? 1 : 0.82;
+        const bodyR = 9 * scale;
+
+        ctx.save();
+
+        const halo = ctx.createRadialGradient(x, y, 0, x, y, bodyR * 3.4);
+        halo.addColorStop(0, onPath ? 'rgba(130, 188, 168, 0.34)' : 'rgba(96, 140, 124, 0.18)');
+        halo.addColorStop(1, 'rgba(72, 118, 104, 0)');
+        ctx.fillStyle = halo;
         ctx.beginPath();
-        ctx.arc(fingerX, fingerY, r * 2.2, 0, Math.PI * 2);
+        ctx.arc(x, y, bodyR * 3.4, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.strokeStyle = onPath ? 'rgba(130, 188, 168, 0.65)' : 'rgba(100, 140, 124, 0.35)';
-        ctx.lineWidth = 1.5;
+        ctx.shadowColor = COLORS.anchorGlow;
+        ctx.shadowBlur = onPath ? 16 : 10;
+        ctx.fillStyle = onPath ? COLORS.anchorCore : 'rgba(118, 168, 150, 0.72)';
         ctx.beginPath();
-        ctx.arc(fingerX, fingerY, r, 0, Math.PI * 2);
+        ctx.arc(x, y - bodyR * 0.18, bodyR, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = onPath ? 'rgba(168, 214, 196, 0.88)' : 'rgba(140, 188, 170, 0.62)';
+        ctx.beginPath();
+        ctx.moveTo(x, y + bodyR * 0.35);
+        ctx.bezierCurveTo(
+            x + bodyR * 0.72, y + bodyR * 0.05,
+            x + bodyR * 0.58, y - bodyR * 1.05,
+            x, y - bodyR * 1.28
+        );
+        ctx.bezierCurveTo(
+            x - bodyR * 0.58, y - bodyR * 1.05,
+            x - bodyR * 0.72, y + bodyR * 0.05,
+            x, y + bodyR * 0.35
+        );
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = 'rgba(210, 236, 226, 0.42)';
+        ctx.beginPath();
+        ctx.ellipse(x - bodyR * 0.22, y - bodyR * 0.42, bodyR * 0.22, bodyR * 0.14, -0.45, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = onPath ? 'rgba(150, 204, 186, 0.55)' : 'rgba(108, 148, 132, 0.32)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(x, y, bodyR * 1.05, 0, Math.PI * 2);
         ctx.stroke();
+
+        ctx.restore();
     }
 
     function drawPulses(ctx, now) {
@@ -451,10 +552,11 @@
         evaluateTracking(now);
 
         drawBackground(mifCtx);
-        drawConcentricWaves(mifCtx, now);
         drawPath(mifCtx, points, now);
+        drawTouchTrail(mifCtx);
+        drawConcentricWaves(mifCtx, now);
         drawPulses(mifCtx, now);
-        drawFingerGuide(mifCtx);
+        drawTrackingAnchor(mifCtx);
 
         mifRafId = requestAnimationFrame(drawFrame);
     }
@@ -472,6 +574,7 @@
         onPathStreak = 0;
         synced = false;
         pulses = [];
+        touchTrail = [];
         successfulPulses = 0;
         lastPulseAt = 0;
 
