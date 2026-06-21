@@ -550,6 +550,9 @@ function exitProtocol() {
     if (typeof stopPRCB === 'function') {
         stopPRCB();
     }
+    if (typeof stopAED === 'function') {
+        stopAED();
+    }
     const vp = document.getElementById('viewport');
     if (vp) {
         vp.classList.remove('viewport-obs', 'viewport-ics', 'viewport-sam', 'viewport-iec');
