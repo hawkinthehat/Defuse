@@ -10,10 +10,7 @@
     <style>
         :root {
             --aed-bg: #050608;
-            --aed-bg-soft: #0a0d12;
             --aed-calm-blue: #4a8fb8;
-            --aed-calm-green: #5a9a7a;
-            --aed-text: rgba(180, 196, 210, 0.72);
             --aed-exit-border: rgba(74, 143, 184, 0.55);
             --emergency-footer-height: 80px;
         }
@@ -31,10 +28,12 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: var(--aed-bg);
-            color: var(--aed-text);
+            background: var(--aed-bg) !important;
+            color: rgba(140, 156, 170, 0.38);
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             -webkit-tap-highlight-color: transparent;
+            display: block !important;
+            justify-content: unset !important;
         }
 
         .aed-page {
@@ -42,8 +41,29 @@
             inset: 0;
             display: flex;
             flex-direction: column;
-            padding-bottom: 80px;
             background: var(--aed-bg);
+        }
+
+        .aed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 11998;
+            margin: 0;
+            padding: calc(env(safe-area-inset-top, 0px) + 10px) max(12px, env(safe-area-inset-right, 12px)) 8px max(12px, env(safe-area-inset-left, 12px));
+            background: var(--aed-bg);
+            pointer-events: none;
+        }
+
+        .aed-anchor {
+            margin: 0;
+            font-size: clamp(0.58rem, 2.2vw, 0.68rem);
+            font-weight: 500;
+            line-height: 1.35;
+            letter-spacing: 0.04em;
+            text-align: center;
+            color: rgba(140, 156, 170, 0.38);
         }
 
         .aed-exit {
@@ -74,34 +94,33 @@
             position: relative;
             width: 100%;
             min-height: 0;
-            padding-top: env(safe-area-inset-top, 0px);
-            padding-bottom: 80px;
             overflow: hidden;
+            background: var(--aed-bg);
             transition: filter 0.4s linear;
         }
 
-        .aed-intro-overlay {
-            position: absolute;
+        #instruction-overlay {
+            position: fixed;
             inset: 0;
-            z-index: 10;
+            z-index: 11000;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0;
             padding: 0 max(1.5rem, env(safe-area-inset-left, 0px)) 0 max(1.5rem, env(safe-area-inset-right, 0px));
+            background: transparent;
             font-size: clamp(1.5rem, 5vw, 2.25rem);
             font-weight: 600;
             line-height: 1.35;
             letter-spacing: 0.03em;
             text-align: center;
-            color: rgba(200, 228, 218, 0.94);
-            text-shadow: 0 0 32px rgba(72, 196, 212, 0.35);
+            color: #ffffff;
             pointer-events: none;
             opacity: 1;
             transition: opacity 500ms ease;
         }
 
-        .aed-intro-overlay.is-fading {
+        #instruction-overlay.is-fading {
             opacity: 0;
         }
 
@@ -111,17 +130,23 @@
             height: 100%;
             touch-action: none;
             cursor: default;
+            background: var(--aed-bg);
         }
     </style>
 </head>
 <body>
     <div class="aed-page" id="aed-page">
+        <header class="aed-header" aria-hidden="true">
+            <p class="aed-anchor">ʔuʔəy̓ (oo-uh-ee)</p>
+        </header>
+
         <a class="aed-exit" href="../../" title="Return to dashboard">EXIT</a>
 
         <main class="aed-shell" id="aed-shell" aria-label="Attention bias modification canvas">
-            <p class="aed-intro-overlay" id="aed-intro-overlay" role="status" aria-live="polite">Focus on the glowing ovoids.</p>
             <canvas id="aed-canvas" aria-hidden="true"></canvas>
         </main>
+
+        <div id="instruction-overlay" role="status" aria-live="polite">Focus on the glowing ovoids.</div>
 
         <footer class="emergency-exit-bar emergency-exit-bar--global" aria-label="Crisis emergency resources — always available">
             <button type="button" class="emergency-exit-link" data-emergency-dial>Emergency: dial 988 / 911</button>
