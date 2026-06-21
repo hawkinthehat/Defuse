@@ -13,9 +13,6 @@
     const POP_MS = 520;
 
     const CHAOTIC_COLORS = ['#ff2244', '#ff8800', '#ffffff', '#00e5ff', '#ff44aa'];
-    const FRANTIC_TRIGON_COLORS = ['#1a9dff', '#33bbff', '#0088ee', '#55ccff', '#0066cc'];
-    const CHAOS_PURPLE = ['#c044ff', '#aa22ee', '#dd66ff', '#8833cc'];
-    const CHAOS_YELLOW = ['#ffee00', '#ffcc00', '#ffaa22', '#ffe566'];
     const CALM_TEAL_STOPS = ['#0a3040', '#145568', '#1e7080', '#288c9c', '#34a8b8', '#48c4d4'];
 
     let aedRunning = false;
@@ -139,28 +136,9 @@
         aedCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    function buildChaosLayers(size) {
-        const layers = [];
-        const count = 3 + Math.floor(rand(0, 3));
-        for (let i = 0; i < count; i += 1) {
-            layers.push({
-                radius: size * rand(0.45, 1.15),
-                startAngle: rand(0, Math.PI * 2),
-                sweep: rand(Math.PI * 0.35, Math.PI * 1.25),
-                offsetX: rand(-size * 0.35, size * 0.35),
-                offsetY: rand(-size * 0.35, size * 0.35),
-                lineWidth: rand(1.1, 2.6),
-                waveAmp: rand(0.08, 0.22),
-                colorIndex: i % 2
-            });
-        }
-        return layers;
-    }
-
     function makeChaoticNode() {
         const size = rand(22, 38);
-        const roll = Math.random();
-        const pattern = roll < 0.34 ? 'frantic_trigon' : roll < 0.67 ? 'chaos_linework' : 'salish_eye';
+        const pattern = Math.random() < 0.5 ? 'trigon' : 'salish_eye';
         const node = {
             kind: 'chaotic',
             pattern,
@@ -172,25 +150,18 @@
             pulsePhase: rand(0, Math.PI * 2),
             rot: rand(0, Math.PI * 2),
             rotSpeed: rand(-0.05, 0.05),
+            color: pick(CHAOTIC_COLORS),
             flashUntil: 0
         };
 
-        if (pattern === 'frantic_trigon') {
+        if (pattern === 'trigon') {
             node.trigonCount = 2 + Math.floor(rand(0, 2));
             node.trigonSpread = rand(0.32, 0.58);
             node.trigonTilt = rand(-0.25, 0.25);
-            node.color = pick(FRANTIC_TRIGON_COLORS);
             node.pulseSpeed = rand(0.22, 0.38);
             node.rotSpeed = rand(-0.08, 0.08);
-        } else if (pattern === 'chaos_linework') {
-            node.layers = buildChaosLayers(size);
-            node.colorA = pick(CHAOS_PURPLE);
-            node.colorB = pick(CHAOS_YELLOW);
-            node.pulseSpeed = rand(0.15, 0.28);
         } else {
             node.eyeTilt = rand(-0.45, 0.45);
-            node.color = pick(CHAOTIC_COLORS);
-            node.lidColor = pick(CHAOS_PURPLE.concat(CHAOS_YELLOW));
             node.pulseSpeed = rand(0.18, 0.34);
         }
 
@@ -205,9 +176,8 @@
             y: rand(radius + 40, Math.max(radius + 41, height - radius)),
             radius,
             baseRadius: radius,
-            rx: radius * 1.12,
-            ry: radius * 0.78,
-            ringCount: 4 + Math.floor(rand(0, 2)),
+            rx: radius * 1.08,
+            ry: radius * 0.72,
             ovoidTilt: rand(-0.18, 0.18),
             vx: rand(-0.35, 0.35),
             vy: rand(-0.28, 0.28),
@@ -326,18 +296,14 @@
         }
     }
 
-    /** Coast Salish formline trigon: sharp apex, straight legs, concave curved base. */
+    /** Coast Salish trigon: three curved formline sides meeting at sharp points. */
     function traceSalishTrigon(ctx, scale) {
         const s = scale;
-        const leftX = -s * 0.74;
-        const leftY = s * 0.52;
-        const rightX = s * 0.74;
-        const rightY = s * 0.52;
         ctx.beginPath();
         ctx.moveTo(0, -s);
-        ctx.lineTo(leftX, leftY);
-        ctx.quadraticCurveTo(0, s * 0.78, rightX, rightY);
-        ctx.lineTo(0, -s);
+        ctx.quadraticCurveTo(-s * 0.98, -s * 0.12, -s * 0.64, s * 0.5);
+        ctx.quadraticCurveTo(0, s * 0.74, s * 0.64, s * 0.5);
+        ctx.quadraticCurveTo(s * 0.98, -s * 0.12, 0, -s);
         ctx.closePath();
     }
 
@@ -353,7 +319,7 @@
         ctx.closePath();
     }
 
-    function drawFranticTrigon(ctx, node) {
+    function drawTrigon(ctx, node) {
         const fastPulse = node.pulsePhase * 3.1;
         const pulse = 0.58 + 0.52 * Math.sin(fastPulse);
         const reach = node.size * pulse;
@@ -384,147 +350,84 @@
             ctx.globalAlpha = 0.85 + 0.15 * Math.sin(phase);
             ctx.lineWidth = 1.4;
             ctx.stroke();
-
-            ctx.globalAlpha = 0.42 + 0.35 * Math.sin(phase * 1.6);
-            traceSalishTrigon(ctx, reach * microPulse * 0.58);
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 0.9;
-            ctx.stroke();
             ctx.restore();
         }
 
         ctx.restore();
     }
 
-    function drawChaosLinework(ctx, node) {
-        const flash = 0.45 + 0.55 * Math.abs(Math.sin(node.pulsePhase * 2.8));
-        const flicker = 0.35 + 0.65 * Math.abs(Math.sin(node.pulsePhase * 4.2 + 1.1));
-
-        ctx.save();
-        ctx.translate(node.x, node.y);
-        ctx.rotate(node.rot);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.shadowBlur = 8 + 14 * flicker;
-
-        node.layers.forEach((layer, idx) => {
-            const color = layer.colorIndex === 0 ? node.colorA : node.colorB;
-            ctx.strokeStyle = color;
-            ctx.shadowColor = color;
-            ctx.globalAlpha = flash * (0.55 + 0.25 * Math.sin(node.pulsePhase * 3 + idx));
-            ctx.lineWidth = layer.lineWidth * (0.85 + 0.3 * Math.sin(node.pulsePhase * 2.2 + idx * 0.7));
-
-            ctx.beginPath();
-            const cx = layer.offsetX;
-            const cy = layer.offsetY;
-            const r = layer.radius * (0.88 + 0.24 * Math.sin(node.pulsePhase * 1.9 + idx));
-            const steps = 14;
-            for (let s = 0; s <= steps; s += 1) {
-                const t = s / steps;
-                const angle = layer.startAngle + layer.sweep * t;
-                const wobble = Math.sin(angle * 3 + node.pulsePhase * 2.5) * layer.waveAmp * r;
-                const px = cx + Math.cos(angle) * (r + wobble);
-                const py = cy + Math.sin(angle) * (r + wobble);
-                if (s === 0) ctx.moveTo(px, py);
-                else ctx.lineTo(px, py);
-            }
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(cx - r * 0.35, cy + r * 0.15);
-            ctx.quadraticCurveTo(cx, cy - r * 0.55, cx + r * 0.42, cy + r * 0.08);
-            ctx.strokeStyle = idx % 2 === 0 ? node.colorB : node.colorA;
-            ctx.lineWidth = layer.lineWidth * 0.75;
-            ctx.stroke();
-        });
-
-        ctx.globalAlpha = flash * 0.5;
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 0.8;
+    /** Almond eye with sharp horizontal points, nested ovoid pupil, outer ovoid casing. */
+    function traceSalishEyeAlmond(ctx, rx, ry) {
         ctx.beginPath();
-        ctx.moveTo(-node.size * 0.2, -node.size * 0.55);
-        ctx.lineTo(node.size * 0.15, node.size * 0.45);
-        ctx.moveTo(node.size * 0.25, -node.size * 0.35);
-        ctx.lineTo(-node.size * 0.1, node.size * 0.6);
-        ctx.stroke();
-
-        ctx.restore();
+        ctx.moveTo(-rx, 0);
+        ctx.bezierCurveTo(-rx * 0.42, -ry * 1.15, rx * 0.42, -ry * 1.15, rx, 0);
+        ctx.bezierCurveTo(rx * 0.42, ry * 1.15, -rx * 0.42, ry * 1.15, -rx, 0);
+        ctx.closePath();
     }
 
-    function drawSalishEyeChaos(ctx, node) {
+    function drawSalishEye(ctx, node) {
         const flash = 0.4 + 0.6 * Math.abs(Math.sin(node.pulsePhase * 3.4));
         const s = node.size * (0.82 + 0.28 * Math.sin(node.pulsePhase * 2.1));
-        const rx = s * 0.98;
-        const ry = s * 0.58;
+        const outerRx = s * 1.08;
+        const outerRy = s * 0.82;
+        const eyeRx = s * 0.72;
+        const eyeRy = s * 0.38;
 
         ctx.save();
         ctx.translate(node.x, node.y);
         ctx.rotate(node.rot + node.eyeTilt);
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.shadowColor = node.lidColor;
+        ctx.shadowColor = node.color;
         ctx.shadowBlur = 12 + 16 * flash;
-
-        ctx.globalAlpha = flash * 0.9;
-        ctx.strokeStyle = node.lidColor;
-        ctx.lineWidth = 2.4;
-        ctx.beginPath();
-        ctx.moveTo(-rx, 0);
-        ctx.bezierCurveTo(-rx * 0.55, -ry * 1.35, rx * 0.55, -ry * 1.35, rx, 0);
-        ctx.stroke();
-
-        ctx.lineWidth = 2.1;
-        ctx.beginPath();
-        ctx.moveTo(-rx * 0.92, 0);
-        ctx.bezierCurveTo(-rx * 0.45, ry * 1.25, rx * 0.45, ry * 1.25, rx * 0.92, 0);
-        ctx.stroke();
-
-        ctx.globalAlpha = flash;
-        ctx.fillStyle = node.color;
-        traceOvoid(ctx, rx * 0.38, ry * 0.38);
-        ctx.fill();
-
-        ctx.globalAlpha = flash * 0.85;
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(rx * 0.12, -ry * 0.08, s * 0.09, 0, Math.PI * 2);
-        ctx.fill();
 
         ctx.globalAlpha = flash * 0.55;
         ctx.strokeStyle = node.color;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(-rx * 1.05, -ry * 0.05);
-        ctx.quadraticCurveTo(0, -ry * 0.65, rx * 1.05, -ry * 0.05);
+        ctx.lineWidth = 2.8;
+        traceOvoid(ctx, outerRx, outerRy);
         ctx.stroke();
 
-        ctx.globalAlpha = flash * 0.45;
+        ctx.globalAlpha = flash * 0.35;
+        ctx.lineWidth = 1.4;
         ctx.beginPath();
-        ctx.moveTo(-rx * 0.15, -ry * 0.55);
-        ctx.lineTo(-rx * 0.05, -ry * 0.75);
-        ctx.moveTo(rx * 0.15, -ry * 0.55);
-        ctx.lineTo(rx * 0.05, -ry * 0.75);
+        ctx.arc(-outerRx * 0.72, -outerRy * 0.35, s * 0.28, Math.PI * 0.15, Math.PI * 0.95);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(outerRx * 0.68, outerRy * 0.42, s * 0.24, Math.PI * 1.05, Math.PI * 1.85);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-outerRx * 0.15, -outerRy * 0.95);
+        ctx.quadraticCurveTo(outerRx * 0.35, -outerRy * 0.55, outerRx * 0.88, -outerRy * 0.12);
+        ctx.stroke();
+
+        ctx.globalAlpha = flash * 0.92;
+        ctx.fillStyle = node.color;
+        traceSalishEyeAlmond(ctx, eyeRx, eyeRy);
+        ctx.fill();
+
+        ctx.globalAlpha = flash;
+        ctx.fillStyle = '#050608';
+        traceOvoid(ctx, eyeRx * 0.32, eyeRy * 0.32);
+        ctx.fill();
+
+        ctx.globalAlpha = flash * 0.7;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.1;
+        traceSalishEyeAlmond(ctx, eyeRx * 0.96, eyeRy * 0.96);
         ctx.stroke();
 
         ctx.restore();
     }
 
     function drawChaoticShape(ctx, node) {
-        switch (node.pattern) {
-            case 'frantic_trigon':
-                drawFranticTrigon(ctx, node);
-                break;
-            case 'chaos_linework':
-                drawChaosLinework(ctx, node);
-                break;
-            case 'salish_eye':
-                drawSalishEyeChaos(ctx, node);
-                break;
-            default:
-                drawFranticTrigon(ctx, node);
+        if (node.pattern === 'salish_eye') {
+            drawSalishEye(ctx, node);
+        } else {
+            drawTrigon(ctx, node);
         }
     }
 
+    /** Three nested concentric ovoid rings: outer border, middle ring, inner core. */
     function drawCalmNode(ctx, node) {
         if (!node.alive) return;
 
@@ -532,6 +435,11 @@
         const auraPulse = 0.5 + 0.5 * Math.sin(node.pulsePhase * 0.55);
         const rx = node.rx * breathe;
         const ry = node.ry * breathe;
+        const rings = [
+            { scale: 1, lineWidth: 3.2, stroke: CALM_TEAL_STOPS[2], fill: null },
+            { scale: 0.68, lineWidth: 2, stroke: CALM_TEAL_STOPS[3], fill: `${CALM_TEAL_STOPS[1]}44` },
+            { scale: 0.38, lineWidth: 0, stroke: null, fill: CALM_TEAL_STOPS[4] }
+        ];
 
         ctx.save();
         ctx.translate(node.x, node.y);
@@ -540,41 +448,35 @@
         ctx.globalAlpha = 0.12 + auraPulse * 0.14;
         ctx.shadowColor = CALM_TEAL_STOPS[4];
         ctx.shadowBlur = 28 + auraPulse * 22;
-        traceOvoid(ctx, rx * 1.22, ry * 1.22);
+        traceOvoid(ctx, rx * 1.18, ry * 1.18);
         ctx.strokeStyle = CALM_TEAL_STOPS[3];
         ctx.lineWidth = 5;
         ctx.stroke();
 
-        for (let ring = 0; ring < node.ringCount; ring += 1) {
-            const t = ring / (node.ringCount - 1 || 1);
-            const ringRx = rx * (1 - t * 0.62);
-            const ringRy = ry * (1 - t * 0.62);
-            const stopIdx = Math.min(CALM_TEAL_STOPS.length - 1, Math.floor(t * (CALM_TEAL_STOPS.length - 1)));
-            const innerIdx = Math.min(CALM_TEAL_STOPS.length - 1, stopIdx + 1);
-            const blend = (t * (CALM_TEAL_STOPS.length - 1)) - stopIdx;
+        rings.forEach((ring, idx) => {
+            const ringRx = rx * ring.scale;
+            const ringRy = ry * ring.scale;
+            ctx.shadowBlur = idx === 0 ? 14 + auraPulse * 10 : 0;
+            ctx.globalAlpha = 0.72 + auraPulse * 0.12 - idx * 0.08;
 
-            ctx.globalAlpha = 0.55 + 0.35 * (1 - t) + auraPulse * 0.08;
-            ctx.shadowBlur = ring === 0 ? 16 + auraPulse * 10 : 0;
-            ctx.lineWidth = 2.2 - t * 0.9;
-            ctx.strokeStyle = CALM_TEAL_STOPS[stopIdx];
-            traceOvoid(ctx, ringRx, ringRy);
-            ctx.stroke();
-
-            if (ring < node.ringCount - 1) {
-                const grad = ctx.createRadialGradient(0, 0, ringRx * 0.2, 0, 0, ringRx);
-                grad.addColorStop(0, `${CALM_TEAL_STOPS[stopIdx]}55`);
-                grad.addColorStop(1, `${CALM_TEAL_STOPS[innerIdx]}22`);
-                ctx.globalAlpha = 0.18 + 0.12 * (1 - t);
-                ctx.fillStyle = grad;
-                traceOvoid(ctx, ringRx * 0.96, ringRy * 0.96);
+            if (ring.fill) {
+                ctx.fillStyle = ring.fill;
+                traceOvoid(ctx, ringRx, ringRy);
                 ctx.fill();
             }
-        }
+
+            if (ring.stroke) {
+                ctx.strokeStyle = ring.stroke;
+                ctx.lineWidth = ring.lineWidth;
+                traceOvoid(ctx, ringRx, ringRy);
+                ctx.stroke();
+            }
+        });
 
         ctx.globalAlpha = 0.28 + auraPulse * 0.18;
         ctx.strokeStyle = CALM_TEAL_STOPS[5] || CALM_TEAL_STOPS[4];
         ctx.lineWidth = 1.2;
-        traceOvoid(ctx, rx * 1.08, ry * 1.08);
+        traceOvoid(ctx, rx * 1.06, ry * 1.06);
         ctx.stroke();
 
         ctx.restore();
