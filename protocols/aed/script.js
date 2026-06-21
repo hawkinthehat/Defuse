@@ -12,7 +12,7 @@
     const CALM_RESPAWN_MS = 4200;
     const POP_MS = 520;
 
-    const CHAOTIC_COLORS = ['#ff2244', '#ff8800', '#ffffff', '#00e5ff', '#ff44aa'];
+    const CHAOTIC_COLORS = ['#ffffff', '#ff44aa', '#ff2288', '#ffe0ef'];
     const CALM_TEAL_STOPS = ['#0a3040', '#145568', '#1e7080', '#288c9c', '#34a8b8', '#48c4d4'];
 
     let aedRunning = false;
@@ -138,9 +138,8 @@
 
     function makeChaoticNode() {
         const size = rand(22, 38);
-        const roll = Math.random();
-        const pattern = roll < 0.34 ? 'trigon' : roll < 0.67 ? 'salish_eye' : 'negative_trigon_stack';
-        const node = {
+        const pattern = Math.random() < 0.5 ? 'pure_trigon' : 'chevron';
+        return {
             kind: 'chaotic',
             pattern,
             x: rand(size, Math.max(size + 1, width - size)),
@@ -149,27 +148,13 @@
             vx: rand(-1.8, 1.8),
             vy: rand(-1.5, 1.5),
             pulsePhase: rand(0, Math.PI * 2),
+            pulseSpeed: rand(0.28, 0.52),
             rot: rand(0, Math.PI * 2),
-            rotSpeed: rand(-0.05, 0.05),
+            rotSpeed: rand(0.16, 0.38) * (Math.random() < 0.5 ? 1 : -1),
+            rotJitter: rand(0.06, 0.14),
             color: pick(CHAOTIC_COLORS),
             flashUntil: 0
         };
-
-        if (pattern === 'trigon') {
-            node.trigonCount = 2 + Math.floor(rand(0, 2));
-            node.trigonSpread = rand(0.32, 0.58);
-            node.trigonTilt = rand(-0.25, 0.25);
-            node.pulseSpeed = rand(0.22, 0.38);
-            node.rotSpeed = rand(-0.08, 0.08);
-        } else if (pattern === 'salish_eye') {
-            node.eyeTilt = rand(-0.45, 0.45);
-            node.pulseSpeed = rand(0.18, 0.34);
-        } else {
-            node.stackTilt = rand(-0.35, 0.35);
-            node.pulseSpeed = rand(0.16, 0.3);
-        }
-
-        return node;
     }
 
     function makeCalmNode() {
@@ -300,17 +285,6 @@
         }
     }
 
-    /** Coast Salish trigon: three curved formline sides meeting at sharp points. */
-    function traceSalishTrigon(ctx, scale) {
-        const s = scale;
-        ctx.beginPath();
-        ctx.moveTo(0, -s);
-        ctx.quadraticCurveTo(-s * 0.98, -s * 0.12, -s * 0.64, s * 0.5);
-        ctx.quadraticCurveTo(0, s * 0.74, s * 0.64, s * 0.5);
-        ctx.quadraticCurveTo(s * 0.98, -s * 0.12, 0, -s);
-        ctx.closePath();
-    }
-
     /** Formline ovoid outline via four cubic-bezier quarters. */
     function traceOvoid(ctx, rx, ry) {
         const k = 0.5522847498;
@@ -323,180 +297,63 @@
         ctx.closePath();
     }
 
-    function drawTrigon(ctx, node) {
-        const fastPulse = node.pulsePhase * 3.1;
-        const pulse = 0.58 + 0.52 * Math.sin(fastPulse);
-        const reach = node.size * pulse;
+    /** Shape A — Pure Trigon: sharp 3-pointed wedge, single fill path. */
+    function tracePureTrigon(ctx, s) {
+        ctx.beginPath();
+        ctx.moveTo(0, -s);
+        ctx.lineTo(-s * 0.866, s * 0.5);
+        ctx.lineTo(s * 0.866, s * 0.5);
+        ctx.closePath();
+    }
+
+    function drawPureTrigon(ctx, node, now) {
+        const flash = now < node.flashUntil ? 1 : 0.88 + 0.12 * Math.abs(Math.sin(node.pulsePhase * 5.2));
 
         ctx.save();
         ctx.translate(node.x, node.y);
-        ctx.rotate(node.rot + node.trigonTilt);
+        ctx.rotate(node.rot);
+        ctx.globalAlpha = flash;
         ctx.fillStyle = node.color;
+        tracePureTrigon(ctx, node.size);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    /** Shape B — Chevron/Spike: dual-line V stroke, Salish weaving accent. */
+    function drawChevron(ctx, node, now) {
+        const s = node.size;
+        const flash = now < node.flashUntil ? 1 : 0.9 + 0.1 * Math.abs(Math.sin(node.pulsePhase * 4.8));
+
+        ctx.save();
+        ctx.translate(node.x, node.y);
+        ctx.rotate(node.rot);
+        ctx.globalAlpha = flash;
         ctx.strokeStyle = node.color;
+        ctx.lineCap = 'square';
         ctx.lineJoin = 'miter';
-        ctx.lineCap = 'butt';
-        ctx.shadowColor = node.color;
-        ctx.shadowBlur = 14 + 10 * Math.sin(fastPulse * 1.4);
 
-        for (let i = 0; i < node.trigonCount; i += 1) {
-            const phase = fastPulse + i * node.trigonSpread * Math.PI * 2;
-            const microPulse = 0.72 + 0.38 * Math.sin(phase);
-            const offset = reach * 0.38 * i;
-            const angle = i * node.trigonSpread * Math.PI * 2;
-
-            ctx.save();
-            ctx.translate(Math.cos(angle) * offset, Math.sin(angle) * offset);
-            ctx.rotate(Math.sin(phase * 0.7) * 0.18);
-            ctx.globalAlpha = 0.68 + 0.32 * Math.sin(phase * 1.25);
-
-            traceSalishTrigon(ctx, reach * microPulse);
-            ctx.fill();
-            ctx.globalAlpha = 0.85 + 0.15 * Math.sin(phase);
-            ctx.lineWidth = 1.4;
-            ctx.stroke();
-            ctx.restore();
-        }
-
-        ctx.restore();
-    }
-
-    /** Almond eye with sharp horizontal points, nested ovoid pupil, outer ovoid casing. */
-    function traceSalishEyeAlmond(ctx, rx, ry) {
+        ctx.lineWidth = 2.4;
         ctx.beginPath();
-        ctx.moveTo(-rx, 0);
-        ctx.bezierCurveTo(-rx * 0.42, -ry * 1.15, rx * 0.42, -ry * 1.15, rx, 0);
-        ctx.bezierCurveTo(rx * 0.42, ry * 1.15, -rx * 0.42, ry * 1.15, -rx, 0);
-        ctx.closePath();
-    }
-
-    function drawSalishEye(ctx, node) {
-        const flash = 0.4 + 0.6 * Math.abs(Math.sin(node.pulsePhase * 3.4));
-        const s = node.size * (0.82 + 0.28 * Math.sin(node.pulsePhase * 2.1));
-        const outerRx = s * 1.08;
-        const outerRy = s * 0.82;
-        const eyeRx = s * 0.72;
-        const eyeRy = s * 0.38;
-
-        ctx.save();
-        ctx.translate(node.x, node.y);
-        ctx.rotate(node.rot + node.eyeTilt);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.shadowColor = node.color;
-        ctx.shadowBlur = 12 + 16 * flash;
-
-        ctx.globalAlpha = flash * 0.55;
-        ctx.strokeStyle = node.color;
-        ctx.lineWidth = 2.8;
-        traceOvoid(ctx, outerRx, outerRy);
+        ctx.moveTo(-s * 0.88, -s * 0.32);
+        ctx.lineTo(0, s * 0.58);
+        ctx.lineTo(s * 0.88, -s * 0.32);
         ctx.stroke();
 
-        ctx.globalAlpha = flash * 0.35;
-        ctx.lineWidth = 1.4;
+        ctx.lineWidth = 1.8;
         ctx.beginPath();
-        ctx.arc(-outerRx * 0.72, -outerRy * 0.35, s * 0.28, Math.PI * 0.15, Math.PI * 0.95);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(outerRx * 0.68, outerRy * 0.42, s * 0.24, Math.PI * 1.05, Math.PI * 1.85);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(-outerRx * 0.15, -outerRy * 0.95);
-        ctx.quadraticCurveTo(outerRx * 0.35, -outerRy * 0.55, outerRx * 0.88, -outerRy * 0.12);
-        ctx.stroke();
-
-        ctx.globalAlpha = flash * 0.92;
-        ctx.fillStyle = node.color;
-        traceSalishEyeAlmond(ctx, eyeRx, eyeRy);
-        ctx.fill();
-
-        ctx.globalAlpha = flash;
-        ctx.fillStyle = '#050608';
-        traceOvoid(ctx, eyeRx * 0.32, eyeRy * 0.32);
-        ctx.fill();
-
-        ctx.globalAlpha = flash * 0.7;
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.1;
-        traceSalishEyeAlmond(ctx, eyeRx * 0.96, eyeRy * 0.96);
+        ctx.moveTo(-s * 0.58, -s * 0.1);
+        ctx.lineTo(0, s * 0.3);
+        ctx.lineTo(s * 0.58, -s * 0.1);
         ctx.stroke();
 
         ctx.restore();
     }
 
-    /** Upward negative-space trigon with concave sides (void outline). */
-    function traceNegativeTrigonVoid(ctx, s) {
-        ctx.beginPath();
-        ctx.moveTo(0, -s * 0.34);
-        ctx.quadraticCurveTo(-s * 0.3, s * 0.04, -s * 0.13, s * 0.38);
-        ctx.lineTo(s * 0.13, s * 0.38);
-        ctx.quadraticCurveTo(s * 0.3, s * 0.04, 0, -s * 0.34);
-        ctx.closePath();
-    }
-
-    /**
-     * Three-part chaos stack from reference callout 1:
-     * curved brow band, negative-space upward trigon, bottom center bar.
-     */
-    function drawNegativeTrigonStack(ctx, node) {
-        const flash = 0.42 + 0.58 * Math.abs(Math.sin(node.pulsePhase * 3.1));
-        const s = node.size * (0.88 + 0.22 * Math.sin(node.pulsePhase * 2.4));
-
-        ctx.save();
-        ctx.translate(node.x, node.y);
-        ctx.rotate(node.rot + node.stackTilt);
-        ctx.fillStyle = node.color;
-        ctx.strokeStyle = node.color;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.shadowColor = node.color;
-        ctx.shadowBlur = 10 + 14 * flash;
-        ctx.globalAlpha = flash * 0.92;
-
-        ctx.beginPath();
-        ctx.moveTo(-s * 0.92, -s * 0.06);
-        ctx.quadraticCurveTo(0, -s * 0.58, s * 0.92, -s * 0.06);
-        ctx.quadraticCurveTo(0, -s * 0.26, -s * 0.92, -s * 0.06);
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.moveTo(-s * 0.92, -s * 0.06);
-        ctx.quadraticCurveTo(-s * 0.56, s * 0.14, -s * 0.14, s * 0.42);
-        ctx.lineTo(-s * 0.5, s * 0.42);
-        ctx.quadraticCurveTo(-s * 0.8, s * 0.06, -s * 0.92, -s * 0.06);
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.moveTo(s * 0.92, -s * 0.06);
-        ctx.quadraticCurveTo(s * 0.56, s * 0.14, s * 0.14, s * 0.42);
-        ctx.lineTo(s * 0.5, s * 0.42);
-        ctx.quadraticCurveTo(s * 0.8, s * 0.06, s * 0.92, -s * 0.06);
-        ctx.fill();
-
-        ctx.globalAlpha = flash;
-        ctx.lineWidth = s * 0.13;
-        ctx.beginPath();
-        ctx.arc(0, s * 0.52, s * 0.22, Math.PI * 1.07, Math.PI * 1.93);
-        ctx.stroke();
-
-        ctx.globalAlpha = flash * 0.5;
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 0.9;
-        traceNegativeTrigonVoid(ctx, s);
-        ctx.stroke();
-
-        ctx.restore();
-    }
-
-    function drawChaoticShape(ctx, node) {
-        switch (node.pattern) {
-            case 'salish_eye':
-                drawSalishEye(ctx, node);
-                break;
-            case 'negative_trigon_stack':
-                drawNegativeTrigonStack(ctx, node);
-                break;
-            default:
-                drawTrigon(ctx, node);
+    function drawChaoticShape(ctx, node, now) {
+        if (node.pattern === 'chevron') {
+            drawChevron(ctx, node, now);
+        } else {
+            drawPureTrigon(ctx, node, now);
         }
     }
 
@@ -585,7 +442,7 @@
     function updateNodes(now) {
         chaoticNodes.forEach((node) => {
             node.pulsePhase += node.pulseSpeed;
-            node.rot += node.rotSpeed;
+            node.rot += node.rotSpeed + Math.sin(node.pulsePhase * 5.1) * node.rotJitter;
             node.x += node.vx;
             node.y += node.vy;
 
@@ -648,7 +505,7 @@
         aedCtx.fillRect(0, 0, width, height);
 
         calmNodes.forEach((node) => drawCalmNode(aedCtx, node));
-        chaoticNodes.forEach((node) => drawChaoticShape(aedCtx, node));
+        chaoticNodes.forEach((node) => drawChaoticShape(aedCtx, node, now));
         drawPopEffects(aedCtx, now);
 
         aedRafId = requestAnimationFrame(drawFrame);
