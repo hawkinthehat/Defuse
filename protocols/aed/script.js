@@ -19,7 +19,8 @@
     let aedCanvas = null;
     let aedCtx = null;
     let aedShell = null;
-    let aedInst = null;
+    let aedIntroOverlay = null;
+    let introOverlayDismissed = false;
     let aedResizeHandler = null;
     let aedPointerHandler = null;
 
@@ -84,6 +85,29 @@
                 height: 100%;
                 touch-action: none;
             }
+            .aed-root .aed-intro-overlay {
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0;
+                padding: 0 1.5rem;
+                font-size: clamp(1.5rem, 5vw, 2.25rem);
+                font-weight: 600;
+                line-height: 1.35;
+                letter-spacing: 0.03em;
+                text-align: center;
+                color: rgba(200, 228, 218, 0.94);
+                text-shadow: 0 0 32px rgba(72, 196, 212, 0.35);
+                pointer-events: none;
+                opacity: 1;
+                transition: opacity 500ms ease;
+            }
+            .aed-root .aed-intro-overlay.is-fading {
+                opacity: 0;
+            }
         `;
         document.head.appendChild(style);
     }
@@ -109,7 +133,8 @@
         aedCanvas = null;
         aedCtx = null;
         aedShell = null;
-        aedInst = null;
+        aedIntroOverlay = null;
+        introOverlayDismissed = false;
         chaoticNodes = [];
         calmNodes = [];
         popEffects = [];
@@ -118,10 +143,44 @@
         calmTaps = 0;
     }
 
-    function setInstruction(text) {
-        if (aedInst) aedInst.textContent = text;
-        const globalInst = document.getElementById('inst');
-        if (globalInst && !aedInst?.id) globalInst.textContent = text;
+    function ensureIntroOverlay(shell) {
+        if (!shell) return null;
+        let overlay = shell.querySelector('#aed-intro-overlay');
+        if (!overlay) {
+            overlay = document.createElement('p');
+            overlay.id = 'aed-intro-overlay';
+            overlay.className = 'aed-intro-overlay';
+            overlay.setAttribute('role', 'status');
+            overlay.setAttribute('aria-live', 'polite');
+            overlay.textContent = 'Focus on the glowing ovoids.';
+            shell.insertBefore(overlay, shell.querySelector('#aed-canvas'));
+        }
+        overlay.classList.remove('is-fading');
+        overlay.style.opacity = '';
+        overlay.style.pointerEvents = 'none';
+        return overlay;
+    }
+
+    function dismissIntroOverlay() {
+        if (!aedIntroOverlay || introOverlayDismissed) return;
+        introOverlayDismissed = true;
+
+        const overlay = aedIntroOverlay;
+        overlay.classList.add('is-fading');
+
+        const removeOverlay = () => {
+            overlay.remove();
+            if (aedIntroOverlay === overlay) aedIntroOverlay = null;
+        };
+
+        overlay.addEventListener('transitionend', (event) => {
+            if (event.propertyName === 'opacity') removeOverlay();
+        }, { once: true });
+        setTimeout(removeOverlay, 520);
+    }
+
+    function maybeDismissIntroOverlay() {
+        if (calmTaps >= 2) dismissIntroOverlay();
     }
 
     function resizeCanvas() {
@@ -240,11 +299,7 @@
         regulationAnimFrom = regulationDisplay;
         regulationTarget = clamp(regulationTarget + 0.22, 0, 1);
         regulationAnimStart = performance.now();
-        if (regulationTarget >= 0.95) {
-            setInstruction('ʔuʔəy̓ · REGULATION HOLD · BREATHE WITH THE DIM');
-        } else {
-            setInstruction('ʔuʔəy̓ · CALM NODE · SCREEN SOFTENING');
-        }
+        maybeDismissIntroOverlay();
     }
 
     function addPopEffect(x, y, color) {
@@ -508,7 +563,6 @@
         const aliveCalm = calmNodes.filter((n) => n.alive).length;
         if (aliveCalm === 0 && now - lastRespawnAt > 800) {
             spawnCalmNodes();
-            setInstruction('ʔuʔəy̓ · IGNORE NOISE · TAP SLOW CALM NODES');
         }
     }
 
@@ -547,7 +601,6 @@
     function bindEngine(root) {
         aedShell = root.querySelector('#aed-shell') || root.querySelector('.aed-shell');
         aedCanvas = root.querySelector('#aed-canvas');
-        aedInst = root.querySelector('#aed-inst');
 
         if (!aedShell || !aedCanvas) return false;
         aedCtx = aedCanvas.getContext('2d');
@@ -558,8 +611,10 @@
         regulationAnimStart = 0;
         regulationAnimFrom = 0;
         calmTaps = 0;
+        introOverlayDismissed = false;
         popEffects = [];
         aedShell.style.filter = 'contrast(1.18) brightness(1)';
+        aedIntroOverlay = ensureIntroOverlay(aedShell);
 
         resizeCanvas();
         spawnChaoticNodes();
@@ -572,7 +627,6 @@
         aedCanvas.addEventListener('pointerdown', aedPointerHandler, { passive: false });
 
         aedRunning = true;
-        setInstruction('ʔuʔəy̓ · IGNORE NOISE · TAP SLOW CALM NODES');
         aedRafId = requestAnimationFrame(drawFrame);
         return true;
     }
@@ -592,6 +646,7 @@
         stage.innerHTML = `
             <div class="aed-root" id="aed-root">
                 <main class="aed-shell" id="aed-shell" aria-label="Attention bias modification canvas">
+                    <p class="aed-intro-overlay" id="aed-intro-overlay" role="status" aria-live="polite">Focus on the glowing ovoids.</p>
                     <canvas id="aed-canvas" aria-hidden="true"></canvas>
                 </main>
             </div>
@@ -606,7 +661,7 @@
         if (typeof ensureEmergencyBypassFooter === 'function') ensureEmergencyBypassFooter();
 
         const inst = document.getElementById('inst');
-        if (inst) inst.textContent = 'ʔuʔəy̓ · IGNORE NOISE · TAP SLOW CALM NODES';
+        if (inst) inst.textContent = '';
 
         if (!mountSpaStage()) mountStandalone();
     }

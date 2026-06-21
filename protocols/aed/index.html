@@ -68,31 +68,40 @@
             outline-offset: 2px;
         }
 
-        .aed-inst {
-            position: fixed;
-            top: calc(env(safe-area-inset-top, 12px) + 14px);
-            left: max(16px, env(safe-area-inset-left, 0px));
-            right: calc(max(20px, env(safe-area-inset-right, 0px)) + 5.75rem);
-            margin: 0;
-            z-index: 11999;
-            font-size: clamp(0.68rem, 2.6vw, 0.8rem);
-            line-height: 1.35;
-            letter-spacing: 0.08em;
-            font-weight: 700;
-            text-align: center;
-            color: rgba(90, 154, 122, 0.82);
-            pointer-events: none;
-        }
-
         .aed-shell {
             flex: 1;
             position: relative;
             width: 100%;
             min-height: 0;
-            padding-top: calc(env(safe-area-inset-top, 0px) + 3.25rem);
+            padding-top: env(safe-area-inset-top, 0px);
             padding-bottom: 80px;
             overflow: hidden;
             transition: filter 0.4s linear;
+        }
+
+        .aed-intro-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 0 max(1.5rem, env(safe-area-inset-left, 0px)) 0 max(1.5rem, env(safe-area-inset-right, 0px));
+            font-size: clamp(1.5rem, 5vw, 2.25rem);
+            font-weight: 600;
+            line-height: 1.35;
+            letter-spacing: 0.03em;
+            text-align: center;
+            color: rgba(200, 228, 218, 0.94);
+            text-shadow: 0 0 32px rgba(72, 196, 212, 0.35);
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 500ms ease;
+        }
+
+        .aed-intro-overlay.is-fading {
+            opacity: 0;
         }
 
         #aed-canvas {
@@ -146,9 +155,9 @@
 <body>
     <div class="aed-page" id="aed-page">
         <a class="aed-exit" href="../../" title="Return to dashboard">EXIT</a>
-        <p class="aed-inst" id="aed-inst" role="status">ʔuʔəy̓ · IGNORE NOISE · TAP SLOW CALM NODES</p>
 
         <main class="aed-shell" id="aed-shell" aria-label="Attention bias modification canvas">
+            <p class="aed-intro-overlay" id="aed-intro-overlay" role="status" aria-live="polite">Focus on the glowing ovoids.</p>
             <canvas id="aed-canvas" aria-hidden="true"></canvas>
         </main>
 
