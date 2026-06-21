@@ -873,16 +873,21 @@ html.protocol-viewport-active body {
     background: rgba(127, 29, 29, 0.55);
 }
 
+.app-studio-brand,
+#studio-brand-footer {
+    letter-spacing: 0.05em;
+}
+
 #dashboard .app-studio-brand,
 #dashboard #studio-brand-footer {
     width: 100%;
     max-width: 26rem;
     margin: 1.25rem auto 0;
     padding: 0 12px;
-    font-size: 0.85rem !important;
+    font-size: 0.95rem !important;
     line-height: 1.45;
     text-align: center;
-    color: rgba(230, 237, 243, 0.72);
+    color: #94a3b8;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     box-sizing: border-box;
 }
@@ -921,7 +926,7 @@ html.protocol-viewport-active body {
     justify-content: center;
     align-items: center;
     padding: 24px;
-    background: var(--overlay-scrim);
+    background: rgba(0, 0, 0, 0.92);
     pointer-events: all;
 }
 
@@ -932,10 +937,10 @@ html.protocol-viewport-active body {
 .protocol-intro-card {
     max-width: 24rem;
     padding: 1.5rem 1.35rem;
-    border: 1px solid var(--border-subtle);
+    border: 1px solid rgba(148, 163, 184, 0.22);
     border-radius: 10px;
-    background: var(--bg-surface);
-    box-shadow: var(--shadow-md);
+    background: #1a202c;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
 }
 
 .protocol-intro-body {
@@ -943,7 +948,7 @@ html.protocol-viewport-active body {
     font-size: clamp(0.88rem, 3vw, 1.05rem);
     line-height: 1.5;
     font-weight: 800;
-    color: var(--text-primary);
+    color: #f1f5f9;
     text-align: center;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -955,7 +960,7 @@ html.protocol-viewport-active body {
     font-size: 0.58rem;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--healing-blue);
+    color: #cbd5e1;
     text-align: center;
     font-family: monospace;
     font-weight: 600;

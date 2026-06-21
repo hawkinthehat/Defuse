@@ -50,13 +50,13 @@ const globalBinauralState = {
  * Pre-session splash: RETRAIN ENGAGED: [NAME]. FOCUS ON THE [RHYTHM TYPE] RHYTHM.
  */
 const PROTOCOL_ENGAGE = {
-    obd: { name: 'dᶻix̌ʷ', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.obd.action },
-    cre: { name: 'k̓ʷəč', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.cre.action },
-    mif: { name: 'gʷədiʔ', rhythm: 'HAPTIC AND SOMATIC', retrain: TRIAGE_RETRAIN_LABELS.mif.action },
-    aed: { name: 'ʔuʔəy̓', rhythm: 'VISUAL AND ATTENTIONAL', retrain: TRIAGE_RETRAIN_LABELS.aed.action },
+    obd: { name: 'dᶻix̌ʷ (dzih-khw)', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.obd.action },
+    cre: { name: 'k̓ʷəč (kuh-wutch)', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.cre.action },
+    mif: { name: 'gʷədiʔ (gwuh-dee)', rhythm: 'HAPTIC AND SOMATIC', retrain: TRIAGE_RETRAIN_LABELS.mif.action },
+    aed: { name: 'ʔuʔəy̓ (oo-uh-ee)', rhythm: 'VISUAL AND ATTENTIONAL', retrain: TRIAGE_RETRAIN_LABELS.aed.action },
     sam: { name: 'SAM', rhythm: 'VISUAL AND HAPTIC', retrain: 'RETRAIN ATTENTION' },
     iec: { name: 'IEC', rhythm: 'VISUAL', retrain: 'RETRAIN PERCEPTION' },
-    prcb: { name: 'tix̌ix̌dubut', rhythm: 'HIGH-CONTRAST VISUAL', retrain: TRIAGE_RETRAIN_LABELS.prcb.action }
+    prcb: { name: 'tix̌ix̌dubut (tee-khuh-khuh-doo-but)', rhythm: 'HIGH-CONTRAST VISUAL', retrain: TRIAGE_RETRAIN_LABELS.prcb.action }
 };
 
 const PROTOCOL_ROUTES = {
