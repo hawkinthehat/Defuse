@@ -118,6 +118,12 @@ function promptEmergencyDial() {
     window.location.href = `tel:${number}`;
 }
 
+function setEmergencyFooterHomeMode(isHome) {
+    const footer = document.getElementById('emergency-bypass-footer');
+    if (!footer) return;
+    footer.classList.toggle('home-footer', isHome);
+}
+
 function ensureEmergencyBypassFooter() {
     const footer = document.getElementById('emergency-bypass-footer');
     if (!footer) return;
@@ -521,6 +527,7 @@ function showProtocolViewport() {
     vp.classList.remove('hidden');
     vp.setAttribute('aria-hidden', 'false');
     vp.style.removeProperty('display');
+    setEmergencyFooterHomeMode(false);
     ensureEmergencyBypassFooter();
 }
 
@@ -573,6 +580,7 @@ function exitProtocol() {
         inst.textContent = '';
         inst.removeAttribute('style');
     }
+    setEmergencyFooterHomeMode(true);
 }
 
 if (typeof window !== 'undefined') {
