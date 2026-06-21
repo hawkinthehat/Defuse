@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzixw-v18';
+const CACHE_NAME = 'dzixw-v19';
 
 const PRECACHE_URLS = [
   '/',
@@ -23,6 +23,7 @@ const PRECACHE_URLS = [
   '/protocols/iec/app.js',
   '/protocols/prcb/prcb.css',
   '/protocols/prcb/prcb.js',
+  '/protocols/aed/index.html',
   '/protocols/aed/script.js',
   '/protocols/mif/index.html',
   '/protocols/mif/script.js',
