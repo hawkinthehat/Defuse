@@ -25,6 +25,8 @@ const PRECACHE_URLS = [
   '/protocols/prcb/prcb.js',
   '/protocols/aed/index.html',
   '/protocols/aed/script.js',
+  '/protocols/gwədiʔ/index.html',
+  '/protocols/gwədiʔ/script.js',
   '/protocols/mif/index.html',
   '/protocols/mif/script.js',
 ];
