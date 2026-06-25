@@ -16,6 +16,16 @@
     const CONSECUTIVE_ON_PATH_FOR_SYNC = 3;
     const TRAIL_LENGTH = 15;
 
+    const THETA_LEFT_HZ = 200;
+    const THETA_RIGHT_HZ = 206;
+    const THETA_MAX_GAIN = 0.18;
+    const THETA_FADE_IN_SEC = 0.85;
+    const THETA_FADE_OUT_SEC = 0.12;
+
+    const TRACE_ROOT_HZ = 220;
+    const TRACE_MAX_GAIN = 0.14;
+    const TRACE_FADE_IN_SEC = 0.06;
+
     const COLORS = {
         bg: '#040506',
         path: 'rgba(88, 142, 126, 0.42)',
@@ -59,6 +69,19 @@
     let pathPoints = [];
     let touchTrail = [];
     let wavePhase = 0;
+
+    let isAudioPlaying = false;
+    let thetaNodes = null;
+    let thetaToggleBtn = null;
+    let thetaToggleHandler = null;
+
+    let traceAudioCtx = null;
+    let traceOscillator = null;
+    let traceGainNode = null;
+    let traceAudioReady = false;
+    let lastTraceX = 0;
+    let lastTraceY = 0;
+    let lastTraceAt = 0;
 
     function clamp(v, lo, hi) {
         return Math.max(lo, Math.min(hi, v));
@@ -125,6 +148,32 @@
                 -webkit-user-select: none;
                 user-select: none;
             }
+            .mif-theta-audio-toggle {
+                position: absolute;
+                top: calc(env(safe-area-inset-top, 0px) + 3.35rem);
+                right: max(12px, env(safe-area-inset-right, 12px));
+                z-index: 6;
+                min-height: 2rem;
+                padding: 0.45rem 0.65rem;
+                border: 1px solid rgba(148, 163, 184, 0.28);
+                border-radius: 6px;
+                background: rgba(0, 0, 0, 0.42);
+                color: rgba(148, 163, 184, 0.72);
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                font-size: 0.56rem;
+                font-weight: 600;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                cursor: pointer;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+                transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+            }
+            .mif-theta-audio-toggle--active {
+                border-color: rgba(94, 234, 212, 0.42);
+                color: rgba(153, 246, 228, 0.88);
+                background: rgba(4, 47, 46, 0.45);
+            }
         `;
         document.head.appendChild(style);
     }
@@ -157,6 +206,287 @@
         mifRunning = false;
     }
 
+    function getMifAudioContext() {
+        if (traceAudioCtx && traceAudioCtx.state !== 'closed') return traceAudioCtx;
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        try {
+            traceAudioCtx = new Ctx();
+        } catch {
+            traceAudioCtx = null;
+        }
+        return traceAudioCtx;
+    }
+
+    function resumeMifAudio() {
+        const ctx = getMifAudioContext();
+        if (!ctx) return Promise.resolve(false);
+        if (ctx.state === 'suspended') {
+            return ctx.resume().then(() => true).catch(() => false);
+        }
+        return Promise.resolve(true);
+    }
+
+    function syncThetaToggleLabel() {
+        if (!thetaToggleBtn) return;
+        thetaToggleBtn.textContent = isAudioPlaying ? 'θ hum on' : 'θ hum off';
+        thetaToggleBtn.setAttribute('aria-pressed', isAudioPlaying ? 'true' : 'false');
+        thetaToggleBtn.classList.toggle('mif-theta-audio-toggle--active', isAudioPlaying);
+    }
+
+    function setThetaGain(value, rampSec) {
+        if (!thetaNodes) return;
+        const ctx = getMifAudioContext();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+        const ramp = Math.max(0.001, rampSec || 0.03);
+        const { gainNode } = thetaNodes;
+
+        gainNode.gain.cancelScheduledValues(now);
+        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+        gainNode.gain.linearRampToValueAtTime(Math.max(0, Math.min(THETA_MAX_GAIN, value)), now + ramp);
+    }
+
+    function teardownThetaHum() {
+        isAudioPlaying = false;
+
+        if (thetaToggleBtn && thetaToggleHandler) {
+            thetaToggleBtn.removeEventListener('click', thetaToggleHandler);
+        }
+        if (thetaToggleBtn) {
+            thetaToggleBtn.remove();
+        }
+        thetaToggleBtn = null;
+        thetaToggleHandler = null;
+
+        if (!thetaNodes) return;
+
+        const { leftOsc, rightOsc, gainNode } = thetaNodes;
+        const ctx = getMifAudioContext();
+        if (ctx) {
+            const now = ctx.currentTime;
+            gainNode.gain.cancelScheduledValues(now);
+            gainNode.gain.setValueAtTime(0, now);
+        }
+
+        [leftOsc, rightOsc].forEach((node) => {
+            try {
+                node.stop();
+            } catch {
+                /* ignore */
+            }
+        });
+        [leftOsc, rightOsc, gainNode, thetaNodes.merger, thetaNodes.leftGain, thetaNodes.rightGain].forEach((node) => {
+            try {
+                node.disconnect();
+            } catch {
+                /* ignore */
+            }
+        });
+
+        thetaNodes = null;
+    }
+
+    function initializeThetaHum() {
+        if (thetaNodes) return resumeMifAudio();
+
+        return resumeMifAudio().then((ready) => {
+            if (!ready || thetaNodes) return !!thetaNodes;
+
+            const ctx = getMifAudioContext();
+            if (!ctx) return false;
+
+            const leftOsc = ctx.createOscillator();
+            const rightOsc = ctx.createOscillator();
+            const leftGain = ctx.createGain();
+            const rightGain = ctx.createGain();
+            const merger = ctx.createChannelMerger(2);
+            const gainNode = ctx.createGain();
+            const now = ctx.currentTime;
+
+            leftOsc.type = 'sine';
+            rightOsc.type = 'sine';
+            leftOsc.frequency.setValueAtTime(THETA_LEFT_HZ, now);
+            rightOsc.frequency.setValueAtTime(THETA_RIGHT_HZ, now);
+            leftGain.gain.setValueAtTime(1, now);
+            rightGain.gain.setValueAtTime(1, now);
+            gainNode.gain.setValueAtTime(0, now);
+
+            leftOsc.connect(leftGain);
+            rightOsc.connect(rightGain);
+            leftGain.connect(merger, 0, 0);
+            rightGain.connect(merger, 0, 1);
+            merger.connect(gainNode);
+            gainNode.connect(ctx.destination);
+
+            leftOsc.start(now);
+            rightOsc.start(now);
+
+            thetaNodes = { leftOsc, rightOsc, leftGain, rightGain, merger, gainNode };
+            isAudioPlaying = false;
+            return true;
+        });
+    }
+
+    function toggleThetaHum() {
+        if (!thetaNodes) {
+            initializeThetaHum().then(() => {
+                if (thetaNodes) toggleThetaHum();
+            });
+            return;
+        }
+
+        isAudioPlaying = !isAudioPlaying;
+        setThetaGain(isAudioPlaying ? THETA_MAX_GAIN : 0, isAudioPlaying ? THETA_FADE_IN_SEC : THETA_FADE_OUT_SEC);
+        syncThetaToggleLabel();
+    }
+
+    function mountThetaToggle(root) {
+        const host = root || document.getElementById('viewport');
+        if (!host || thetaToggleBtn) return;
+
+        thetaToggleBtn = document.createElement('button');
+        thetaToggleBtn.type = 'button';
+        thetaToggleBtn.className = 'mif-theta-audio-toggle';
+        thetaToggleBtn.setAttribute('aria-label', 'Toggle theta background hum');
+        syncThetaToggleLabel();
+
+        thetaToggleHandler = () => toggleThetaHum();
+        thetaToggleBtn.addEventListener('click', thetaToggleHandler);
+        host.appendChild(thetaToggleBtn);
+    }
+
+    function prepareThetaHum(root) {
+        isAudioPlaying = false;
+        initializeThetaHum().then(() => {
+            const ctx = getMifAudioContext();
+            if (thetaNodes && ctx) {
+                thetaNodes.gainNode.gain.setValueAtTime(0, ctx.currentTime);
+            }
+            mountThetaToggle(root);
+        });
+    }
+
+    function teardownTracingAudio() {
+        if (traceGainNode && traceAudioCtx) {
+            traceGainNode.gain.setValueAtTime(0, traceAudioCtx.currentTime);
+        }
+        if (traceOscillator) {
+            try {
+                traceOscillator.stop();
+            } catch {
+                /* ignore */
+            }
+            try {
+                traceOscillator.disconnect();
+            } catch {
+                /* ignore */
+            }
+        }
+        if (traceGainNode) {
+            try {
+                traceGainNode.disconnect();
+            } catch {
+                /* ignore */
+            }
+        }
+        traceOscillator = null;
+        traceGainNode = null;
+        traceAudioReady = false;
+        lastTraceAt = 0;
+
+        if (traceAudioCtx && traceAudioCtx.state !== 'closed') {
+            traceAudioCtx.close().catch(() => {});
+        }
+        traceAudioCtx = null;
+    }
+
+    function ensureTracingAudio() {
+        if (traceOscillator && traceGainNode && traceAudioReady) {
+            return resumeMifAudio();
+        }
+
+        return resumeMifAudio().then((ready) => {
+            if (!ready) return false;
+
+            const ctx = getMifAudioContext();
+            if (!ctx) return false;
+
+            if (traceOscillator) {
+                try {
+                    traceOscillator.stop();
+                } catch {
+                    /* ignore */
+                }
+                try {
+                    traceOscillator.disconnect();
+                } catch {
+                    /* ignore */
+                }
+            }
+            if (traceGainNode) {
+                try {
+                    traceGainNode.disconnect();
+                } catch {
+                    /* ignore */
+                }
+            }
+
+            const now = ctx.currentTime;
+            traceOscillator = ctx.createOscillator();
+            traceGainNode = ctx.createGain();
+
+            traceOscillator.type = 'triangle';
+            traceOscillator.frequency.setValueAtTime(TRACE_ROOT_HZ, now);
+            traceGainNode.gain.setValueAtTime(0, now);
+
+            traceOscillator.connect(traceGainNode);
+            traceGainNode.connect(ctx.destination);
+            traceOscillator.start(now);
+
+            traceAudioReady = true;
+            return true;
+        });
+    }
+
+    function muteTracingAudio() {
+        if (!traceGainNode || !traceAudioCtx) return;
+        traceGainNode.gain.setValueAtTime(0, traceAudioCtx.currentTime);
+    }
+
+    function startTracingAudio() {
+        ensureTracingAudio().then((ready) => {
+            if (!ready || !traceGainNode || !traceAudioCtx) return;
+            const now = traceAudioCtx.currentTime;
+            traceGainNode.gain.cancelScheduledValues(now);
+            traceGainNode.gain.setValueAtTime(traceGainNode.gain.value, now);
+            traceGainNode.gain.linearRampToValueAtTime(TRACE_MAX_GAIN, now + TRACE_FADE_IN_SEC);
+        });
+    }
+
+    function updateTracingAudio(now, pathDistance) {
+        if (!fingerActive || !traceOscillator || !traceGainNode || !traceAudioCtx) return;
+
+        const elapsed = lastTraceAt > 0 ? Math.max(0.001, now - lastTraceAt) : 0.016;
+        const dx = fingerX - lastTraceX;
+        const dy = fingerY - lastTraceY;
+        const speed = Math.sqrt(dx * dx + dy * dy) / elapsed;
+        lastTraceX = fingerX;
+        lastTraceY = fingerY;
+        lastTraceAt = now;
+
+        const accuracy = clamp(1 - pathDistance / PATH_TOLERANCE, 0, 1);
+        const speedShift = clamp(speed * 0.05, 0, 28);
+        const targetHz = TRACE_ROOT_HZ + accuracy * 36 - speedShift * 0.35;
+
+        traceOscillator.frequency.setTargetAtTime(
+            clamp(targetHz, 180, 280),
+            traceAudioCtx.currentTime,
+            0.04
+        );
+    }
+
     function stopMIF() {
         clearMifTimers();
         mifCanvas = null;
@@ -172,6 +502,8 @@
         touchTrail = [];
         successfulPulses = 0;
         lastPulseAt = 0;
+        teardownThetaHum();
+        teardownTracingAudio();
     }
 
     function setProtocolHeader() {
@@ -302,6 +634,7 @@
 
         const { dist } = nearestPathDistance(fingerX, fingerY, pathPoints);
         const within = dist <= PATH_TOLERANCE;
+        updateTracingAudio(now, dist);
 
         if (within) {
             onPathStreak += 1;
@@ -344,6 +677,10 @@
         onPathStreak = 0;
         synced = false;
         lastPulseAt = 0;
+        lastTraceX = fingerX;
+        lastTraceY = fingerY;
+        lastTraceAt = performance.now();
+        startTracingAudio();
         setInstruction('Slide slowly along the shifting path');
     }
 
@@ -371,6 +708,7 @@
         onPath = false;
         onPathStreak = 0;
         synced = false;
+        muteTracingAudio();
         setInstruction('Slide slowly along the shifting path');
     }
 
@@ -629,6 +967,7 @@
         mifCanvas.addEventListener('pointerleave', mifPointerUpHandler, { passive: false });
 
         mifRunning = true;
+        prepareThetaHum(root);
         setInstruction('Slide slowly along the shifting path');
         mifRafId = requestAnimationFrame(drawFrame);
         return true;
@@ -673,6 +1012,15 @@
 
     window.launchMIF = launchMIF;
     window.stopMIF = stopMIF;
+
+    window.MIFThetaAudio = {
+        prepare: prepareThetaHum,
+        toggle: toggleThetaHum,
+        teardown: teardownThetaHum,
+        get isPlaying() {
+            return isAudioPlaying;
+        }
+    };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {

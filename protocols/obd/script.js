@@ -12,8 +12,19 @@
     const SINE_TRACK_CYCLE_MS = 24000;
     const MAX_DPR = 2;
 
+    const THETA_LEFT_HZ = 200;
+    const THETA_RIGHT_HZ = 206;
+    const THETA_MAX_GAIN = 0.18;
+    const THETA_FADE_IN_SEC = 0.85;
+    const THETA_FADE_OUT_SEC = 0.12;
+
     let stereoPanner = null;
     let pannerContext = null;
+
+    let isAudioPlaying = false;
+    let thetaNodes = null;
+    let thetaToggleBtn = null;
+    let thetaToggleHandler = null;
 
     let bgCanvas = null;
     let bgCtx = null;
@@ -30,6 +41,192 @@
     function getSharedAudioContext() {
         if (typeof window.OBDAudio === 'undefined' || !window.OBDAudio.getAudioContext) return null;
         return window.OBDAudio.getAudioContext();
+    }
+
+    function resumeSharedAudio() {
+        const ctx = getSharedAudioContext();
+        if (!ctx) return Promise.resolve(false);
+        if (ctx.state === 'suspended') {
+            return ctx.resume().then(() => true).catch(() => false);
+        }
+        return Promise.resolve(true);
+    }
+
+    function injectThetaToggleStyles() {
+        if (document.getElementById('obd-theta-audio-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'obd-theta-audio-styles';
+        style.textContent = `
+            .obd-theta-audio-toggle {
+                position: absolute;
+                top: calc(env(safe-area-inset-top, 0px) + 3.35rem);
+                right: max(12px, env(safe-area-inset-right, 12px));
+                z-index: 1001;
+                min-height: 2rem;
+                padding: 0.45rem 0.65rem;
+                border: 1px solid rgba(148, 163, 184, 0.28);
+                border-radius: 6px;
+                background: rgba(0, 0, 0, 0.42);
+                color: rgba(148, 163, 184, 0.72);
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                font-size: 0.56rem;
+                font-weight: 600;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                cursor: pointer;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+                transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+            }
+            .obd-theta-audio-toggle--active {
+                border-color: rgba(94, 234, 212, 0.42);
+                color: rgba(153, 246, 228, 0.88);
+                background: rgba(4, 47, 46, 0.45);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function syncThetaToggleLabel() {
+        if (!thetaToggleBtn) return;
+        thetaToggleBtn.textContent = isAudioPlaying ? 'θ hum on' : 'θ hum off';
+        thetaToggleBtn.setAttribute('aria-pressed', isAudioPlaying ? 'true' : 'false');
+        thetaToggleBtn.classList.toggle('obd-theta-audio-toggle--active', isAudioPlaying);
+    }
+
+    function setThetaGain(value, rampSec) {
+        if (!thetaNodes) return;
+        const ctx = getSharedAudioContext();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+        const ramp = Math.max(0.001, rampSec || 0.03);
+        const { gainNode } = thetaNodes;
+
+        gainNode.gain.cancelScheduledValues(now);
+        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+        gainNode.gain.linearRampToValueAtTime(Math.max(0, Math.min(THETA_MAX_GAIN, value)), now + ramp);
+    }
+
+    function teardownThetaHum() {
+        isAudioPlaying = false;
+
+        if (thetaToggleBtn && thetaToggleHandler) {
+            thetaToggleBtn.removeEventListener('click', thetaToggleHandler);
+        }
+        if (thetaToggleBtn) {
+            thetaToggleBtn.remove();
+        }
+        thetaToggleBtn = null;
+        thetaToggleHandler = null;
+
+        if (!thetaNodes) return;
+
+        const { leftOsc, rightOsc, gainNode } = thetaNodes;
+        const ctx = getSharedAudioContext();
+        if (ctx) {
+            const now = ctx.currentTime;
+            gainNode.gain.cancelScheduledValues(now);
+            gainNode.gain.setValueAtTime(0, now);
+        }
+
+        [leftOsc, rightOsc].forEach((node) => {
+            try {
+                node.stop();
+            } catch {
+                /* ignore */
+            }
+        });
+        [leftOsc, rightOsc, gainNode, thetaNodes.merger, thetaNodes.leftGain, thetaNodes.rightGain].forEach((node) => {
+            try {
+                node.disconnect();
+            } catch {
+                /* ignore */
+            }
+        });
+
+        thetaNodes = null;
+    }
+
+    function initializeThetaHum() {
+        if (thetaNodes) return resumeSharedAudio();
+
+        return resumeSharedAudio().then((ready) => {
+            if (!ready || thetaNodes) return !!thetaNodes;
+
+            const ctx = getSharedAudioContext();
+            if (!ctx) return false;
+
+            const leftOsc = ctx.createOscillator();
+            const rightOsc = ctx.createOscillator();
+            const leftGain = ctx.createGain();
+            const rightGain = ctx.createGain();
+            const merger = ctx.createChannelMerger(2);
+            const gainNode = ctx.createGain();
+            const now = ctx.currentTime;
+
+            leftOsc.type = 'sine';
+            rightOsc.type = 'sine';
+            leftOsc.frequency.setValueAtTime(THETA_LEFT_HZ, now);
+            rightOsc.frequency.setValueAtTime(THETA_RIGHT_HZ, now);
+            leftGain.gain.setValueAtTime(1, now);
+            rightGain.gain.setValueAtTime(1, now);
+            gainNode.gain.setValueAtTime(0, now);
+
+            leftOsc.connect(leftGain);
+            rightOsc.connect(rightGain);
+            leftGain.connect(merger, 0, 0);
+            rightGain.connect(merger, 0, 1);
+            merger.connect(gainNode);
+            gainNode.connect(ctx.destination);
+
+            leftOsc.start(now);
+            rightOsc.start(now);
+
+            thetaNodes = { leftOsc, rightOsc, leftGain, rightGain, merger, gainNode };
+            isAudioPlaying = false;
+            return true;
+        });
+    }
+
+    function toggleThetaHum() {
+        if (!thetaNodes) {
+            initializeThetaHum().then(() => {
+                if (thetaNodes) toggleThetaHum();
+            });
+            return;
+        }
+
+        isAudioPlaying = !isAudioPlaying;
+        setThetaGain(isAudioPlaying ? THETA_MAX_GAIN : 0, isAudioPlaying ? THETA_FADE_IN_SEC : THETA_FADE_OUT_SEC);
+        syncThetaToggleLabel();
+    }
+
+    function mountThetaToggle() {
+        injectThetaToggleStyles();
+        const host = document.getElementById('viewport');
+        if (!host || thetaToggleBtn) return;
+
+        thetaToggleBtn = document.createElement('button');
+        thetaToggleBtn.type = 'button';
+        thetaToggleBtn.className = 'obd-theta-audio-toggle';
+        thetaToggleBtn.setAttribute('aria-label', 'Toggle theta background hum');
+        syncThetaToggleLabel();
+
+        thetaToggleHandler = () => toggleThetaHum();
+        thetaToggleBtn.addEventListener('click', thetaToggleHandler);
+        host.appendChild(thetaToggleBtn);
+    }
+
+    function prepareThetaHum() {
+        isAudioPlaying = false;
+        initializeThetaHum().then(() => {
+            const ctx = getSharedAudioContext();
+            if (thetaNodes && ctx) {
+                thetaNodes.gainNode.gain.setValueAtTime(0, ctx.currentTime);
+            }
+            mountThetaToggle();
+        });
     }
 
     function paddleXToPan(px, screenWidth) {
@@ -92,6 +289,7 @@
 
     function prepareBilateralPanner() {
         ensureStereoPanner();
+        prepareThetaHum();
     }
 
     function updateFromPaddle(px, screenWidth, dtSec) {
@@ -104,6 +302,7 @@
     }
 
     function teardownBilateralPanner() {
+        teardownThetaHum();
         disconnectStereoPanner();
     }
 
@@ -262,6 +461,15 @@
         updateFromPaddle,
         reset: resetBilateralPan,
         teardown: teardownBilateralPanner
+    };
+
+    window.OBDThetaAudio = {
+        prepare: prepareThetaHum,
+        toggle: toggleThetaHum,
+        teardown: teardownThetaHum,
+        get isPlaying() {
+            return isAudioPlaying;
+        }
     };
 
     window.OBDVisual = {
