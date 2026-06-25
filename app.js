@@ -146,6 +146,51 @@ function ensureEmergencyBypassFooter() {
 
 let emergencyExitLinksInited = false;
 
+function isDisclaimerRoute() {
+    const overlay = document.getElementById('master-init-overlay');
+    if (overlay && !overlay.classList.contains('hidden')) return true;
+    if (document.querySelector('main.onboarding-overlay')) return true;
+    const path = typeof window !== 'undefined' ? window.location.pathname : '';
+    return path.endsWith('/terms.html') || path.endsWith('terms.html');
+}
+
+let disclaimerAxisLockInited = false;
+
+function initDisclaimerAxisLock() {
+    if (disclaimerAxisLockInited) return;
+    disclaimerAxisLockInited = true;
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener(
+        'touchstart',
+        (event) => {
+            if (!isDisclaimerRoute()) return;
+            const touch = event.touches[0];
+            if (!touch) return;
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        },
+        { passive: true, capture: true }
+    );
+
+    document.addEventListener(
+        'touchmove',
+        (event) => {
+            if (!isDisclaimerRoute()) return;
+            const touch = event.touches[0];
+            if (!touch) return;
+            const deltaX = Math.abs(touch.clientX - touchStartX);
+            const deltaY = Math.abs(touch.clientY - touchStartY);
+            if (deltaX > deltaY) {
+                event.preventDefault();
+            }
+        },
+        { passive: false, capture: true }
+    );
+}
+
 function initEmergencyExitLinks() {
     if (emergencyExitLinksInited) return;
     emergencyExitLinksInited = true;
@@ -610,6 +655,7 @@ if (typeof window !== 'undefined') {
     window.showProtocolViewport = showProtocolViewport;
     window.promptEmergencyDial = promptEmergencyDial;
     window.ensureEmergencyBypassFooter = ensureEmergencyBypassFooter;
+    window.isDisclaimerRoute = isDisclaimerRoute;
 }
 
 if (typeof document !== 'undefined') {
@@ -619,11 +665,13 @@ if (typeof document !== 'undefined') {
             initDashboardPrimary();
             initStudioBrandHeader();
             initEmergencyExitLinks();
+            initDisclaimerAxisLock();
         });
     } else {
         initMasterInitializationOverlay();
         initDashboardPrimary();
         initStudioBrandHeader();
         initEmergencyExitLinks();
+        initDisclaimerAxisLock();
     }
 }
