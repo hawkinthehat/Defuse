@@ -301,6 +301,86 @@ function setGlobalBinauralGain(value) {
     }
 }
 
+function muteGlobalBinauralEngine() {
+    setGlobalBinauralGain(0);
+}
+
+function isThetaFrequencyActive() {
+    return onboardingFrequencyKey !== 'none';
+}
+
+function applyRuntimeThetaWaveState(enabled) {
+    if (!isThetaFrequencyActive()) {
+        onboardingAudioEnabled = false;
+        muteGlobalBinauralEngine();
+        return Promise.resolve(false);
+    }
+
+    onboardingAudioEnabled = Boolean(enabled);
+
+    if (!onboardingAudioEnabled) {
+        muteGlobalBinauralEngine();
+        return Promise.resolve(true);
+    }
+
+    initializeGlobalBinauralEngine();
+    applyFrequencyPreset(onboardingFrequencyKey);
+    return resumeGlobalBinauralEngine(getOnboardingAudioGain());
+}
+
+function syncGameplayThetaToggleUI() {
+    const toggle = document.getElementById('gameplay-theta-toggle');
+    if (!toggle) return;
+
+    const active = onboardingAudioEnabled && isThetaFrequencyActive();
+    toggle.classList.toggle('gameplay-theta-toggle--on', active);
+    toggle.setAttribute('aria-pressed', active ? 'true' : 'false');
+    toggle.setAttribute(
+        'aria-label',
+        active ? 'Theta waves on. Tap to turn off.' : 'Theta waves off. Tap to turn on.'
+    );
+
+    const stateEl = toggle.querySelector('.gameplay-theta-toggle-state');
+    if (stateEl) stateEl.textContent = active ? 'ON' : 'OFF';
+}
+
+function showGameplayThetaToggle() {
+    const toggle = document.getElementById('gameplay-theta-toggle');
+    if (!toggle) return;
+    if (!isThetaFrequencyActive()) {
+        hideGameplayThetaToggle();
+        return;
+    }
+    toggle.classList.remove('hidden');
+    toggle.removeAttribute('aria-hidden');
+    syncGameplayThetaToggleUI();
+}
+
+function hideGameplayThetaToggle() {
+    const toggle = document.getElementById('gameplay-theta-toggle');
+    if (!toggle) return;
+    toggle.classList.add('hidden');
+    toggle.setAttribute('aria-hidden', 'true');
+}
+
+let gameplayThetaToggleInited = false;
+
+function initGameplayThetaToggle() {
+    if (gameplayThetaToggleInited) return;
+    gameplayThetaToggleInited = true;
+
+    const toggle = document.getElementById('gameplay-theta-toggle');
+    if (!toggle) return;
+
+    toggle.addEventListener('click', () => {
+        if (!isThetaFrequencyActive()) return;
+        const active = onboardingAudioEnabled;
+        applyRuntimeThetaWaveState(!active);
+        syncGameplayThetaToggleUI();
+        selectionTapHaptic();
+    });
+}
+
 function setGlobalBinauralLowPass(frequencyHz) {
     const { audioContext, lowPassFilter } = globalBinauralState;
     if (!audioContext || !lowPassFilter) return;
@@ -575,6 +655,7 @@ function showProtocolViewport() {
     vp.style.removeProperty('display');
     setEmergencyFooterHomeMode(false);
     ensureEmergencyBypassFooter();
+    showGameplayThetaToggle();
 }
 
 function openSession(message) {
@@ -627,6 +708,7 @@ function exitProtocol() {
         inst.textContent = '';
         inst.removeAttribute('style');
     }
+    hideGameplayThetaToggle();
     setEmergencyFooterHomeMode(true);
 }
 
@@ -638,6 +720,8 @@ if (typeof window !== 'undefined') {
         initialize: initializeGlobalBinauralEngine,
         resume: resumeGlobalBinauralEngine,
         setGain: setGlobalBinauralGain,
+        mute: muteGlobalBinauralEngine,
+        setEnabled: applyRuntimeThetaWaveState,
         setLowPassFrequency: setGlobalBinauralLowPass,
         resetFilter: resetGlobalBinauralFilter,
         get audioContext() {
@@ -645,6 +729,9 @@ if (typeof window !== 'undefined') {
         },
         get isActive() {
             return globalBinauralState.started && globalBinauralState.unlocked;
+        },
+        get isThetaEnabled() {
+            return onboardingAudioEnabled && isThetaFrequencyActive();
         }
     };
     window.ProtocolRoutes = PROTOCOL_ROUTES;
@@ -666,6 +753,7 @@ if (typeof document !== 'undefined') {
             initStudioBrandHeader();
             initEmergencyExitLinks();
             initDisclaimerAxisLock();
+            initGameplayThetaToggle();
         });
     } else {
         initMasterInitializationOverlay();
@@ -673,5 +761,6 @@ if (typeof document !== 'undefined') {
         initStudioBrandHeader();
         initEmergencyExitLinks();
         initDisclaimerAxisLock();
+        initGameplayThetaToggle();
     }
 }

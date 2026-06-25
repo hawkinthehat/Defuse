@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzixw-v19';
+const CACHE_NAME = 'tsulc-persistent-toggle-v15.0.0';
 
 const PRECACHE_URLS = [
   '/',

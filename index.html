@@ -101,6 +101,19 @@
     <div id="viewport" class="hidden" aria-hidden="true">
         <p id="inst" class="protocol-header" role="status"></p>
         <button type="button" class="exit-btn" onclick="exitProtocol()" title="Return to dashboard">EXIT</button>
+        <button
+            type="button"
+            id="gameplay-theta-toggle"
+            class="gameplay-theta-toggle hidden"
+            aria-pressed="true"
+            aria-hidden="true"
+            aria-label="Theta waves on. Tap to turn off."
+            title="Toggle theta differential engine"
+        >
+            <span class="gameplay-theta-toggle-prefix" aria-hidden="true">θ</span>
+            <span class="gameplay-theta-toggle-label">Theta</span>
+            <span class="gameplay-theta-toggle-state" aria-hidden="true">ON</span>
+        </button>
         <div id="protocol-stage"></div>
     </div>
 
