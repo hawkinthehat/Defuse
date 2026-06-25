@@ -32,7 +32,7 @@ const FREQUENCY_PRESETS = {
     none: { leftHz: 200, rightHz: 200, label: 'Opt Out — No Binaural Frequency Layer', gain: 0 }
 };
 
-let onboardingAudioEnabled = true;
+let onboardingAudioEnabled = false;
 let onboardingFrequencyKey = 'theta-6';
 
 const globalBinauralState = {
@@ -216,7 +216,7 @@ function syncOnboardingFrequencyPanel() {
     const frequencySelect = document.getElementById('onboarding-frequency-select');
     if (!frequencySelect) return;
 
-    const audioOn = audioToggle ? audioToggle.checked : true;
+    const audioOn = audioToggle ? audioToggle.checked : false;
     frequencySelect.disabled = !audioOn;
     frequencySelect.setAttribute('aria-disabled', audioOn ? 'false' : 'true');
 }
