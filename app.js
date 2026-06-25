@@ -62,7 +62,7 @@ const PROTOCOL_ENGAGE = {
 const PROTOCOL_ROUTES = {
     cre: { name: 'k̓ʷəč', path: 'protocols/cre/' },
     obd: { name: 'dᶻix̌ʷ', path: 'protocols/obd/' },
-    mif: { name: 'gʷədiʔ', path: 'protocols/mif/' },
+    mif: { name: 'gʷədiʔ', path: 'protocols/gwədiʔ/' },
     aed: { name: 'ʔuʔəy̓', path: 'protocols/aed/' },
     sam: { name: 'SAM', path: 'protocols/sam/' },
     iec: { name: 'IEC', path: 'protocols/iec/' },
