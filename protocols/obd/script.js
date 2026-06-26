@@ -14,6 +14,22 @@
 
     let stereoPanner = null;
     let pannerContext = null;
+    /** Default-off — bilateral panning stays disconnected until global acoustic entrainment is enabled. */
+    let bilateralAudioEnabled = false;
+
+    function isBilateralAudioAllowed() {
+        if (typeof window.GlobalBinauralEngine !== 'undefined' && window.GlobalBinauralEngine.isThetaEnabled) {
+            return true;
+        }
+        return bilateralAudioEnabled;
+    }
+
+    function setBilateralAudioEnabled(enabled) {
+        bilateralAudioEnabled = Boolean(enabled);
+        if (!bilateralAudioEnabled) {
+            disconnectStereoPanner();
+        }
+    }
 
     let bgCanvas = null;
     let bgCtx = null;
@@ -55,6 +71,8 @@
     }
 
     function ensureStereoPanner() {
+        if (!isBilateralAudioAllowed()) return null;
+
         const ctx = getSharedAudioContext();
         if (!ctx) return null;
 
@@ -91,10 +109,12 @@
     }
 
     function prepareBilateralPanner() {
+        if (!isBilateralAudioAllowed()) return;
         ensureStereoPanner();
     }
 
     function updateFromPaddle(px, screenWidth, dtSec) {
+        if (!isBilateralAudioAllowed()) return;
         rampPanTo(paddleXToPan(px, screenWidth), dtSec);
     }
 
@@ -261,7 +281,9 @@
         prepare: prepareBilateralPanner,
         updateFromPaddle,
         reset: resetBilateralPan,
-        teardown: teardownBilateralPanner
+        teardown: teardownBilateralPanner,
+        setEnabled: setBilateralAudioEnabled,
+        isEnabled: () => isBilateralAudioAllowed()
     };
 
     window.OBDVisual = {

@@ -32,6 +32,7 @@ const FREQUENCY_PRESETS = {
     none: { leftHz: 200, rightHz: 200, label: 'Opt Out — No Binaural Frequency Layer', gain: 0 }
 };
 
+/** Explicit default-off — no binaural/theta output until the user opts in via toggle. */
 let onboardingAudioEnabled = false;
 let onboardingFrequencyKey = 'theta-6';
 
@@ -221,6 +222,19 @@ function syncOnboardingFrequencyPanel() {
     frequencySelect.setAttribute('aria-disabled', audioOn ? 'false' : 'true');
 }
 
+function initDefaultOffAudioState() {
+    onboardingAudioEnabled = false;
+
+    const audioToggle = document.getElementById('onboarding-audio-toggle');
+    if (audioToggle) {
+        audioToggle.checked = false;
+    }
+
+    muteGlobalBinauralEngine();
+    syncOnboardingFrequencyPanel();
+    syncGameplayThetaToggleUI();
+}
+
 function getGlobalBinauralAudioContext() {
     if (typeof window === 'undefined') return null;
     const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -313,10 +327,17 @@ function applyRuntimeThetaWaveState(enabled) {
     if (!isThetaFrequencyActive()) {
         onboardingAudioEnabled = false;
         muteGlobalBinauralEngine();
+        if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.setEnabled) {
+            window.OBDBilateralAudio.setEnabled(false);
+        }
         return Promise.resolve(false);
     }
 
     onboardingAudioEnabled = Boolean(enabled);
+
+    if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.setEnabled) {
+        window.OBDBilateralAudio.setEnabled(onboardingAudioEnabled);
+    }
 
     if (!onboardingAudioEnabled) {
         muteGlobalBinauralEngine();
@@ -432,7 +453,16 @@ function readOnboardingAudioPreferences() {
 }
 
 function startOnboardingBinauralIfEnabled() {
-    if (!onboardingAudioEnabled) return Promise.resolve(false);
+    if (!onboardingAudioEnabled) {
+        if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.setEnabled) {
+            window.OBDBilateralAudio.setEnabled(false);
+        }
+        return Promise.resolve(false);
+    }
+
+    if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.setEnabled) {
+        window.OBDBilateralAudio.setEnabled(isThetaFrequencyActive());
+    }
 
     initializeGlobalBinauralEngine();
     applyFrequencyPreset(onboardingFrequencyKey);
@@ -608,6 +638,7 @@ function initMasterInitializationOverlay() {
     const frequencySelect = document.getElementById('onboarding-frequency-select');
 
     if (!overlay || !btn) {
+        initDefaultOffAudioState();
         if (dash) {
             dash.classList.remove('hidden');
             dash.setAttribute('aria-hidden', 'false');
@@ -622,8 +653,15 @@ function initMasterInitializationOverlay() {
         dash.setAttribute('aria-hidden', 'true');
     }
 
-    syncOnboardingFrequencyPanel();
-    audioToggle?.addEventListener('change', syncOnboardingFrequencyPanel);
+    initDefaultOffAudioState();
+    audioToggle?.addEventListener('change', () => {
+        onboardingAudioEnabled = audioToggle.checked;
+        if (!onboardingAudioEnabled) {
+            muteGlobalBinauralEngine();
+        }
+        syncOnboardingFrequencyPanel();
+        syncGameplayThetaToggleUI();
+    });
     frequencySelect?.addEventListener('change', () => {
         onboardingFrequencyKey = frequencySelect.value;
     });
@@ -632,6 +670,12 @@ function initMasterInitializationOverlay() {
         btn.disabled = true;
         initializationHapticTap();
         readOnboardingAudioPreferences();
+        if (!onboardingAudioEnabled) {
+            muteGlobalBinauralEngine();
+            if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.setEnabled) {
+                window.OBDBilateralAudio.setEnabled(false);
+            }
+        }
         startOnboardingBinauralIfEnabled().finally(() => {
             revealDashboardFromMasterInit();
         });
