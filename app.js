@@ -400,6 +400,8 @@ function initGameplayThetaToggle() {
         syncGameplayThetaToggleUI();
         selectionTapHaptic();
     });
+
+    syncGameplayThetaToggleUI();
 }
 
 function setGlobalBinauralLowPass(frequencyHz) {
