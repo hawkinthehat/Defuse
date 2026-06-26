@@ -213,7 +213,11 @@
         if (gcmRunning) return;
 
         const engine = getAudioEngine();
-        const start = engine && typeof engine.resume === 'function' ? engine.resume() : Promise.resolve(false);
+        const acousticEnabled = engine && engine.isThetaEnabled;
+        const start =
+            acousticEnabled && engine && typeof engine.resume === 'function'
+                ? engine.resume()
+                : Promise.resolve(false);
         start.finally(() => {
             if (sessionEnded) return;
 

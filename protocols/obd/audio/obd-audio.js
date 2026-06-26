@@ -21,6 +21,10 @@
     let creekStopping = false;
     let creekSink = null;
 
+    function isGlobalAcousticEnabled() {
+        return typeof window.GlobalBinauralEngine !== 'undefined' && window.GlobalBinauralEngine.isThetaEnabled;
+    }
+
     function getAudioContext() {
         if (audioCtx && audioCtx.state !== 'closed') return audioCtx;
         const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -122,6 +126,7 @@
     }
 
     function startBabblingCreek() {
+        if (!isGlobalAcousticEnabled()) return Promise.resolve(false);
         if (creekNodes || creekStopping) return resumeAudio();
 
         return resumeAudio().then((ready) => {
@@ -222,6 +227,8 @@
     }
 
     function playGunwaleStrike() {
+        if (!isGlobalAcousticEnabled()) return;
+
         const ctx = getAudioContext();
         if (!ctx || !strikeBuffer) return;
 
@@ -245,6 +252,7 @@
     }
 
     function primeOBDAudio() {
+        if (!isGlobalAcousticEnabled()) return Promise.resolve(false);
         return resumeAudio().then(() => loadStrikeBuffer());
     }
 

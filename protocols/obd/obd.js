@@ -12,6 +12,10 @@
     const PADDLE_SRC = 'protocols/obd/assets/paddle-blade.svg';
     const PROTOCOL_LABEL = 'dᶻix̌ʷ (dzih-khw)';
 
+    function isObdAcousticEnabled() {
+        return typeof window.GlobalBinauralEngine !== 'undefined' && window.GlobalBinauralEngine.isThetaEnabled;
+    }
+
     function setProtocolHeader() {
         const inst = document.getElementById('inst');
         if (inst) inst.textContent = PROTOCOL_LABEL;
@@ -104,6 +108,7 @@
 
     function playApexFeedback() {
         centerHaptic();
+        if (!isObdAcousticEnabled()) return;
         if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.playGunwaleStrike) {
             window.OBDAudio.playGunwaleStrike();
         }
@@ -265,7 +270,7 @@
             window.OBDVisual.setPaddleX(px);
         }
 
-        if (holding && typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.updateFromPaddle) {
+        if (holding && isObdAcousticEnabled() && typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.updateFromPaddle) {
             window.OBDBilateralAudio.updateFromPaddle(px, obdCssW, dt);
         }
 
@@ -283,7 +288,7 @@
             pad.classList.add('obd-ground-pad--active');
             updatePausedBanner();
             setInst(fastPhase ? 'Increased loop speed — maintain smooth tracking' : 'Infinity tracking — follow the paddle blade');
-            if (typeof window.OBDAudio !== 'undefined') {
+            if (isObdAcousticEnabled() && typeof window.OBDAudio !== 'undefined') {
                 if (window.OBDAudio.prime) window.OBDAudio.prime();
                 if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.prepare) {
                     window.OBDBilateralAudio.prepare();
@@ -370,12 +375,6 @@
 
         renderShell();
         updatePausedBanner();
-        if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.prime) {
-            window.OBDAudio.prime();
-        }
-        if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.prepare) {
-            window.OBDBilateralAudio.prepare();
-        }
         obdRafId = requestAnimationFrame(frame);
 
         obdPhaseTimeoutId = window.setTimeout(() => {

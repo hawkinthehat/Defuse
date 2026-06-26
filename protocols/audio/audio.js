@@ -271,7 +271,6 @@
 
         setInst('AUDIO · BINAURAL ENTRAINMENT');
         renderSession();
-        tryStartEntrainment();
     }
 
     window.launchAudio = launchAudio;
