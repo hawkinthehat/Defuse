@@ -1321,3 +1321,24 @@ body:has(#dashboard:not(.hidden)) .scanlines {
     opacity: 0.22;
 }
 
+.legal-portal-link {
+    position: fixed;
+    bottom: 12px;
+    right: 16px;
+    z-index: 9999;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #57534e;
+    text-decoration: none;
+    font-family: sans-serif;
+    transition: color 0.2s ease;
+    pointer-events: auto;
+}
+
+.legal-portal-link:hover,
+.legal-portal-link:focus-visible {
+    color: #d97706;
+}
+
