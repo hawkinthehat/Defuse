@@ -221,6 +221,16 @@ function syncOnboardingFrequencyPanel() {
     frequencySelect.setAttribute('aria-disabled', audioOn ? 'false' : 'true');
 }
 
+function resetOnboardingAudioDefaults() {
+    onboardingAudioEnabled = false;
+    const audioToggle = document.getElementById('onboarding-audio-toggle');
+    if (audioToggle) {
+        audioToggle.checked = false;
+        audioToggle.defaultChecked = false;
+    }
+    syncOnboardingFrequencyPanel();
+}
+
 function getGlobalBinauralAudioContext() {
     if (typeof window === 'undefined') return null;
     const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -622,10 +632,16 @@ function initMasterInitializationOverlay() {
         dash.setAttribute('aria-hidden', 'true');
     }
 
-    syncOnboardingFrequencyPanel();
+    resetOnboardingAudioDefaults();
     audioToggle?.addEventListener('change', syncOnboardingFrequencyPanel);
     frequencySelect?.addEventListener('change', () => {
         onboardingFrequencyKey = frequencySelect.value;
+    });
+
+    window.addEventListener('pageshow', (event) => {
+        if (!event.persisted) return;
+        if (!overlay || overlay.classList.contains('hidden')) return;
+        resetOnboardingAudioDefaults();
     });
 
     btn.addEventListener('click', () => {
