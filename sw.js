@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tsulc-default-off-v16.0.0';
+const CACHE_NAME = 'tsulc-default-off-v17.0.0';
 
 const PRECACHE_URLS = [
   '/',
