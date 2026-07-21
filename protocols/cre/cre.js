@@ -269,28 +269,41 @@
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
         setProtocolHeader();
-        stage.innerHTML = `
-            <div class="cre-root cre-root--preflight">
-                <div class="protocol-preflight-overlay">
-                    <section class="protocol-preflight-card" role="dialog" aria-labelledby="cre-preflight-title" aria-describedby="cre-preflight-steps">
-                        <h2 class="protocol-preflight-title" id="cre-preflight-title">HOW TO RE-CODE</h2>
-                        <ol class="protocol-preflight-steps" id="cre-preflight-steps">
-                            <li>Anxious thought loops will drift down the screen.</li>
-                            <li>Tap a moving block to freeze it and open the filter.</li>
-                            <li>Select the most neutral, objective, and realistic re-code option at the bottom to neutralize the threat.</li>
-                            <li>Avoid choosing catastrophizing options to keep your stability at 100%.</li>
-                        </ol>
-                        <button type="button" class="protocol-preflight-start" id="cre-preflight-start">[ START TASK ]</button>
-                    </section>
-                </div>
-            </div>
-        `;
-        const start = document.getElementById('cre-preflight-start');
-        if (start) start.addEventListener('click', () => {
-            successHaptic();
+        stage.innerHTML = `<div class="cre-root cre-root--preflight" id="cre-preflight-root"></div>`;
+        const root = document.getElementById('cre-preflight-root');
+
+        const begin = () => {
+            if (typeof successHaptic === 'function') successHaptic();
+            else if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                try {
+                    navigator.vibrate(30);
+                } catch {
+                    /* ignore */
+                }
+            }
             creRunning = true;
             startSession();
-        });
+        };
+
+        if (root && typeof window.ProtocolOnboarding !== 'undefined' && window.ProtocolOnboarding.mount) {
+            window.ProtocolOnboarding.mount(root, {
+                protocolKey: 'cre',
+                onStart: begin,
+                replace: true
+            });
+        } else {
+            stage.innerHTML = `
+                <div class="cre-root cre-root--preflight">
+                    <div class="protocol-preflight-overlay">
+                        <section class="protocol-preflight-card" role="dialog" aria-labelledby="cre-preflight-title">
+                            <h2 class="protocol-preflight-title" id="cre-preflight-title">RETRAIN THOUGHT / ATTENTIONAL FOCUS</h2>
+                            <button type="button" class="protocol-preflight-start" id="cre-preflight-start">START PROTOCOL</button>
+                        </section>
+                    </div>
+                </div>
+            `;
+            document.getElementById('cre-preflight-start')?.addEventListener('click', begin);
+        }
     }
 
     function spawnThought() {

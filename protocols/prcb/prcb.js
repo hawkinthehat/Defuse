@@ -229,7 +229,26 @@
         });
 
         document.getElementById('prcb-warning-continue')?.addEventListener('click', () => {
-            startPrcbSequence();
+            showPrcbOnboarding();
         });
     };
+
+    function showPrcbOnboarding() {
+        const stage = document.getElementById('protocol-stage');
+        if (!stage) return;
+
+        setProtocolHeader();
+        stage.innerHTML = `<div class="prcb-root prcb-root--onboarding" id="prcb-onboarding-root"></div>`;
+        const root = document.getElementById('prcb-onboarding-root');
+
+        if (root && typeof window.ProtocolOnboarding !== 'undefined' && window.ProtocolOnboarding.mount) {
+            window.ProtocolOnboarding.mount(root, {
+                protocolKey: 'prcb',
+                onStart: startPrcbSequence,
+                replace: true
+            });
+        } else {
+            startPrcbSequence();
+        }
+    }
 })();

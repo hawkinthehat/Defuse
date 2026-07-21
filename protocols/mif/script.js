@@ -595,7 +595,7 @@
         mifRafId = requestAnimationFrame(drawFrame);
     }
 
-    function bindEngine(root) {
+    function bindEngine(root, options) {
         mifCanvas = root.querySelector('#mif-canvas');
         mifInst = root.querySelector('#mif-inst');
         mifStatus = root.querySelector('#mif-status');
@@ -603,6 +603,8 @@
         if (!mifCanvas) return false;
         mifCtx = mifCanvas.getContext('2d');
         if (!mifCtx) return false;
+
+        const startPaused = options && options.paused;
 
         fingerActive = false;
         onPath = false;
@@ -628,10 +630,28 @@
         mifCanvas.addEventListener('pointercancel', mifPointerUpHandler, { passive: false });
         mifCanvas.addEventListener('pointerleave', mifPointerUpHandler, { passive: false });
 
+        if (startPaused) {
+            mifRunning = false;
+            const now = performance.now();
+            const points = samplePath(now);
+            drawBackground(mifCtx);
+            drawPath(mifCtx, points, now);
+            drawTrackingAnchor(mifCtx);
+            setInstruction('Read instructions — then start');
+        } else {
+            mifRunning = true;
+            setInstruction('Slide slowly along the shifting path');
+            mifRafId = requestAnimationFrame(drawFrame);
+        }
+        return true;
+    }
+
+    function engageMIFSession() {
+        if (mifRunning || !mifCanvas || !mifCtx) return;
         mifRunning = true;
         setInstruction('Slide slowly along the shifting path');
+        if (mifRafId) cancelAnimationFrame(mifRafId);
         mifRafId = requestAnimationFrame(drawFrame);
-        return true;
     }
 
     function mountStandalone() {
@@ -641,7 +661,7 @@
         return bindEngine(page);
     }
 
-    function mountSpaStage() {
+    function mountSpaStage(options) {
         injectMifStyles();
         const stage = document.getElementById('protocol-stage');
         if (!stage) return false;
@@ -655,7 +675,7 @@
             </div>
         `;
 
-        return bindEngine(stage);
+        return bindEngine(stage, options);
     }
 
     function launchMIF() {
@@ -666,9 +686,23 @@
         const inst = document.getElementById('inst');
         if (inst) inst.textContent = PROTOCOL_HEADER;
 
-        if (!mountSpaStage()) mountStandalone();
+        if (!mountSpaStage({ paused: true })) {
+            mountStandalone();
+            setProtocolHeader();
+            return;
+        }
+
         setProtocolHeader();
-        setInstruction('Slide slowly along the shifting path');
+
+        const root = document.getElementById('mif-root');
+        if (root && typeof window.ProtocolOnboarding !== 'undefined' && window.ProtocolOnboarding.mount) {
+            window.ProtocolOnboarding.mount(root, {
+                protocolKey: 'mif',
+                onStart: engageMIFSession
+            });
+        } else {
+            engageMIFSession();
+        }
     }
 
     window.launchMIF = launchMIF;
