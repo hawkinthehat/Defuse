@@ -643,7 +643,7 @@
         aedRafId = requestAnimationFrame(drawFrame);
     }
 
-    function bindEngine(root) {
+    function bindEngine(root, options) {
         aedShell = root.querySelector('#aed-shell') || root.querySelector('.aed-shell');
         aedCanvas = root.querySelector('#aed-canvas');
 
@@ -651,17 +651,18 @@
         aedCtx = aedCanvas.getContext('2d');
         if (!aedCtx) return false;
 
+        const startPaused = options && options.paused;
+
         regulationTarget = 0;
         regulationDisplay = 0;
         regulationAnimStart = 0;
         regulationAnimFrom = 0;
         calmTaps = 0;
         interactionCounter = 0;
-        instructionOverlayDismissed = false;
+        instructionOverlayDismissed = true;
         popEffects = [];
         aedShell.style.filter = 'contrast(1.18) brightness(1)';
-        const overlayRoot = document.getElementById('aed-page') || document.getElementById('aed-root') || aedShell.parentElement || aedShell;
-        instructionOverlay = ensureInstructionOverlay(overlayRoot);
+        instructionOverlay = null;
 
         resizeCanvas();
         spawnChaoticNodes();
@@ -673,9 +674,26 @@
         aedPointerHandler = onPointerDown;
         aedCanvas.addEventListener('pointerdown', aedPointerHandler, { passive: false });
 
-        aedRunning = true;
-        aedRafId = requestAnimationFrame(drawFrame);
+        if (startPaused) {
+            aedRunning = false;
+            /* Draw one static frame behind the onboarding overlay. */
+            const now = performance.now();
+            aedCtx.fillStyle = '#050608';
+            aedCtx.fillRect(0, 0, aedCanvas.width, aedCanvas.height);
+            chaoticNodes.forEach((node) => drawChaoticShape(aedCtx, node, now));
+            calmNodes.forEach((node) => drawCalmNode(aedCtx, node));
+        } else {
+            aedRunning = true;
+            aedRafId = requestAnimationFrame(drawFrame);
+        }
         return true;
+    }
+
+    function engageAEDSession() {
+        if (aedRunning || !aedCanvas || !aedCtx) return;
+        aedRunning = true;
+        if (aedRafId) cancelAnimationFrame(aedRafId);
+        aedRafId = requestAnimationFrame(drawFrame);
     }
 
     function mountStandalone() {
@@ -685,7 +703,7 @@
         return bindEngine(page);
     }
 
-    function mountSpaStage() {
+    function mountSpaStage(options) {
         injectAedStyles();
         const stage = document.getElementById('protocol-stage');
         if (!stage) return false;
@@ -695,11 +713,10 @@
                 <main class="aed-shell" id="aed-shell" aria-label="Attention bias modification canvas">
                     <canvas id="aed-canvas" aria-hidden="true"></canvas>
                 </main>
-                <div id="instruction-overlay" role="status" aria-live="polite">Focus on the glowing ovoids.</div>
             </div>
         `;
 
-        return bindEngine(stage);
+        return bindEngine(stage, options);
     }
 
     function launchAED() {
@@ -710,7 +727,20 @@
         const inst = document.getElementById('inst');
         if (inst) inst.textContent = 'ʔuʔəy̓ (oo-uh-ee)';
 
-        if (!mountSpaStage()) mountStandalone();
+        if (!mountSpaStage({ paused: true })) {
+            mountStandalone();
+            return;
+        }
+
+        const root = document.getElementById('aed-root');
+        if (root && typeof window.ProtocolOnboarding !== 'undefined' && window.ProtocolOnboarding.mount) {
+            window.ProtocolOnboarding.mount(root, {
+                protocolKey: 'aed',
+                onStart: engageAEDSession
+            });
+        } else {
+            engageAEDSession();
+        }
     }
 
     window.launchAED = launchAED;

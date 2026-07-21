@@ -212,23 +212,47 @@
         bgRafId = requestAnimationFrame(drawBackgroundFrame);
     }
 
-    function mountBackgroundCanvas(canvas) {
+    function pauseBackgroundCanvas() {
+        bgRunning = false;
+        if (bgRafId) {
+            cancelAnimationFrame(bgRafId);
+            bgRafId = 0;
+        }
+    }
+
+    function resumeBackgroundCanvas() {
+        if (!bgCanvas || !bgCtx) return;
+        if (bgRunning) return;
+        bgRunning = true;
+        gradientStart = performance.now();
+        if (bgRafId) cancelAnimationFrame(bgRafId);
+        bgRafId = requestAnimationFrame(drawBackgroundFrame);
+    }
+
+    function mountBackgroundCanvas(canvas, options) {
         if (!canvas) return;
         unmountBackgroundCanvas();
 
+        const startPaused = options && options.paused;
+
         bgCanvas = canvas;
         bgCtx = fitBackgroundCanvas(canvas);
-        bgRunning = true;
+        bgRunning = !startPaused;
         gradientStart = performance.now();
 
         bgResizeHandler = () => {
-            if (!bgCanvas || !bgRunning) return;
+            if (!bgCanvas) return;
             bgCtx = fitBackgroundCanvas(bgCanvas);
         };
         window.addEventListener('resize', bgResizeHandler);
 
         if (bgRafId) cancelAnimationFrame(bgRafId);
-        bgRafId = requestAnimationFrame(drawBackgroundFrame);
+        if (!startPaused) {
+            bgRafId = requestAnimationFrame(drawBackgroundFrame);
+        } else if (bgCtx) {
+            drawWaterBackground(bgCtx, bgCssW, bgCssH, 0);
+            drawLightSineWaves(bgCtx, bgCssW, bgCssH, paddleX, 0);
+        }
     }
 
     function unmountBackgroundCanvas() {
@@ -267,6 +291,8 @@
     window.OBDVisual = {
         mount: mountBackgroundCanvas,
         unmount: unmountBackgroundCanvas,
+        pause: pauseBackgroundCanvas,
+        resume: resumeBackgroundCanvas,
         setPaddleX,
         drawWaterBackground,
         drawLightSineWaves,

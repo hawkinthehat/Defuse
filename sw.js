@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tsulc-default-off-v17.0.0';
+const CACHE_NAME = 'tsulc-onboarding-overlays-v18.0.0';
 
 const PRECACHE_URLS = [
   '/',
@@ -9,6 +9,7 @@ const PRECACHE_URLS = [
   '/dzixw-logo.png',
   '/icon-192.png',
   '/icon-512.png',
+  '/protocols/onboarding/protocol-onboarding.js',
   '/protocols/obd/obd.css',
   '/protocols/obd/obd.js',
   '/protocols/obd/script.js',

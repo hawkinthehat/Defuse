@@ -316,9 +316,11 @@
         }
     }
 
-    function renderShell() {
+    function renderShell(options) {
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
+
+        const startPaused = !options || options.paused !== false;
 
         stage.innerHTML = `
             <div class="obd-root">
@@ -340,23 +342,77 @@
         if (!obdCanvas) return;
 
         if (typeof window.OBDVisual !== 'undefined' && window.OBDVisual.mount && bgCanvas) {
-            window.OBDVisual.mount(bgCanvas);
+            window.OBDVisual.mount(bgCanvas, { paused: startPaused });
         }
 
         obdCtx = fitCanvas(obdCanvas);
         bindGroundPad(pad);
-        loadPaddleImage();
+        loadPaddleImage().then(() => {
+            if (!obdCanvas || !obdCtx) return;
+            const cx = obdCssW * 0.5;
+            const cy = obdCssH * 0.5;
+            const A = obdCssW * 0.4;
+            const B = obdCssH * 0.36;
+            const p = lemniscate(pathT, A, B);
+            const pAhead = lemniscate(pathT + 0.04, A, B);
+            const tangentAngle = Math.atan2(pAhead.y - p.y, pAhead.x - p.x);
+            obdCtx.clearRect(0, 0, obdCssW, obdCssH);
+            drawPaddle(obdCtx, cx + p.x, cy + p.y, tangentAngle);
+        });
 
         obdResizeHandler = () => {
-            if (!obdRunning || !obdCanvas) return;
+            if (!obdCanvas) return;
             obdCtx = fitCanvas(obdCanvas);
         };
         window.addEventListener('resize', obdResizeHandler);
     }
 
+    function engageOBDSession() {
+        if (obdRunning) return;
+
+        obdRunning = true;
+        holding = false;
+        pathT = 0;
+        loopPeriodSec = LOOP_PERIOD_SLOW;
+        fastPhase = false;
+        lastFrame = 0;
+        lastApexIndex = -1;
+
+        setInst('Hold the grounding pad to begin');
+        updatePausedBanner();
+
+        if (typeof window.OBDVisual !== 'undefined' && window.OBDVisual.resume) {
+            window.OBDVisual.resume();
+        }
+        if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.prime) {
+            window.OBDAudio.prime();
+        }
+        if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.prepare) {
+            window.OBDBilateralAudio.prepare();
+        }
+
+        if (obdRafId) cancelAnimationFrame(obdRafId);
+        obdRafId = requestAnimationFrame(frame);
+
+        if (obdPhaseTimeoutId) clearTimeout(obdPhaseTimeoutId);
+        obdPhaseTimeoutId = window.setTimeout(() => {
+            obdPhaseTimeoutId = 0;
+            if (!obdRunning) return;
+            fastPhase = true;
+            loopPeriodSec = LOOP_PERIOD_FAST;
+            if (holding) setInst('Increased loop speed — maintain smooth tracking');
+        }, PHASE_MS);
+
+        if (obdExitTimeoutId) clearTimeout(obdExitTimeoutId);
+        obdExitTimeoutId = window.setTimeout(() => {
+            obdExitTimeoutId = 0;
+            stopOBD();
+            exitProtocol();
+        }, SESSION_MS);
+    }
+
     function launchOBD() {
         stopOBD();
-        obdRunning = true;
         holding = false;
         pathT = 0;
         loopPeriodSec = LOOP_PERIOD_SLOW;
@@ -366,31 +422,20 @@
 
         showProtocolViewport();
         setProtocolHeader();
-        setInst('Hold the grounding pad to begin');
+        setInst('Read instructions — then start');
 
-        renderShell();
+        renderShell({ paused: true });
         updatePausedBanner();
-        if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.prime) {
-            window.OBDAudio.prime();
-        }
-        if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.prepare) {
-            window.OBDBilateralAudio.prepare();
-        }
-        obdRafId = requestAnimationFrame(frame);
 
-        obdPhaseTimeoutId = window.setTimeout(() => {
-            obdPhaseTimeoutId = 0;
-            if (!obdRunning) return;
-            fastPhase = true;
-            loopPeriodSec = LOOP_PERIOD_FAST;
-            if (holding) setInst('Increased loop speed — maintain smooth tracking');
-        }, PHASE_MS);
-
-        obdExitTimeoutId = window.setTimeout(() => {
-            obdExitTimeoutId = 0;
-            stopOBD();
-            exitProtocol();
-        }, SESSION_MS);
+        const root = document.querySelector('.obd-root');
+        if (root && typeof window.ProtocolOnboarding !== 'undefined' && window.ProtocolOnboarding.mount) {
+            window.ProtocolOnboarding.mount(root, {
+                protocolKey: 'obd',
+                onStart: engageOBDSession
+            });
+        } else {
+            engageOBDSession();
+        }
     }
 
     window.launchOBD = launchOBD;
