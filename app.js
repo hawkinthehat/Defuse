@@ -1,22 +1,21 @@
 /**
- * dᶻix̌ʷ — global viewport shell for protocol modules.
- * Home triage is locked to five primary routes: k̓ʷəč (CRE), dᶻix̌ʷ (OBD), gʷədiʔ (MIF), ʔuʔəy̓ (AED), tix̌ix̌dubut (PRCB).
+ * dᶻix̌ʷ — trauma-informed youth shell.
+ * Immediate home access, plain-language choices, voluntary exercises, offline-first.
  * Published by the Tribal Resilience Studio.
  */
 
 const STUDIO_NAME = 'Š̌aqʷ x̌ax̌aʔ Studio';
 const STUDIO_ATTRIBUTION = 'Š̌aqʷ x̌ax̌aʔ Studio';
 
-/** Active retraining verbs for the locked home triage menu. */
+/** Plain-language outcome labels for the home choice menu. */
 const TRIAGE_RETRAIN_LABELS = Object.freeze({
-    cre: { term: 'k̓ʷəč:', action: 'RETRAIN THOUGHT / ATTENTIONAL FOCUS' },
-    obd: { term: 'dᶻix̌ʷ:', action: 'RETRAIN RHYTHM / RETURN TO CENTER' },
-    mif: { term: 'gʷədiʔ:', action: 'RETRAIN SENSATION / PHYSICAL TOUCH GROUNDING' },
-    aed: { term: 'ʔuʔəy̓:', action: 'RETRAIN FOCUS / CLEAR CHAOTIC STIMULI' },
-    prcb: { term: 'tix̌ix̌dubut:', action: 'RETRAIN STABILITY / EMERGENCY OVERRIDE' }
+    cre: { term: 'Help me settle', action: 'A short guided reset' },
+    obd: { term: 'I need to move', action: 'Release some energy gently' },
+    aed: { term: 'Help me focus', action: 'Ground in the present' },
+    mif: { term: 'I need a quiet moment', action: 'Choose a low-stimulation option' }
 });
 
-const PROTOCOL_INTRO_MS = 1500;
+const PROTOCOL_INTRO_MS = 900;
 const GLOBAL_BINAURAL_CONFIG = {
     leftHz: 200,
     rightHz: 206,
@@ -25,15 +24,16 @@ const GLOBAL_BINAURAL_CONFIG = {
     muffledFilterHz: 90
 };
 
-/** Frequency presets for onboarding opt-in sub-selection. */
+/** Soft optional sound presets — never framed as medical neuromodulation. */
 const FREQUENCY_PRESETS = {
-    'theta-6': { leftHz: 200, rightHz: 206, label: 'Theta Differential Engine (6Hz — Experimental Bioelectronic Neuromodulation Baseline)' },
-    'alpha-10': { leftHz: 200, rightHz: 210, label: 'Alpha Entrainment (10Hz Baseline)' },
-    none: { leftHz: 200, rightHz: 200, label: 'Opt Out — No Binaural Frequency Layer', gain: 0 }
+    soft: { leftHz: 200, rightHz: 206, label: 'Soft optional tone' },
+    calm: { leftHz: 200, rightHz: 210, label: 'Calm optional tone' },
+    none: { leftHz: 200, rightHz: 200, label: 'No tone', gain: 0 }
 };
 
+/** Audio is always optional and defaults OFF. */
 let onboardingAudioEnabled = false;
-let onboardingFrequencyKey = 'theta-6';
+let onboardingFrequencyKey = 'soft';
 
 const globalBinauralState = {
     audioContext: null,
@@ -46,47 +46,42 @@ const globalBinauralState = {
     unlocked: false
 };
 
-/**
- * Pre-session splash: RETRAIN ENGAGED: [NAME]. FOCUS ON THE [RHYTHM TYPE] RHYTHM.
- */
 const PROTOCOL_ENGAGE = {
-    obd: { name: 'dᶻix̌ʷ (dzih-khw)', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.obd.action },
-    cre: { name: 'k̓ʷəč (kuh-wutch)', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.cre.action },
-    mif: { name: 'gʷədiʔ (gwuh-dee)', rhythm: 'HAPTIC AND SOMATIC', retrain: TRIAGE_RETRAIN_LABELS.mif.action },
-    aed: { name: 'ʔuʔəy̓ (oo-uh-ee)', rhythm: 'VISUAL AND ATTENTIONAL', retrain: TRIAGE_RETRAIN_LABELS.aed.action },
-    sam: { name: 'SAM', rhythm: 'VISUAL AND HAPTIC', retrain: 'RETRAIN ATTENTION' },
-    iec: { name: 'IEC', rhythm: 'VISUAL', retrain: 'RETRAIN PERCEPTION' },
-    prcb: { name: 'tix̌ix̌dubut (tee-khuh-khuh-doo-but)', rhythm: 'HIGH-CONTRAST VISUAL', retrain: TRIAGE_RETRAIN_LABELS.prcb.action }
+    obd: { name: 'I need to move', rhythm: 'gentle tracking', retrain: 'Release some energy gently' },
+    cre: { name: 'Help me settle', rhythm: 'guided reset', retrain: 'A short guided reset' },
+    mif: { name: 'Quiet moment', rhythm: 'soft touch', retrain: 'A low-stimulation option' },
+    aed: { name: 'Help me focus', rhythm: 'present focus', retrain: 'Ground in the present' },
+    sam: { name: 'SAM', rhythm: 'attention', retrain: 'Attention practice' },
+    iec: { name: 'IEC', rhythm: 'visual', retrain: 'Visual practice' },
+    prcb: { name: 'Stability practice', rhythm: 'high-contrast', retrain: 'Stability practice' }
 };
 
 const PROTOCOL_ROUTES = {
-    cre: { name: 'k̓ʷəč', path: 'protocols/cre/' },
-    obd: { name: 'dᶻix̌ʷ', path: 'protocols/obd/' },
-    mif: { name: 'gʷədiʔ', path: 'protocols/mif/' },
-    aed: { name: 'ʔuʔəy̓', path: 'protocols/aed/' },
+    cre: { name: 'Help me settle', path: 'protocols/cre/' },
+    obd: { name: 'I need to move', path: 'protocols/obd/' },
+    mif: { name: 'Quiet moment', path: 'protocols/mif/' },
+    aed: { name: 'Help me focus', path: 'protocols/aed/' },
     sam: { name: 'SAM', path: 'protocols/sam/' },
     iec: { name: 'IEC', path: 'protocols/iec/' },
-    prcb: { name: 'tix̌ix̌dubut', path: 'protocols/prcb/' }
+    prcb: { name: 'Stability', path: 'protocols/prcb/' }
 };
 
-/** Locked 5-button home triage — no alternate entry points. */
-const DZIXW_PRIMARY_TRIAGE = Object.freeze(['cre', 'obd', 'mif', 'aed', 'prcb']);
+/** Locked 4-button home triage — plain-language outcomes. */
+const DZIXW_PRIMARY_TRIAGE = Object.freeze(['cre', 'obd', 'aed', 'mif']);
 
-/** Dashboard button IDs mapped to protocol keys. */
 const TRIAGE_BUTTON_IDS = Object.freeze({
     'protocol-cre': 'cre',
     'protocol-obd': 'obd',
     'protocol-mif': 'mif',
-    'protocol-aed': 'aed',
-    'protocol-prcb': 'prcb'
+    'protocol-aed': 'aed'
 });
 
 let protocolIntroTimeoutId = 0;
-let masterInitializationInited = false;
 let dashboardPrimaryInited = false;
+let checkInPending = false;
 
 function applyFrequencyPreset(presetKey) {
-    const preset = FREQUENCY_PRESETS[presetKey] || FREQUENCY_PRESETS['theta-6'];
+    const preset = FREQUENCY_PRESETS[presetKey] || FREQUENCY_PRESETS.soft;
     GLOBAL_BINAURAL_CONFIG.leftHz = preset.leftHz;
     GLOBAL_BINAURAL_CONFIG.rightHz = preset.rightHz;
 
@@ -112,7 +107,7 @@ function getOnboardingAudioGain() {
 
 function promptEmergencyDial() {
     const choice = window.confirm(
-        'EMERGENCY CRISIS SUPPORT\n\nTap OK to dial 988 (Suicide & Crisis Lifeline).\nTap Cancel to dial 911 instead.'
+        'Need support right now?\n\nTap OK to dial 988 (Lifeline).\nTap Cancel to dial 911 instead.'
     );
     const number = choice ? '988' : '911';
     window.location.href = `tel:${number}`;
@@ -147,47 +142,12 @@ function ensureEmergencyBypassFooter() {
 let emergencyExitLinksInited = false;
 
 function isDisclaimerRoute() {
-    const overlay = document.getElementById('master-init-overlay');
-    if (overlay && !overlay.classList.contains('hidden')) return true;
-    if (document.querySelector('main.onboarding-overlay')) return true;
     const path = typeof window !== 'undefined' ? window.location.pathname : '';
-    return path.endsWith('/terms.html') || path.endsWith('terms.html');
-}
-
-let disclaimerAxisLockInited = false;
-
-function initDisclaimerAxisLock() {
-    if (disclaimerAxisLockInited) return;
-    disclaimerAxisLockInited = true;
-
-    let touchStartX = 0;
-    let touchStartY = 0;
-
-    document.addEventListener(
-        'touchstart',
-        (event) => {
-            if (!isDisclaimerRoute()) return;
-            const touch = event.touches[0];
-            if (!touch) return;
-            touchStartX = touch.clientX;
-            touchStartY = touch.clientY;
-        },
-        { passive: true, capture: true }
-    );
-
-    document.addEventListener(
-        'touchmove',
-        (event) => {
-            if (!isDisclaimerRoute()) return;
-            const touch = event.touches[0];
-            if (!touch) return;
-            const deltaX = Math.abs(touch.clientX - touchStartX);
-            const deltaY = Math.abs(touch.clientY - touchStartY);
-            if (deltaX > deltaY) {
-                event.preventDefault();
-            }
-        },
-        { passive: false, capture: true }
+    return (
+        path.endsWith('/terms.html') ||
+        path.endsWith('terms.html') ||
+        path.endsWith('/legal.html') ||
+        path.endsWith('legal.html')
     );
 }
 
@@ -209,26 +169,6 @@ function initEmergencyExitLinks() {
 
     ensureEmergencyBypassFooter();
     window.setInterval(ensureEmergencyBypassFooter, 1000);
-}
-
-function syncOnboardingFrequencyPanel() {
-    const audioToggle = document.getElementById('onboarding-audio-toggle');
-    const frequencySelect = document.getElementById('onboarding-frequency-select');
-    if (!frequencySelect) return;
-
-    const audioOn = audioToggle ? audioToggle.checked : false;
-    frequencySelect.disabled = !audioOn;
-    frequencySelect.setAttribute('aria-disabled', audioOn ? 'false' : 'true');
-}
-
-function resetOnboardingAudioDefaults() {
-    onboardingAudioEnabled = false;
-    const audioToggle = document.getElementById('onboarding-audio-toggle');
-    if (audioToggle) {
-        audioToggle.checked = false;
-        audioToggle.defaultChecked = false;
-    }
-    syncOnboardingFrequencyPanel();
 }
 
 function getGlobalBinauralAudioContext() {
@@ -315,12 +255,12 @@ function muteGlobalBinauralEngine() {
     setGlobalBinauralGain(0);
 }
 
-function isThetaFrequencyActive() {
+function isOptionalSoundAvailable() {
     return onboardingFrequencyKey !== 'none';
 }
 
-function applyRuntimeThetaWaveState(enabled) {
-    if (!isThetaFrequencyActive()) {
+function applyRuntimeAudioState(enabled) {
+    if (!isOptionalSoundAvailable()) {
         onboardingAudioEnabled = false;
         muteGlobalBinauralEngine();
         return Promise.resolve(false);
@@ -338,55 +278,72 @@ function applyRuntimeThetaWaveState(enabled) {
     return resumeGlobalBinauralEngine(getOnboardingAudioGain());
 }
 
-function syncGameplayThetaToggleUI() {
-    const toggle = document.getElementById('gameplay-theta-toggle');
+/** @deprecated Alias kept for protocol compatibility — defaults remain OFF. */
+function applyRuntimeThetaWaveState(enabled) {
+    return applyRuntimeAudioState(enabled);
+}
+
+function isThetaFrequencyActive() {
+    return isOptionalSoundAvailable();
+}
+
+function getAudioToggleEl() {
+    return (
+        document.getElementById('gameplay-audio-toggle') ||
+        document.getElementById('gameplay-theta-toggle')
+    );
+}
+
+function syncGameplayAudioToggleUI() {
+    const toggle = getAudioToggleEl();
     if (!toggle) return;
 
-    const active = onboardingAudioEnabled && isThetaFrequencyActive();
+    const active = onboardingAudioEnabled && isOptionalSoundAvailable();
     toggle.classList.toggle('gameplay-theta-toggle--on', active);
+    toggle.classList.toggle('gameplay-audio-toggle--on', active);
     toggle.setAttribute('aria-pressed', active ? 'true' : 'false');
     toggle.setAttribute(
         'aria-label',
-        active ? 'Theta waves on. Tap to turn off.' : 'Theta waves off. Tap to turn on.'
+        active ? 'Sound on. Tap to turn off.' : 'Sound off. Tap to turn on.'
     );
 
     const stateEl = toggle.querySelector('.gameplay-theta-toggle-state');
     if (stateEl) stateEl.textContent = active ? 'ON' : 'OFF';
 }
 
-function showGameplayThetaToggle() {
-    const toggle = document.getElementById('gameplay-theta-toggle');
+function showGameplayAudioToggle() {
+    const toggle = getAudioToggleEl();
     if (!toggle) return;
-    if (!isThetaFrequencyActive()) {
-        hideGameplayThetaToggle();
-        return;
-    }
     toggle.classList.remove('hidden');
     toggle.removeAttribute('aria-hidden');
-    syncGameplayThetaToggleUI();
+    /* Always default OFF when entering a protocol view. */
+    onboardingAudioEnabled = false;
+    muteGlobalBinauralEngine();
+    syncGameplayAudioToggleUI();
 }
 
-function hideGameplayThetaToggle() {
-    const toggle = document.getElementById('gameplay-theta-toggle');
+function hideGameplayAudioToggle() {
+    const toggle = getAudioToggleEl();
     if (!toggle) return;
     toggle.classList.add('hidden');
     toggle.setAttribute('aria-hidden', 'true');
+    onboardingAudioEnabled = false;
+    muteGlobalBinauralEngine();
 }
 
-let gameplayThetaToggleInited = false;
+let gameplayAudioToggleInited = false;
 
-function initGameplayThetaToggle() {
-    if (gameplayThetaToggleInited) return;
-    gameplayThetaToggleInited = true;
+function initGameplayAudioToggle() {
+    if (gameplayAudioToggleInited) return;
+    gameplayAudioToggleInited = true;
 
-    const toggle = document.getElementById('gameplay-theta-toggle');
+    const toggle = getAudioToggleEl();
     if (!toggle) return;
 
     toggle.addEventListener('click', () => {
-        if (!isThetaFrequencyActive()) return;
         const active = onboardingAudioEnabled;
-        applyRuntimeThetaWaveState(!active);
-        syncGameplayThetaToggleUI();
+        applyRuntimeAudioState(!active);
+        syncGameplayAudioToggleUI();
         selectionTapHaptic();
     });
 }
@@ -429,35 +386,6 @@ function resumeGlobalBinauralEngine(targetGain) {
         .catch(() => false);
 }
 
-function readOnboardingAudioPreferences() {
-    const audioToggle = document.getElementById('onboarding-audio-toggle');
-    const frequencySelect = document.getElementById('onboarding-frequency-select');
-
-    onboardingAudioEnabled = audioToggle ? audioToggle.checked : false;
-    onboardingFrequencyKey = frequencySelect ? frequencySelect.value : 'theta-6';
-
-    const preset = FREQUENCY_PRESETS[onboardingFrequencyKey] || FREQUENCY_PRESETS['theta-6'];
-    GLOBAL_BINAURAL_CONFIG.leftHz = preset.leftHz;
-    GLOBAL_BINAURAL_CONFIG.rightHz = preset.rightHz;
-}
-
-function startOnboardingBinauralIfEnabled() {
-    if (!onboardingAudioEnabled) return Promise.resolve(false);
-
-    initializeGlobalBinauralEngine();
-    applyFrequencyPreset(onboardingFrequencyKey);
-    return resumeGlobalBinauralEngine(getOnboardingAudioGain());
-}
-
-function initializationHapticTap() {
-    if (typeof navigator === 'undefined' || !navigator.vibrate) return;
-    try {
-        navigator.vibrate(40);
-    } catch {
-        /* ignore */
-    }
-}
-
 function selectionTapHaptic() {
     if (typeof navigator === 'undefined' || !navigator.vibrate) return;
     try {
@@ -489,19 +417,19 @@ function showProtocolPending(protocolKey) {
     }
 
     const inst = document.getElementById('inst');
-    if (inst) inst.textContent = `${name} · PROTOCOL ROUTE READY`;
+    if (inst) inst.textContent = name;
 
     const stage = document.getElementById('protocol-stage');
     if (!stage) return;
     stage.innerHTML = `
         <div class="protocol-pending-root">
             <p class="protocol-pending-kicker">${name}</p>
-            <p class="protocol-pending-line">Protocol route linked to <span>${path}</span>.</p>
-            <p class="protocol-pending-sub">The dashboard entry is ready for the ${name} module launcher when this protocol subfolder is installed.</p>
-            <button type="button" class="protocol-pending-done" id="protocol-pending-done">RETURN TO DASHBOARD</button>
+            <p class="protocol-pending-line">This practice is linked to <span>${path}</span>.</p>
+            <p class="protocol-pending-sub">You can go back anytime.</p>
+            <button type="button" class="protocol-pending-done" id="protocol-pending-done">STOP &amp; BACK</button>
         </div>
     `;
-    document.getElementById('protocol-pending-done')?.addEventListener('click', () => exitProtocol());
+    document.getElementById('protocol-pending-done')?.addEventListener('click', () => requestStopProtocol());
 }
 
 function runProtocol(protocolKey) {
@@ -529,8 +457,7 @@ function launchWithIntro(protocolKey) {
         return;
     }
 
-    const line = `RETRAIN ENGAGED: ${meta.name}. ${meta.retrain}. FOCUS ON THE ${meta.rhythm} RHYTHM.`;
-    body.textContent = line;
+    body.textContent = `${meta.name}. ${meta.retrain}. You can stop anytime.`;
     overlay.classList.remove('hidden');
     overlay.setAttribute('aria-hidden', 'false');
 
@@ -543,42 +470,10 @@ function launchWithIntro(protocolKey) {
     ensureEmergencyBypassFooter();
 }
 
-function launchCRESession() {
-    cancelProtocolIntro();
-    if (typeof launchCRE === 'function') launchCRE();
-}
-
-function launchPRCBSession() {
-    cancelProtocolIntro();
-    if (typeof launchPRCB === 'function') launchPRCB();
-}
-
-const DIRECT_SESSION_LAUNCHERS = {
-    cre: launchCRESession,
-    prcb: launchPRCBSession
-};
-
-const INTRO_SESSION_KEYS = {
-    obd: 'obd',
-    mif: 'mif',
-    aed: 'aed',
-    sam: 'sam',
-    iec: 'iec'
-};
-
 function loadProtocol(symptom) {
     if (!DZIXW_PRIMARY_TRIAGE.includes(symptom)) return;
     selectionTapHaptic();
-    const direct = DIRECT_SESSION_LAUNCHERS[symptom];
-    if (direct) {
-        direct();
-        return;
-    }
-    const introKey = INTRO_SESSION_KEYS[symptom];
-    if (introKey) {
-        launchWithIntro(introKey);
-        return;
-    }
+    hideCheckInCard();
     runProtocol(symptom);
 }
 
@@ -593,65 +488,19 @@ function initDashboardPrimary() {
     });
 }
 
-function revealDashboardFromMasterInit() {
-    const overlay = document.getElementById('master-init-overlay');
+function revealDashboardImmediately() {
     const dash = document.getElementById('dashboard');
-
-    if (overlay) {
-        overlay.classList.add('hidden');
-        overlay.setAttribute('aria-hidden', 'true');
-    }
     if (dash) {
         dash.classList.remove('hidden');
         dash.setAttribute('aria-hidden', 'false');
     }
-}
-
-function initMasterInitializationOverlay() {
-    if (masterInitializationInited) return;
-    masterInitializationInited = true;
-
     const overlay = document.getElementById('master-init-overlay');
-    const btn = document.getElementById('master-init-btn');
-    const dash = document.getElementById('dashboard');
-    const audioToggle = document.getElementById('onboarding-audio-toggle');
-    const frequencySelect = document.getElementById('onboarding-frequency-select');
-
-    if (!overlay || !btn) {
-        if (dash) {
-            dash.classList.remove('hidden');
-            dash.setAttribute('aria-hidden', 'false');
-        }
-        return;
+    if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.setAttribute('aria-hidden', 'true');
+        overlay.remove();
     }
-
-    overlay.classList.remove('hidden');
-    overlay.setAttribute('aria-hidden', 'false');
-    if (dash) {
-        dash.classList.add('hidden');
-        dash.setAttribute('aria-hidden', 'true');
-    }
-
-    resetOnboardingAudioDefaults();
-    audioToggle?.addEventListener('change', syncOnboardingFrequencyPanel);
-    frequencySelect?.addEventListener('change', () => {
-        onboardingFrequencyKey = frequencySelect.value;
-    });
-
-    window.addEventListener('pageshow', (event) => {
-        if (!event.persisted) return;
-        if (!overlay || overlay.classList.contains('hidden')) return;
-        resetOnboardingAudioDefaults();
-    });
-
-    btn.addEventListener('click', () => {
-        btn.disabled = true;
-        initializationHapticTap();
-        readOnboardingAudioPreferences();
-        startOnboardingBinauralIfEnabled().finally(() => {
-            revealDashboardFromMasterInit();
-        });
-    });
+    setEmergencyFooterHomeMode(true);
 }
 
 function initStudioBrandHeader() {
@@ -669,9 +518,14 @@ function showProtocolViewport() {
     vp.classList.remove('hidden');
     vp.setAttribute('aria-hidden', 'false');
     vp.style.removeProperty('display');
+    const dash = document.getElementById('dashboard');
+    if (dash) {
+        dash.classList.add('hidden');
+        dash.setAttribute('aria-hidden', 'true');
+    }
     setEmergencyFooterHomeMode(false);
     ensureEmergencyBypassFooter();
-    showGameplayThetaToggle();
+    showGameplayAudioToggle();
 }
 
 function openSession(message) {
@@ -683,29 +537,57 @@ function openSession(message) {
     }
 }
 
-function exitProtocol() {
+function stopAllProtocols() {
+    if (typeof stopOBD === 'function') stopOBD();
+    if (typeof stopCRE === 'function') stopCRE();
+    if (typeof stopSAM === 'function') stopSAM();
+    if (typeof stopIEC === 'function') stopIEC();
+    if (typeof stopPRCB === 'function') stopPRCB();
+    if (typeof stopMIF === 'function') stopMIF();
+    if (typeof stopAED === 'function') stopAED();
+}
+
+/**
+ * Gentle non-judgmental check-in. Responses are NEVER written to localStorage
+ * or transmitted to any remote endpoint.
+ */
+function showCheckInCard() {
+    checkInPending = true;
+    stopAllProtocols();
+    muteGlobalBinauralEngine();
+    onboardingAudioEnabled = false;
+    syncGameplayAudioToggleUI();
+
+    const overlay = document.getElementById('checkin-overlay');
+    if (!overlay) {
+        finishExitToHome();
+        return;
+    }
+
+    const vp = document.getElementById('viewport');
+    if (vp) {
+        vp.classList.add('hidden');
+        vp.setAttribute('aria-hidden', 'true');
+    }
+
+    overlay.classList.remove('hidden');
+    overlay.setAttribute('aria-hidden', 'false');
+}
+
+function hideCheckInCard() {
+    checkInPending = false;
+    const overlay = document.getElementById('checkin-overlay');
+    if (!overlay) return;
+    overlay.classList.add('hidden');
+    overlay.setAttribute('aria-hidden', 'true');
+}
+
+function finishExitToHome() {
+    hideCheckInCard();
     cancelProtocolIntro();
-    if (typeof stopOBD === 'function') {
-        stopOBD();
-    }
-    if (typeof stopCRE === 'function') {
-        stopCRE();
-    }
-    if (typeof stopSAM === 'function') {
-        stopSAM();
-    }
-    if (typeof stopIEC === 'function') {
-        stopIEC();
-    }
-    if (typeof stopPRCB === 'function') {
-        stopPRCB();
-    }
-    if (typeof stopMIF === 'function') {
-        stopMIF();
-    }
-    if (typeof stopAED === 'function') {
-        stopAED();
-    }
+    stopAllProtocols();
+    muteGlobalBinauralEngine();
+    onboardingAudioEnabled = false;
     document.documentElement.classList.remove('protocol-viewport-active');
     const vp = document.getElementById('viewport');
     if (vp) {
@@ -724,8 +606,50 @@ function exitProtocol() {
         inst.textContent = '';
         inst.removeAttribute('style');
     }
-    hideGameplayThetaToggle();
+    hideGameplayAudioToggle();
+    const dash = document.getElementById('dashboard');
+    if (dash) {
+        dash.classList.remove('hidden');
+        dash.setAttribute('aria-hidden', 'false');
+    }
     setEmergencyFooterHomeMode(true);
+}
+
+/**
+ * STOP & BACK / natural finish — always offer check-in; never punish early exit.
+ * Check-in answers are discarded (not persisted).
+ */
+function requestStopProtocol() {
+    if (checkInPending) {
+        finishExitToHome();
+        return;
+    }
+    showCheckInCard();
+}
+
+function exitProtocol() {
+    requestStopProtocol();
+}
+
+/**
+ * Called by protocols when an exercise ends naturally (no failure framing).
+ */
+function completeProtocolGently() {
+    requestStopProtocol();
+}
+
+function initCheckInChoices() {
+    const overlay = document.getElementById('checkin-overlay');
+    if (!overlay) return;
+
+    overlay.addEventListener('click', (event) => {
+        const btn = event.target.closest('[data-checkin]');
+        if (!btn) return;
+        /* Intentionally discard — do not store or transmit check-in responses. */
+        void btn.getAttribute('data-checkin');
+        selectionTapHaptic();
+        finishExitToHome();
+    });
 }
 
 if (typeof window !== 'undefined') {
@@ -737,23 +661,29 @@ if (typeof window !== 'undefined') {
         resume: resumeGlobalBinauralEngine,
         setGain: setGlobalBinauralGain,
         mute: muteGlobalBinauralEngine,
-        setEnabled: applyRuntimeThetaWaveState,
+        setEnabled: applyRuntimeAudioState,
         setLowPassFrequency: setGlobalBinauralLowPass,
         resetFilter: resetGlobalBinauralFilter,
         get audioContext() {
             return globalBinauralState.audioContext;
         },
         get isActive() {
-            return globalBinauralState.started && globalBinauralState.unlocked;
+            return globalBinauralState.started && globalBinauralState.unlocked && onboardingAudioEnabled;
         },
         get isThetaEnabled() {
-            return onboardingAudioEnabled && isThetaFrequencyActive();
+            return onboardingAudioEnabled && isOptionalSoundAvailable();
+        },
+        get isSoundEnabled() {
+            return onboardingAudioEnabled && isOptionalSoundAvailable();
         }
     };
     window.ProtocolRoutes = PROTOCOL_ROUTES;
     window.launchWithIntro = launchWithIntro;
     window.loadProtocol = loadProtocol;
     window.exitProtocol = exitProtocol;
+    window.requestStopProtocol = requestStopProtocol;
+    window.completeProtocolGently = completeProtocolGently;
+    window.showCheckInCard = showCheckInCard;
     window.openSession = openSession;
     window.showProtocolViewport = showProtocolViewport;
     window.promptEmergencyDial = promptEmergencyDial;
@@ -762,21 +692,21 @@ if (typeof window !== 'undefined') {
 }
 
 if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            initMasterInitializationOverlay();
-            initDashboardPrimary();
-            initStudioBrandHeader();
-            initEmergencyExitLinks();
-            initDisclaimerAxisLock();
-            initGameplayThetaToggle();
-        });
-    } else {
-        initMasterInitializationOverlay();
+    const boot = () => {
+        revealDashboardImmediately();
         initDashboardPrimary();
         initStudioBrandHeader();
         initEmergencyExitLinks();
-        initDisclaimerAxisLock();
-        initGameplayThetaToggle();
+        initGameplayAudioToggle();
+        initCheckInChoices();
+        /* Ensure optional audio stays OFF on cold start. */
+        onboardingAudioEnabled = false;
+        muteGlobalBinauralEngine();
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
     }
 }

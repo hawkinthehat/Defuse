@@ -123,27 +123,74 @@
 </head>
 <body>
     <div class="mif-page" id="mif-page">
-        <a class="mif-exit" href="../../" title="Return to dashboard">EXIT</a>
-        <p class="mif-inst protocol-header" id="mif-inst" role="status">gʷədiʔ (gwuh-dee)</p>
-        <p class="mif-status" id="mif-status" role="status">Slide slowly along the shifting path</p>
+        <button type="button" class="mif-exit stop-back-btn" id="mif-stop-back" title="Stop and go back">STOP &amp; BACK</button>
+        <button type="button" id="gameplay-audio-toggle" class="gameplay-audio-toggle gameplay-theta-toggle" aria-pressed="false" aria-label="Sound off. Tap to turn on." title="Toggle optional sound">
+            <span class="gameplay-theta-toggle-prefix" aria-hidden="true">♪</span>
+            <span class="gameplay-theta-toggle-label">Sound</span>
+            <span class="gameplay-theta-toggle-state" aria-hidden="true">OFF</span>
+        </button>
+        <p class="mif-inst protocol-header" id="mif-inst" role="status">Quiet moment</p>
+        <p class="mif-status" id="mif-status" role="status">Slide slowly along the path if that feels right</p>
 
-        <main class="mif-shell" id="mif-shell" aria-label="Micro-interoceptive focus touch canvas">
+        <main class="mif-shell" id="mif-shell" aria-label="Quiet touch tracing canvas">
             <canvas id="mif-canvas" aria-hidden="true"></canvas>
         </main>
 
-        <footer class="emergency-exit-bar emergency-exit-bar--global" aria-label="Crisis emergency resources — always available">
-            <button type="button" class="emergency-exit-link" data-emergency-dial>Emergency: dial 988 / 911</button>
+        <div id="checkin-overlay" class="checkin-overlay hidden" aria-hidden="true">
+            <section class="checkin-card" role="dialog" aria-modal="true" aria-labelledby="checkin-title">
+                <h2 id="checkin-title" class="checkin-title">Did that help?</h2>
+                <p class="checkin-sub">No wrong answers. This stays with you — nothing is saved.</p>
+                <div class="checkin-choices">
+                    <button type="button" class="checkin-choice" data-checkin="better">Feeling a bit better</button>
+                    <button type="button" class="checkin-choice" data-checkin="switch">Want to try something else</button>
+                    <button type="button" class="checkin-choice" data-checkin="break">I need a break for now</button>
+                </div>
+            </section>
+        </div>
+
+        <footer class="emergency-exit-bar emergency-exit-bar--global" aria-label="Crisis support — always available">
+            <p class="crisis-footer-text">Need support? Call or text 988 (Lifeline) or 911. This app cannot send emergency help.</p>
+            <button type="button" class="emergency-exit-link" data-emergency-dial>Call or text 988 / 911</button>
         </footer>
     </div>
 
     <script src="script.js"></script>
     <script>
-        document.querySelector('[data-emergency-dial]')?.addEventListener('click', function () {
-            var choice = window.confirm(
-                'EMERGENCY CRISIS SUPPORT\n\nTap OK to dial 988 (Suicide & Crisis Lifeline).\nTap Cancel to dial 911 instead.'
-            );
-            window.location.href = 'tel:' + (choice ? '988' : '911');
-        });
+        (function () {
+            var soundOn = false;
+            var toggle = document.getElementById('gameplay-audio-toggle');
+            if (toggle) {
+                toggle.addEventListener('click', function () {
+                    soundOn = !soundOn;
+                    toggle.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+                    toggle.setAttribute('aria-label', soundOn ? 'Sound on. Tap to turn off.' : 'Sound off. Tap to turn on.');
+                    var state = toggle.querySelector('.gameplay-theta-toggle-state');
+                    if (state) state.textContent = soundOn ? 'ON' : 'OFF';
+                    toggle.classList.toggle('gameplay-theta-toggle--on', soundOn);
+                });
+            }
+            function showCheckIn() {
+                var overlay = document.getElementById('checkin-overlay');
+                if (!overlay) {
+                    window.location.href = '../../';
+                    return;
+                }
+                overlay.classList.remove('hidden');
+                overlay.setAttribute('aria-hidden', 'false');
+            }
+            document.getElementById('mif-stop-back')?.addEventListener('click', showCheckIn);
+            document.getElementById('checkin-overlay')?.addEventListener('click', function (e) {
+                if (!e.target.closest('[data-checkin]')) return;
+                /* Check-in answers are discarded — never saved. */
+                window.location.href = '../../';
+            });
+            document.querySelector('[data-emergency-dial]')?.addEventListener('click', function () {
+                var choice = window.confirm(
+                    'Need support right now?\n\nTap OK to dial 988 (Lifeline).\nTap Cancel to dial 911 instead.'
+                );
+                window.location.href = 'tel:' + (choice ? '988' : '911');
+            });
+        })();
     </script>
 </body>
 </html>
