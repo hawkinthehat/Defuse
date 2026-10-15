@@ -2,7 +2,7 @@
  * dᶻix̌ʷ — EMDR bilateral infinity loop (lemniscate), OKN ripple field, grounding-pad gate.
  */
 (function () {
-    const SESSION_MS = 60000;
+    /* No mandatory session timer — youth may leave at any millisecond. */
     const PHASE_MS = 30000;
     const LOOP_PERIOD_SLOW = 5.8;
     const LOOP_PERIOD_FAST = 3.4;
@@ -10,7 +10,21 @@
     const MAX_DPR = 2;
     const TWO_PI = Math.PI * 2;
     const PADDLE_SRC = 'protocols/obd/assets/paddle-blade.svg';
-    const PROTOCOL_LABEL = 'dᶻix̌ʷ (dzih-khw)';
+    const PROTOCOL_LABEL = 'I need to move';
+
+    function isProtocolSoundOn() {
+        try {
+            if (window.GlobalBinauralEngine && typeof window.GlobalBinauralEngine.isSoundEnabled === 'boolean') {
+                return window.GlobalBinauralEngine.isSoundEnabled;
+            }
+            if (window.GlobalBinauralEngine && typeof window.GlobalBinauralEngine.isThetaEnabled === 'boolean') {
+                return window.GlobalBinauralEngine.isThetaEnabled;
+            }
+        } catch {
+            /* ignore */
+        }
+        return false;
+    }
 
     function setProtocolHeader() {
         const inst = document.getElementById('inst');
@@ -104,6 +118,7 @@
 
     function playApexFeedback() {
         centerHaptic();
+        if (!isProtocolSoundOn()) return;
         if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.playGunwaleStrike) {
             window.OBDAudio.playGunwaleStrike();
         }
@@ -265,7 +280,12 @@
             window.OBDVisual.setPaddleX(px);
         }
 
-        if (holding && typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.updateFromPaddle) {
+        if (
+            holding &&
+            isProtocolSoundOn() &&
+            typeof window.OBDBilateralAudio !== 'undefined' &&
+            window.OBDBilateralAudio.updateFromPaddle
+        ) {
             window.OBDBilateralAudio.updateFromPaddle(px, obdCssW, dt);
         }
 
@@ -282,8 +302,8 @@
             lastFrame = performance.now();
             pad.classList.add('obd-ground-pad--active');
             updatePausedBanner();
-            setInst(fastPhase ? 'Increased loop speed — maintain smooth tracking' : 'Infinity tracking — follow the paddle blade');
-            if (typeof window.OBDAudio !== 'undefined') {
+            setInst(fastPhase ? 'A little faster — only if it still feels okay' : 'Follow the paddle at your own pace');
+            if (isProtocolSoundOn() && typeof window.OBDAudio !== 'undefined') {
                 if (window.OBDAudio.prime) window.OBDAudio.prime();
                 if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.prepare) {
                     window.OBDBilateralAudio.prepare();
@@ -298,7 +318,7 @@
             holding = false;
             pad.classList.remove('obd-ground-pad--active');
             updatePausedBanner();
-            setInst('Re-establish contact with the grounding pad');
+            setInst('Touch the pad again when you are ready — or use STOP & BACK');
             if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.stopBabblingCreek) {
                 window.OBDAudio.stopBabblingCreek();
             }
@@ -324,14 +344,14 @@
 
         stage.innerHTML = `
             <div class="obd-root">
-                <p class="obd-instruct">Maintain contact with the grounding pad. Allow your eyes to smoothly track the paddle blade through the infinity loop.</p>
+                <p class="obd-instruct">Hold the pad if you want, and gently follow the paddle. Sound stays off unless you turn it on.</p>
                 <div class="obd-stage">
                     <canvas class="obd-bg-canvas" id="obd-bg-canvas" aria-hidden="true"></canvas>
-                    <canvas class="obd-canvas" id="obd-canvas" aria-label="Infinity loop tracking field with canoe paddle blade"></canvas>
-                    <p class="obd-paused-banner" id="obd-paused-banner" role="status">Paused — re-establish contact</p>
+                    <canvas class="obd-canvas" id="obd-canvas" aria-label="Gentle tracking loop with paddle"></canvas>
+                    <p class="obd-paused-banner" id="obd-paused-banner" role="status">Paused — touch again when ready</p>
                 </div>
                 <div class="obd-pad-wrap">
-                    <button type="button" class="obd-ground-pad" id="obd-ground-pad">Hold to stabilize view</button>
+                    <button type="button" class="obd-ground-pad" id="obd-ground-pad">Hold when ready</button>
                 </div>
             </div>
         `;
@@ -378,17 +398,20 @@
         lastFrame = 0;
         lastApexIndex = -1;
 
-        setInst('Hold the grounding pad to begin');
+        setInst('Hold the pad when you are ready — stop anytime');
         updatePausedBanner();
 
         if (typeof window.OBDVisual !== 'undefined' && window.OBDVisual.resume) {
             window.OBDVisual.resume();
         }
-        if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.prime) {
-            window.OBDAudio.prime();
-        }
-        if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.prepare) {
-            window.OBDBilateralAudio.prepare();
+        /* Audio stays silent until the Sound toggle is ON. */
+        if (isProtocolSoundOn()) {
+            if (typeof window.OBDAudio !== 'undefined' && window.OBDAudio.prime) {
+                window.OBDAudio.prime();
+            }
+            if (typeof window.OBDBilateralAudio !== 'undefined' && window.OBDBilateralAudio.prepare) {
+                window.OBDBilateralAudio.prepare();
+            }
         }
 
         if (obdRafId) cancelAnimationFrame(obdRafId);
@@ -400,15 +423,9 @@
             if (!obdRunning) return;
             fastPhase = true;
             loopPeriodSec = LOOP_PERIOD_FAST;
-            if (holding) setInst('Increased loop speed — maintain smooth tracking');
+            if (holding) setInst('A little faster — only if it still feels okay');
         }, PHASE_MS);
-
-        if (obdExitTimeoutId) clearTimeout(obdExitTimeoutId);
-        obdExitTimeoutId = window.setTimeout(() => {
-            obdExitTimeoutId = 0;
-            stopOBD();
-            exitProtocol();
-        }, SESSION_MS);
+        /* No forced session exit — STOP & BACK is always available. */
     }
 
     function launchOBD() {
@@ -422,7 +439,7 @@
 
         showProtocolViewport();
         setProtocolHeader();
-        setInst('Read instructions — then start');
+        setInst('Start when ready — you can stop anytime');
 
         renderShell({ paused: true });
         updatePausedBanner();

@@ -35,7 +35,7 @@
         if (!stage) return;
 
         const inst = document.getElementById('inst');
-        if (inst) inst.innerText = 'ACUTE EMERGENCY OVERRIDE';
+        if (inst) inst.innerText = 'Stability practice';
 
         stage.innerHTML = `
             <div class="kcb-root" id="kcb-root">

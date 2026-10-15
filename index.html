@@ -15,115 +15,86 @@
     <link rel="stylesheet" href="protocols/prcb/prcb.css">
 </head>
 <body>
-    <div id="master-init-overlay" class="master-init-overlay onboarding-overlay" aria-hidden="false">
-        <section class="master-init-card onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
-            <header class="onboarding-header">
-                <h1 id="onboarding-title" class="onboarding-title">dᶻix̌ʷ (dzih-khw) — Return to Center</h1>
-            </header>
-
-            <div class="onboarding-legal" id="onboarding-legal">
-                <section class="onboarding-section onboarding-section--privacy" aria-labelledby="onboarding-privacy-heading">
-                    <h2 id="onboarding-privacy-heading" class="onboarding-section-heading">Data Sovereignty &amp; Privacy:</h2>
-                    <p class="onboarding-body onboarding-body--emphasis">This application is built strictly as an offline-first, zero-data-collection tool. All data, inputs, and personal images remain encrypted entirely on your physical device. The Tribal Resilience Studio does not track, collect, store, or transmit your behavioral data or personal information to any external server.</p>
-                    <p class="onboarding-body">Your data stays on your device. No cloud sync. No analytics. No third-party sharing. This is the core of our data sovereignty promise.</p>
-                </section>
-
-                <hr class="onboarding-divider" aria-hidden="true">
-
-                <section class="onboarding-section" aria-labelledby="onboarding-crisis-heading">
-                    <h2 id="onboarding-crisis-heading" class="onboarding-section-heading">Crisis Support &amp; Terms of Use:</h2>
-                    <p class="onboarding-body">This tool is designed for somatic retraining and nervous system regulation. It is strictly a supportive digital therapeutic and is NOT a substitute for professional medical advice, diagnosis, or psychiatric treatment. The Tribal Resilience Studio and its developers are not licensed medical providers. <a href="terms.html">Full terms of use</a>.</p>
-                    <p class="onboarding-body onboarding-body--emphasis">If you are experiencing a medical emergency, are in immediate danger, or require active crisis intervention, this application cannot dispatch help. Please immediately dial 988 (Suicide &amp; Crisis Lifeline) or 911.</p>
-                </section>
-
-                <hr class="onboarding-divider" aria-hidden="true">
-
-                <section class="onboarding-section" aria-labelledby="onboarding-neuromodulation-heading">
-                    <h2 id="onboarding-neuromodulation-heading" class="onboarding-section-heading">Experimental Neuromodulation Disclaimer:</h2>
-                    <p class="onboarding-body">The Theta Differential Engine and haptic stabilization protocols provided herein are experimental bioelectronic neuromodulation tools. They are provided for informational and supportive wellness purposes only. These tools do not constitute medical, psychiatric, or diagnostic care. By utilizing these features, the user acknowledges the experimental nature of binaural and haptic intervention and assumes all responsibility for their own physiological response.</p>
-                </section>
-
-                <hr class="onboarding-divider" aria-hidden="true">
-
-                <section class="onboarding-section" aria-labelledby="onboarding-liability-heading">
-                    <h2 id="onboarding-liability-heading" class="onboarding-section-heading">Limitation of Liability:</h2>
-                    <p class="onboarding-body">By tapping &lsquo;I Understand and Enter,&rsquo; you acknowledge that the Tribal Resilience Studio provides this software &lsquo;as is.&rsquo; You agree to assume all risk associated with its use, and the Tribal Resilience Studio is fully indemnified and holds no liability for any outcomes related to the use or inability to use this software.</p>
-                </section>
-            </div>
-
-            <div class="onboarding-audio-panel" id="onboarding-audio-panel">
-                <label class="onboarding-toggle" for="onboarding-audio-toggle">
-                    <input type="checkbox" id="onboarding-audio-toggle" class="onboarding-toggle-input" autocomplete="off">
-                    <span class="onboarding-toggle-switch" aria-hidden="true"></span>
-                    <span class="onboarding-toggle-label">Enable Global Acoustic Entrainment (🎧 Headphones Required)</span>
-                </label>
-
-                <label class="onboarding-frequency-label" for="onboarding-frequency-select">Frequency Profile</label>
-                <select id="onboarding-frequency-select" class="onboarding-frequency-select" aria-describedby="onboarding-frequency-hint">
-                    <option value="theta-6" selected>Theta Differential Engine (6Hz — Experimental Bioelectronic Neuromodulation Baseline)</option>
-                    <option value="alpha-10">Alpha Entrainment (10Hz Baseline)</option>
-                    <option value="none">Opt Out — No Binaural Frequency Layer</option>
-                </select>
-                <p id="onboarding-frequency-hint" class="onboarding-frequency-hint">Requires headphones for independent left/right channel delivery.</p>
-            </div>
-
-            <button type="button" class="master-init-btn onboarding-enter-btn" id="master-init-btn" aria-controls="dashboard">
-                [ I Understand and Enter ]
-            </button>
-        </section>
-    </div>
-
-    <div id="dashboard" class="hidden" aria-hidden="true">
-        <header class="app-brand">
-            <img src="dzixw-logo.png" width="607" height="592" class="app-brand-logo" alt="dᶻix̌ʷ (dzih-khw)">
-            <p id="studio-brand-header" class="app-studio-brand" aria-label="Developer attribution — Š̌aqʷ x̌ax̌aʔ Studio">Š̌aqʷ x̌ax̌aʔ Studio</p>
+    <div id="dashboard" aria-hidden="false">
+        <header class="app-brand youth-home-brand">
+            <img src="dzixw-logo.png" width="607" height="592" class="app-brand-logo" alt="">
+            <h1 class="youth-home-title">dᶻix̌ʷ · RETURN TO CENTER</h1>
+            <p class="youth-home-subheader">Take a breath. You're here.</p>
+            <p class="youth-home-helper">No pressure to explain anything. Choose what feels right for this moment.</p>
         </header>
 
-        <section class="symptom-primary dzixw-triage-section" aria-labelledby="diag-hero">
-            <h1 id="diag-hero" class="diagnostic-hero">Take a breath. Choose the path that fits this moment.</h1>
-            <div class="symptom-grid symptom-grid--primary">
-                <button id="protocol-cre">k̓ʷəč (kuh-wutch): RETRAIN THOUGHT / ATTENTIONAL FOCUS</button>
-                <button id="protocol-obd">dᶻix̌ʷ (dzih-khw): RETRAIN RHYTHM / RETURN TO CENTER</button>
-                <button id="protocol-mif">gʷədiʔ (gwuh-dee): RETRAIN SENSATION / PHYSICAL TOUCH GROUNDING</button>
-                <button id="protocol-aed">ʔuʔəy̓ (oo-uh-ee): RETRAIN FOCUS / CLEAR CHAOTIC STIMULI</button>
-                <button id="protocol-prcb">tix̌ix̌dubut (tee-khuh-khuh-doo-but): RETRAIN STABILITY / EMERGENCY OVERRIDE</button>
+        <section class="symptom-primary dzixw-triage-section youth-choice-section" aria-labelledby="diag-hero">
+            <h2 id="diag-hero" class="visually-hidden">Choose a short practice</h2>
+            <div class="symptom-grid symptom-grid--primary youth-choice-grid">
+                <button type="button" id="protocol-cre" class="youth-choice-btn">
+                    <span class="youth-choice-title">Help me settle</span>
+                    <span class="youth-choice-desc">A short guided reset</span>
+                </button>
+                <button type="button" id="protocol-obd" class="youth-choice-btn">
+                    <span class="youth-choice-title">I need to move</span>
+                    <span class="youth-choice-desc">Release some energy gently</span>
+                </button>
+                <button type="button" id="protocol-aed" class="youth-choice-btn">
+                    <span class="youth-choice-title">Help me focus</span>
+                    <span class="youth-choice-desc">Ground in the present</span>
+                </button>
+                <button type="button" id="protocol-mif" class="youth-choice-btn">
+                    <span class="youth-choice-title">I need a quiet moment</span>
+                    <span class="youth-choice-desc">Choose a low-stimulation option</span>
+                </button>
             </div>
+            <p class="youth-choice-foot">You can stop or switch at any time.</p>
         </section>
+
+        <p class="youth-safety-link-wrap">
+            <a href="legal.html" class="youth-safety-link">Safety Info &amp; Crisis Support</a>
+        </p>
     </div>
 
     <div id="protocol-intro-overlay" class="protocol-intro-overlay hidden" aria-hidden="true">
         <div class="protocol-intro-card">
             <p id="protocol-intro-body" class="protocol-intro-body" role="status"></p>
-            <p class="protocol-intro-foot">Engaging&hellip;</p>
+            <p class="protocol-intro-foot">Starting when you're ready&hellip;</p>
         </div>
     </div>
 
     <div id="viewport" class="hidden" aria-hidden="true">
         <p id="inst" class="protocol-header" role="status"></p>
-        <button type="button" class="exit-btn" onclick="exitProtocol()" title="Return to dashboard">EXIT</button>
+        <button type="button" class="exit-btn stop-back-btn" id="stop-back-btn" onclick="requestStopProtocol()" title="Stop and go back">STOP &amp; BACK</button>
         <button
             type="button"
-            id="gameplay-theta-toggle"
-            class="gameplay-theta-toggle hidden"
+            id="gameplay-audio-toggle"
+            class="gameplay-audio-toggle gameplay-theta-toggle hidden"
             aria-pressed="false"
             aria-hidden="true"
-            aria-label="Theta waves off. Tap to turn on."
-            title="Toggle theta differential engine"
+            aria-label="Sound off. Tap to turn on."
+            title="Toggle optional sound"
         >
-            <span class="gameplay-theta-toggle-prefix" aria-hidden="true">θ</span>
-            <span class="gameplay-theta-toggle-label">Theta</span>
+            <span class="gameplay-theta-toggle-prefix" aria-hidden="true">♪</span>
+            <span class="gameplay-theta-toggle-label">Sound</span>
             <span class="gameplay-theta-toggle-state" aria-hidden="true">OFF</span>
         </button>
         <div id="protocol-stage"></div>
     </div>
 
-    <footer id="emergency-bypass-footer" class="emergency-exit-bar emergency-exit-bar--global home-footer" aria-label="Crisis emergency resources — always available">
-        <button type="button" class="emergency-exit-link" data-emergency-dial data-emergency-bypass>Emergency: dial 988 / 911</button>
+    <div id="checkin-overlay" class="checkin-overlay hidden" aria-hidden="true">
+        <section class="checkin-card" role="dialog" aria-modal="true" aria-labelledby="checkin-title">
+            <h2 id="checkin-title" class="checkin-title">Did that help?</h2>
+            <p class="checkin-sub">No wrong answers. This stays with you — nothing is saved.</p>
+            <div class="checkin-choices">
+                <button type="button" class="checkin-choice" data-checkin="better">Feeling a bit better</button>
+                <button type="button" class="checkin-choice" data-checkin="switch">Want to try something else</button>
+                <button type="button" class="checkin-choice" data-checkin="break">I need a break for now</button>
+            </div>
+        </section>
+    </div>
+
+    <footer id="emergency-bypass-footer" class="emergency-exit-bar emergency-exit-bar--global home-footer" aria-label="Crisis support — always available">
+        <p class="crisis-footer-text">Need support? Call or text 988 (Lifeline) or 911. This app cannot send emergency help.</p>
+        <button type="button" class="emergency-exit-link" data-emergency-dial data-emergency-bypass>Call or text 988 / 911</button>
     </footer>
 
     <div class="scanlines" aria-hidden="true"></div>
-
-    <a href="https://healinghawk-legal.vercel.app/" class="legal-portal-link" target="_blank" rel="noopener noreferrer">Privacy &amp; Legal • š̌aqʷ x̌ax̌aʔ</a>
 
     <nav id="universal-safety-control" class="fixed top-4 right-4 z-50 flex items-center gap-2" aria-label="Emergency stop and tool switch">
         <button

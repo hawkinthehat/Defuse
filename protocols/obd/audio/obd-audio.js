@@ -121,7 +121,19 @@
         creekStopping = false;
     }
 
+    function isSoundEnabled() {
+        try {
+            if (window.GlobalBinauralEngine && typeof window.GlobalBinauralEngine.isSoundEnabled === 'boolean') {
+                return window.GlobalBinauralEngine.isSoundEnabled;
+            }
+        } catch {
+            /* ignore */
+        }
+        return false;
+    }
+
     function startBabblingCreek() {
+        if (!isSoundEnabled()) return Promise.resolve(false);
         if (creekNodes || creekStopping) return resumeAudio();
 
         return resumeAudio().then((ready) => {
@@ -222,6 +234,7 @@
     }
 
     function playGunwaleStrike() {
+        if (!isSoundEnabled()) return;
         const ctx = getAudioContext();
         if (!ctx || !strikeBuffer) return;
 

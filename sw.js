@@ -1,8 +1,10 @@
-const CACHE_NAME = 'tsulc-onboarding-overlays-v18.1.0';
+const CACHE_NAME = 'dzixw-trauma-informed-youth-v19.1.0';
 
 const PRECACHE_URLS = [
   '/',
   '/index.html',
+  '/legal.html',
+  '/terms.html',
   '/style.css',
   '/app.js',
   '/safety-control.js',
@@ -19,10 +21,6 @@ const PRECACHE_URLS = [
   '/protocols/obd/assets/paddle-blade.svg',
   '/protocols/cre/cre.css',
   '/protocols/cre/cre.js',
-  '/protocols/sam/sam.css',
-  '/protocols/sam/app.js',
-  '/protocols/iec/iec.css',
-  '/protocols/iec/app.js',
   '/protocols/prcb/prcb.css',
   '/protocols/prcb/prcb.js',
   '/protocols/aed/index.html',
@@ -56,6 +54,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  /* Offline-first PWA — no analytics, no third-party phone-home. */
   event.respondWith(
     fetch(event.request).catch(() =>
       caches.match(event.request, { ignoreSearch: false }).then((cached) => {
