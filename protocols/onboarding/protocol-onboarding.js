@@ -8,7 +8,7 @@
 
     const PROTOCOL_ONBOARDING = Object.freeze({
         aed: Object.freeze({
-            header: 'RETRAIN FOCUS / CLEAR CHAOTIC STIMULI',
+            header: 'ʔuʔəy̓ (oo-uh-ee) — Filter sensory noise',
             steps: Object.freeze([
                 Object.freeze({
                     label: 'ACTION',
@@ -25,7 +25,7 @@
             ])
         }),
         obd: Object.freeze({
-            header: 'RETRAIN RHYTHM / RETURN TO CENTER',
+            header: 'dᶻix̌ʷ (dzih-khw) — Unstuck through rhythm',
             steps: Object.freeze([
                 Object.freeze({
                     label: 'ACTION',
@@ -42,7 +42,7 @@
             ])
         }),
         mif: Object.freeze({
-            header: 'RETRAIN SENSATION / PHYSICAL TOUCH GROUNDING',
+            header: 'gʷədiʔ (gwuh-dee) — Ground through touch',
             steps: Object.freeze([
                 Object.freeze({
                     label: 'ACTION',
@@ -59,7 +59,7 @@
             ])
         }),
         cre: Object.freeze({
-            header: 'RETRAIN THOUGHT / ATTENTIONAL FOCUS',
+            header: 'k̓ʷəč (kuh-wutch) — Quiet racing thoughts',
             steps: Object.freeze([
                 Object.freeze({
                     label: 'ACTION',
@@ -76,7 +76,7 @@
             ])
         }),
         prcb: Object.freeze({
-            header: 'RETRAIN STABILITY / EMERGENCY OVERRIDE',
+            header: 'tix̌ix̌dubut (tee-khuh-khuh-doo-but) — Emergency reset',
             steps: Object.freeze([
                 Object.freeze({
                     label: 'ACTION',

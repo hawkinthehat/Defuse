@@ -237,7 +237,7 @@
 
         stage.innerHTML = `
             <div class="audio-root">
-                <p class="audio-warning">Headphones required for entrainment</p>
+                <p class="audio-warning">Headphones optional — recommended for best results</p>
                 <div class="audio-wave-wrap">
                     <canvas class="audio-wave-canvas" id="audio-wave-canvas" aria-hidden="true"></canvas>
                 </div>

@@ -5,7 +5,7 @@
  */
 (function () {
     const MAX_DPR = 2;
-    const PROTOCOL_HEADER = 'gʷədiʔ (gwuh-dee)';
+    const PROTOCOL_HEADER = 'gʷədiʔ (gwuh-dee) — Ground through touch';
     const PATH_SAMPLES = 160;
     const PATH_TOLERANCE = 38;
     const RESTING_BPM = 65;

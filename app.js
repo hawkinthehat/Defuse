@@ -7,13 +7,13 @@
 const STUDIO_NAME = 'Š̌aqʷ x̌ax̌aʔ Studio';
 const STUDIO_ATTRIBUTION = 'Š̌aqʷ x̌ax̌aʔ Studio';
 
-/** Active retraining verbs for the locked home triage menu. */
+/** Plain-language outcome labels for the locked home triage menu. */
 const TRIAGE_RETRAIN_LABELS = Object.freeze({
-    cre: { term: 'k̓ʷəč:', action: 'RETRAIN THOUGHT / ATTENTIONAL FOCUS' },
-    obd: { term: 'dᶻix̌ʷ:', action: 'RETRAIN RHYTHM / RETURN TO CENTER' },
-    mif: { term: 'gʷədiʔ:', action: 'RETRAIN SENSATION / PHYSICAL TOUCH GROUNDING' },
-    aed: { term: 'ʔuʔəy̓:', action: 'RETRAIN FOCUS / CLEAR CHAOTIC STIMULI' },
-    prcb: { term: 'tix̌ix̌dubut:', action: 'RETRAIN STABILITY / EMERGENCY OVERRIDE' }
+    cre: { term: 'k̓ʷəč (kuh-wutch)', action: 'Quiet my racing thoughts', header: 'Quiet racing thoughts' },
+    obd: { term: 'dᶻix̌ʷ (dzih-khw)', action: 'Unstuck my mind through rhythm', header: 'Unstuck through rhythm' },
+    mif: { term: 'gʷədiʔ (gwuh-dee)', action: 'Ground myself through touch', header: 'Ground through touch' },
+    aed: { term: 'ʔuʔəy̓ (oo-uh-ee)', action: 'Filter out sensory noise', header: 'Filter sensory noise' },
+    prcb: { term: 'tix̌ix̌dubut (tee-khuh-khuh-doo-but)', action: 'Emergency reset', header: 'Emergency reset' }
 });
 
 const PROTOCOL_INTRO_MS = 1500;
@@ -27,9 +27,9 @@ const GLOBAL_BINAURAL_CONFIG = {
 
 /** Frequency presets for onboarding opt-in sub-selection. */
 const FREQUENCY_PRESETS = {
-    'theta-6': { leftHz: 200, rightHz: 206, label: 'Theta Differential Engine (6Hz — Experimental Bioelectronic Neuromodulation Baseline)' },
-    'alpha-10': { leftHz: 200, rightHz: 210, label: 'Alpha Entrainment (10Hz Baseline)' },
-    none: { leftHz: 200, rightHz: 200, label: 'Opt Out — No Binaural Frequency Layer', gain: 0 }
+    'theta-6': { leftHz: 200, rightHz: 206, label: 'Gentle relaxation sound' },
+    'alpha-10': { leftHz: 200, rightHz: 210, label: 'Steady calm sound' },
+    none: { leftHz: 200, rightHz: 200, label: 'No background sound', gain: 0 }
 };
 
 let onboardingAudioEnabled = false;
@@ -47,16 +47,16 @@ const globalBinauralState = {
 };
 
 /**
- * Pre-session splash: RETRAIN ENGAGED: [NAME]. FOCUS ON THE [RHYTHM TYPE] RHYTHM.
+ * Pre-session splash: plain-language name + outcome.
  */
 const PROTOCOL_ENGAGE = {
-    obd: { name: 'dᶻix̌ʷ (dzih-khw)', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.obd.action },
-    cre: { name: 'k̓ʷəč (kuh-wutch)', rhythm: 'HAPTIC AND VISUAL', retrain: TRIAGE_RETRAIN_LABELS.cre.action },
-    mif: { name: 'gʷədiʔ (gwuh-dee)', rhythm: 'HAPTIC AND SOMATIC', retrain: TRIAGE_RETRAIN_LABELS.mif.action },
-    aed: { name: 'ʔuʔəy̓ (oo-uh-ee)', rhythm: 'VISUAL AND ATTENTIONAL', retrain: TRIAGE_RETRAIN_LABELS.aed.action },
-    sam: { name: 'SAM', rhythm: 'VISUAL AND HAPTIC', retrain: 'RETRAIN ATTENTION' },
-    iec: { name: 'IEC', rhythm: 'VISUAL', retrain: 'RETRAIN PERCEPTION' },
-    prcb: { name: 'tix̌ix̌dubut (tee-khuh-khuh-doo-but)', rhythm: 'HIGH-CONTRAST VISUAL', retrain: TRIAGE_RETRAIN_LABELS.prcb.action }
+    obd: { name: 'dᶻix̌ʷ (dzih-khw)', retrain: TRIAGE_RETRAIN_LABELS.obd.action },
+    cre: { name: 'k̓ʷəč (kuh-wutch)', retrain: TRIAGE_RETRAIN_LABELS.cre.action },
+    mif: { name: 'gʷədiʔ (gwuh-dee)', retrain: TRIAGE_RETRAIN_LABELS.mif.action },
+    aed: { name: 'ʔuʔəy̓ (oo-uh-ee)', retrain: TRIAGE_RETRAIN_LABELS.aed.action },
+    sam: { name: 'SAM', retrain: 'Settle your attention' },
+    iec: { name: 'IEC', retrain: 'Steady your focus' },
+    prcb: { name: 'tix̌ix̌dubut (tee-khuh-khuh-doo-but)', retrain: TRIAGE_RETRAIN_LABELS.prcb.action }
 };
 
 const PROTOCOL_ROUTES = {
@@ -347,7 +347,9 @@ function syncGameplayThetaToggleUI() {
     toggle.setAttribute('aria-pressed', active ? 'true' : 'false');
     toggle.setAttribute(
         'aria-label',
-        active ? 'Theta waves on. Tap to turn off.' : 'Theta waves off. Tap to turn on.'
+        active
+            ? 'Calming audio on. Tap to turn off. Headphones optional.'
+            : 'Calming audio off. Tap to turn on. Headphones optional.'
     );
 
     const stateEl = toggle.querySelector('.gameplay-theta-toggle-state');
@@ -489,7 +491,7 @@ function showProtocolPending(protocolKey) {
     }
 
     const inst = document.getElementById('inst');
-    if (inst) inst.textContent = `${name} · PROTOCOL ROUTE READY`;
+    if (inst) inst.textContent = `${name} · Ready when you are`;
 
     const stage = document.getElementById('protocol-stage');
     if (!stage) return;
@@ -529,7 +531,7 @@ function launchWithIntro(protocolKey) {
         return;
     }
 
-    const line = `RETRAIN ENGAGED: ${meta.name}. ${meta.retrain}. FOCUS ON THE ${meta.rhythm} RHYTHM.`;
+    const line = `${meta.name} — ${meta.retrain}`;
     body.textContent = line;
     overlay.classList.remove('hidden');
     overlay.setAttribute('aria-hidden', 'false');

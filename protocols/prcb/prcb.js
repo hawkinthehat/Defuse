@@ -13,7 +13,7 @@
     let prcbCtx = null;
     let prcbResizeHandler = null;
 
-    const PROTOCOL_HEADER = 'tix̌ix̌dubut (tee-khuh-khuh-doo-but)';
+    const PROTOCOL_HEADER = 'tix̌ix̌dubut (tee-khuh-khuh-doo-but) — Emergency reset';
 
     function setProtocolHeader() {
         const inst = document.getElementById('inst');

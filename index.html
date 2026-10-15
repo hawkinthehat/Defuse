@@ -39,8 +39,8 @@
                 <hr class="onboarding-divider" aria-hidden="true">
 
                 <section class="onboarding-section" aria-labelledby="onboarding-neuromodulation-heading">
-                    <h2 id="onboarding-neuromodulation-heading" class="onboarding-section-heading">Experimental Neuromodulation Disclaimer:</h2>
-                    <p class="onboarding-body">The Theta Differential Engine and haptic stabilization protocols provided herein are experimental bioelectronic neuromodulation tools. They are provided for informational and supportive wellness purposes only. These tools do not constitute medical, psychiatric, or diagnostic care. By utilizing these features, the user acknowledges the experimental nature of binaural and haptic intervention and assumes all responsibility for their own physiological response.</p>
+                    <h2 id="onboarding-neuromodulation-heading" class="onboarding-section-heading">Optional Sound Disclaimer:</h2>
+                    <p class="onboarding-body">The optional calming background audio and touch-based tools are experimental wellness supports only. They are not medical, psychiatric, or diagnostic care. By using them, you acknowledge that responses vary and you assume responsibility for your own experience. Headphones are optional—you can use every visual and touch tool without them.</p>
                 </section>
 
                 <hr class="onboarding-divider" aria-hidden="true">
@@ -55,16 +55,16 @@
                 <label class="onboarding-toggle" for="onboarding-audio-toggle">
                     <input type="checkbox" id="onboarding-audio-toggle" class="onboarding-toggle-input" autocomplete="off">
                     <span class="onboarding-toggle-switch" aria-hidden="true"></span>
-                    <span class="onboarding-toggle-label">Enable Global Acoustic Entrainment (🎧 Headphones Required)</span>
+                    <span class="onboarding-toggle-label">Play calming background audio (Headphones recommended for best results)</span>
                 </label>
 
-                <label class="onboarding-frequency-label" for="onboarding-frequency-select">Frequency Profile</label>
+                <label class="onboarding-frequency-label" for="onboarding-frequency-select">Sound choice</label>
                 <select id="onboarding-frequency-select" class="onboarding-frequency-select" aria-describedby="onboarding-frequency-hint">
-                    <option value="theta-6" selected>Theta Differential Engine (6Hz — Experimental Bioelectronic Neuromodulation Baseline)</option>
-                    <option value="alpha-10">Alpha Entrainment (10Hz Baseline)</option>
-                    <option value="none">Opt Out — No Binaural Frequency Layer</option>
+                    <option value="theta-6" selected>Gentle relaxation sound</option>
+                    <option value="alpha-10">Steady calm sound</option>
+                    <option value="none">No background sound</option>
                 </select>
-                <p id="onboarding-frequency-hint" class="onboarding-frequency-hint">Requires headphones for independent left/right channel delivery.</p>
+                <p id="onboarding-frequency-hint" class="onboarding-frequency-hint">Headphones are optional. You can enter and use all visual and touch tools without them.</p>
             </div>
 
             <button type="button" class="master-init-btn onboarding-enter-btn" id="master-init-btn" aria-controls="dashboard">
@@ -82,11 +82,11 @@
         <section class="symptom-primary dzixw-triage-section" aria-labelledby="diag-hero">
             <h1 id="diag-hero" class="diagnostic-hero">Take a breath. Choose the path that fits this moment.</h1>
             <div class="symptom-grid symptom-grid--primary">
-                <button id="protocol-cre">k̓ʷəč (kuh-wutch): RETRAIN THOUGHT / ATTENTIONAL FOCUS</button>
-                <button id="protocol-obd">dᶻix̌ʷ (dzih-khw): RETRAIN RHYTHM / RETURN TO CENTER</button>
-                <button id="protocol-mif">gʷədiʔ (gwuh-dee): RETRAIN SENSATION / PHYSICAL TOUCH GROUNDING</button>
-                <button id="protocol-aed">ʔuʔəy̓ (oo-uh-ee): RETRAIN FOCUS / CLEAR CHAOTIC STIMULI</button>
-                <button id="protocol-prcb">tix̌ix̌dubut (tee-khuh-khuh-doo-but): RETRAIN STABILITY / EMERGENCY OVERRIDE</button>
+                <button id="protocol-cre">k̓ʷəč (kuh-wutch) — Quiet my racing thoughts</button>
+                <button id="protocol-obd">dᶻix̌ʷ (dzih-khw) — Unstuck my mind through rhythm</button>
+                <button id="protocol-mif">gʷədiʔ (gwuh-dee) — Ground myself through touch</button>
+                <button id="protocol-aed">ʔuʔəy̓ (oo-uh-ee) — Filter out sensory noise</button>
+                <button id="protocol-prcb">tix̌ix̌dubut (tee-khuh-khuh-doo-but) — Emergency reset</button>
             </div>
         </section>
     </div>
@@ -107,11 +107,11 @@
             class="gameplay-theta-toggle hidden"
             aria-pressed="false"
             aria-hidden="true"
-            aria-label="Theta waves off. Tap to turn on."
-            title="Toggle theta differential engine"
+            aria-label="Calming audio off. Tap to turn on. Headphones optional."
+            title="Toggle calming background audio (headphones optional)"
         >
-            <span class="gameplay-theta-toggle-prefix" aria-hidden="true">θ</span>
-            <span class="gameplay-theta-toggle-label">Theta</span>
+            <span class="gameplay-theta-toggle-prefix" aria-hidden="true">♪</span>
+            <span class="gameplay-theta-toggle-label">Audio</span>
             <span class="gameplay-theta-toggle-state" aria-hidden="true">OFF</span>
         </button>
         <div id="protocol-stage"></div>

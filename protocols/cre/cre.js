@@ -6,7 +6,7 @@
     const STABILITY_DRAIN = 15;
     const SPAWN_MS = 2600;
     const FALL_PX_PER_SEC = 72;
-    const PROTOCOL_HEADER = 'k̓ʷəč (kuh-wutch)';
+    const PROTOCOL_HEADER = 'k̓ʷəč (kuh-wutch) — Quiet racing thoughts';
 
     /** threat + neutral third-person reframe + two catastrophizing traps */
     const SCRIPT_MATRIX = [
@@ -296,7 +296,7 @@
                 <div class="cre-root cre-root--preflight">
                     <div class="protocol-preflight-overlay">
                         <section class="protocol-preflight-card" role="dialog" aria-labelledby="cre-preflight-title">
-                            <h2 class="protocol-preflight-title" id="cre-preflight-title">RETRAIN THOUGHT / ATTENTIONAL FOCUS</h2>
+                            <h2 class="protocol-preflight-title" id="cre-preflight-title">k̓ʷəč (kuh-wutch) — Quiet racing thoughts</h2>
                             <button type="button" class="protocol-preflight-start" id="cre-preflight-start">START PROTOCOL</button>
                         </section>
                     </div>

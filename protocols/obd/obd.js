@@ -10,7 +10,7 @@
     const MAX_DPR = 2;
     const TWO_PI = Math.PI * 2;
     const PADDLE_SRC = 'protocols/obd/assets/paddle-blade.svg';
-    const PROTOCOL_LABEL = 'dᶻix̌ʷ (dzih-khw)';
+    const PROTOCOL_LABEL = 'dᶻix̌ʷ (dzih-khw) — Unstuck through rhythm';
 
     function setProtocolHeader() {
         const inst = document.getElementById('inst');
