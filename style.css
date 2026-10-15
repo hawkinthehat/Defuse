@@ -298,7 +298,7 @@ html.protocol-viewport-active body {
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 1.1rem;
+    font-size: clamp(0.92rem, 2.6vw, 1.1rem);
     font-weight: 500;
     line-height: 1.35;
     letter-spacing: 0.02em;
@@ -306,6 +306,7 @@ html.protocol-viewport-active body {
     color: #cbd5e1;
     pointer-events: none;
     z-index: 12001;
+    overflow-wrap: anywhere;
 }
 
 #viewport:not(.hidden) .protocol-header {

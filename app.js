@@ -304,7 +304,9 @@ function syncGameplayAudioToggleUI() {
     toggle.setAttribute('aria-pressed', active ? 'true' : 'false');
     toggle.setAttribute(
         'aria-label',
-        active ? 'Sound on. Tap to turn off.' : 'Sound off. Tap to turn on.'
+        active
+            ? 'Sound on. Tap to turn off. Headphones optional.'
+            : 'Sound off. Tap to turn on. Headphones optional.'
     );
 
     const stateEl = toggle.querySelector('.gameplay-theta-toggle-state');
