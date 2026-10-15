@@ -2,11 +2,11 @@
  * CRE — Cognitive Re-Coder: intercept falling anxious thoughts, reframe or lose stability.
  */
 (function () {
-    const SESSION_MS = 60000;
+    /* No mandatory timer — youth may leave at any millisecond. */
     const STABILITY_DRAIN = 15;
     const SPAWN_MS = 2600;
     const FALL_PX_PER_SEC = 72;
-    const PROTOCOL_HEADER = 'k̓ʷəč (kuh-wutch)';
+    const PROTOCOL_HEADER = 'Help me settle';
 
     /** threat + neutral third-person reframe + two catastrophizing traps */
     const SCRIPT_MATRIX = [
@@ -112,7 +112,6 @@
     let creSpawnId = 0;
     let creTimerId = 0;
     let creRafId = 0;
-    let creSessionEndAt = 0;
     let creLastFrame = 0;
     let stability = 100;
     let thoughts = [];
@@ -178,13 +177,6 @@
         }
     }
 
-    function formatTimeLeft(ms) {
-        const s = Math.max(0, Math.ceil(ms / 1000));
-        const m = Math.floor(s / 60);
-        const r = s % 60;
-        return `${m}:${r < 10 ? '0' : ''}${r}`;
-    }
-
     function refillMatrixQueue() {
         matrixQueue = shuffle(
             SCRIPT_MATRIX.map((_, i) => i)
@@ -218,14 +210,8 @@
             wrap.classList.add('cre-stability-wrap--shake');
         }
         if (stability <= 0) {
-            endSession(false);
-        }
-    }
-
-    function updateInstTimer() {
-        const left = creSessionEndAt - Date.now();
-        if (left <= 0 && creRunning) {
-            endSession(stability > 0);
+            /* Soft landing — no failure message, no penalty framing. */
+            endSessionGently();
         }
     }
 
@@ -296,8 +282,9 @@
                 <div class="cre-root cre-root--preflight">
                     <div class="protocol-preflight-overlay">
                         <section class="protocol-preflight-card" role="dialog" aria-labelledby="cre-preflight-title">
-                            <h2 class="protocol-preflight-title" id="cre-preflight-title">RETRAIN THOUGHT / ATTENTIONAL FOCUS</h2>
-                            <button type="button" class="protocol-preflight-start" id="cre-preflight-start">START PROTOCOL</button>
+                            <h2 class="protocol-preflight-title" id="cre-preflight-title">Help me settle</h2>
+                            <p class="protocol-onboarding-note">You can stop anytime. There is no score to protect.</p>
+                            <button type="button" class="protocol-preflight-start" id="cre-preflight-start">START WHEN READY</button>
                         </section>
                     </div>
                 </div>
@@ -476,40 +463,7 @@
         creRafId = requestAnimationFrame(tick);
     }
 
-    function renderComplete(won) {
-        stopCRE();
-        setProtocolHeader();
-
-        const stage = document.getElementById('protocol-stage');
-        if (!stage) return;
-
-        if (won) {
-            stage.innerHTML = `
-                <div class="cre-root cre-root--complete">
-                    <p class="cre-complete-line">Cognitive loops successfully broken. Thought patterns normalized.</p>
-                    <p class="cre-complete-meta">Stability ${stability}% · 60 second intercept complete</p>
-                    <button type="button" class="cre-done-btn" id="cre-done">RETURN TO MAIN SCREEN</button>
-                </div>
-            `;
-        } else {
-            stage.innerHTML = `
-                <div class="cre-root cre-root--complete">
-                    <p class="cre-complete-line cre-complete-line--lose">Stability depleted. Loop exposure exceeded safe threshold.</p>
-                    <p class="cre-complete-meta">Re-engage when ready to intercept again</p>
-                    <button type="button" class="cre-done-btn" id="cre-done">RETURN TO MAIN SCREEN</button>
-                </div>
-            `;
-        }
-
-        const done = document.getElementById('cre-done');
-        if (done) {
-            done.addEventListener('click', () => {
-                exitProtocol();
-            });
-        }
-    }
-
-    function endSession(won) {
+    function endSessionGently() {
         if (sessionEnded) return;
         sessionEnded = true;
         creRunning = false;
@@ -526,7 +480,14 @@
             creRafId = 0;
         }
         closeChoiceMenu();
-        renderComplete(won);
+        setStabilityBarViewport(false);
+        if (typeof completeProtocolGently === 'function') {
+            completeProtocolGently();
+        } else if (typeof requestStopProtocol === 'function') {
+            requestStopProtocol();
+        } else if (typeof exitProtocol === 'function') {
+            exitProtocol();
+        }
     }
 
     function startSession() {
@@ -535,19 +496,17 @@
         thoughts = [];
         nextThoughtId = 1;
         choiceOpen = false;
+        sessionEnded = false;
         refillMatrixQueue();
-        creSessionEndAt = Date.now() + SESSION_MS;
         creLastFrame = 0;
 
         renderShell();
-        updateInstTimer();
 
         spawnThought();
         creSpawnId = window.setInterval(() => {
             if (creRunning && !choiceOpen) spawnThought();
         }, SPAWN_MS);
 
-        creTimerId = window.setInterval(updateInstTimer, 250);
         creRafId = requestAnimationFrame(tick);
     }
 

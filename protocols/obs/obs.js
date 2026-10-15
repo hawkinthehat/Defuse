@@ -58,6 +58,7 @@
     }
 
     function obsHapticsEnabled() {
+        /* Haptic preference only — never emotional/check-in content. */
         try {
             return window.localStorage.getItem(OBS_HAPTICS_KEY) === 'true';
         } catch {
@@ -66,6 +67,7 @@
     }
 
     function setObsHapticsEnabled(on) {
+        /* Device preference only. Sensitive inputs must never be written here. */
         try {
             if (on) window.localStorage.setItem(OBS_HAPTICS_KEY, 'true');
             else window.localStorage.removeItem(OBS_HAPTICS_KEY);
@@ -209,7 +211,7 @@
     }
 
     /**
-     * Persist a completed forensic audit (label, log, platform, timestamp) to obsHistory.
+     * Keep reflections in session memory only — never localStorage or remote.
      * @param {{ label: string, log: string, platform: string, timestamp?: string }} record
      */
     function saveAudit(record) {

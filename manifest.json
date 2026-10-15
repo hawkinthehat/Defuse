@@ -1,7 +1,7 @@
 {
-  "name": "dᶻix̌ʷ — Clinical Stabilization Interface",
+  "name": "dᶻix̌ʷ — Return to Center",
   "short_name": "dᶻix̌ʷ",
-  "description": "dᶻix̌ʷ — clinical triage and stabilization protocols",
+  "description": "dᶻix̌ʷ — gentle offline practices to settle, move, focus, or find a quiet moment",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
