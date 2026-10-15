@@ -1,10 +1,11 @@
-const CACHE_NAME = 'tsulc-onboarding-overlays-v18.0.0';
+const CACHE_NAME = 'tsulc-onboarding-overlays-v18.1.0';
 
 const PRECACHE_URLS = [
   '/',
   '/index.html',
   '/style.css',
   '/app.js',
+  '/safety-control.js',
   '/manifest.json',
   '/dzixw-logo.png',
   '/icon-192.png',
