@@ -1,94 +1,94 @@
 /**
- * Standardized protocol onboarding overlay — dark, high-contrast, step-by-step.
+ * Gentle protocol onboarding — plain language, voluntary start, audio optional.
  * Shared across AED, OBD, MIF, CRE, and PRCB.
  */
 (function (global) {
     const AUDIO_NOTE =
-        'Tap anywhere when ready. Audio defaults to off—toggle sound on using the icon if desired.';
+        'Sound is optional and starts off. Use the Sound toggle if you want it — silence is always okay.';
 
     const PROTOCOL_ONBOARDING = Object.freeze({
         aed: Object.freeze({
-            header: 'ʔuʔəy̓ (oo-uh-ee) — Filter sensory noise',
+            header: 'Help me focus',
             steps: Object.freeze([
                 Object.freeze({
-                    label: 'ACTION',
-                    text: 'Tap only the stable, glowing Ovoid shapes as they move across the screen.'
+                    label: 'TRY',
+                    text: 'Tap the calm glowing ovals when they appear.'
                 }),
                 Object.freeze({
-                    label: 'RULE',
-                    text: 'Do NOT tap the chaotic shapes (Trigons, Crescents, or Quintons). Let them float past.'
+                    label: 'SKIP',
+                    text: 'You can ignore the busy shapes. Let them drift by.'
                 }),
                 Object.freeze({
-                    label: 'GOAL',
-                    text: 'Locking your focus exclusively on the ovoids forces your brain to filter out chaotic sensory noise and reset your attentional baseline.'
+                    label: 'REMINDER',
+                    text: 'Stop or switch anytime. There is no score to protect.'
                 })
             ])
         }),
         obd: Object.freeze({
-            header: 'dᶻix̌ʷ (dzih-khw) — Unstuck through rhythm',
+            header: 'I need to move',
             steps: Object.freeze([
                 Object.freeze({
-                    label: 'ACTION',
-                    text: 'Keep your eyes locked on the moving Cedar Paddle as it tracks along the infinity loop.'
+                    label: 'TRY',
+                    text: 'Hold the pad and gently follow the paddle along the loop with your eyes.'
                 }),
                 Object.freeze({
-                    label: 'RULE',
-                    text: 'Allow the background vertical sine waves to shift in your peripheral vision. Do not try to trace them—just follow the paddle.'
+                    label: 'PACE',
+                    text: 'Move at a pace that feels okay. You can pause by lifting your finger.'
                 }),
                 Object.freeze({
-                    label: 'GOAL',
-                    text: 'Smooth visual tracking coupled with spatial audio forces micro-adjustments in your eyes (Optokinetic Nystagmus), breaking cyclic panic loops.'
+                    label: 'REMINDER',
+                    text: 'Stop or switch anytime. Nothing here is mandatory.'
                 })
             ])
         }),
         mif: Object.freeze({
-            header: 'gʷədiʔ (gwuh-dee) — Ground through touch',
+            header: 'A quiet moment',
             steps: Object.freeze([
                 Object.freeze({
-                    label: 'ACTION',
-                    text: 'Press down and slowly trace your finger along the glowing path from end to end.'
+                    label: 'TRY',
+                    text: 'If it feels right, slowly trace the glowing path with one finger.'
                 }),
                 Object.freeze({
-                    label: 'RULE',
-                    text: 'Maintain continuous contact with the screen. If you stray off path or lift your finger, pause, re-align, and resume.'
+                    label: 'PACE',
+                    text: 'You can pause, lift, or start again whenever you want.'
                 }),
                 Object.freeze({
-                    label: 'GOAL',
-                    text: 'Tactile tracking combines visual and acoustic feedback to re-anchor your physical awareness directly into the present moment.'
+                    label: 'REMINDER',
+                    text: 'This is a low-stimulation option. Leave the moment you need to.'
                 })
             ])
         }),
         cre: Object.freeze({
-            header: 'k̓ʷəč (kuh-wutch) — Quiet racing thoughts',
+            header: 'Help me settle',
             steps: Object.freeze([
                 Object.freeze({
-                    label: 'ACTION',
-                    text: 'Focus on the central anchor point and synchronize your breath with its rhythmic expansion and contraction.'
+                    label: 'TRY',
+                    text: 'When a thought floats down, tap it if you want a gentler reframe.'
                 }),
                 Object.freeze({
-                    label: 'RULE',
-                    text: 'Inhale as the anchor expands; exhale as it contracts.'
+                    label: 'CHOICE',
+                    text: 'Pick the option that feels truest — or skip. You cannot fail this.'
                 }),
                 Object.freeze({
-                    label: 'GOAL',
-                    text: 'Re-establishes conscious control over parasympathetic breathing rates to lower physiological heart rate and blood pressure.'
+                    label: 'REMINDER',
+                    text: 'Stop or switch anytime. Your pace is the right pace.'
                 })
             ])
         }),
         prcb: Object.freeze({
-            header: 'tix̌ix̌dubut (tee-khuh-khuh-doo-but) — Emergency reset',
+            header: 'Stability practice',
             steps: Object.freeze([
                 Object.freeze({
-                    label: 'ACTION',
-                    text: 'Press and hold the central grounding pad firmly with your thumb or palm.'
+                    label: 'TRY',
+                    text: 'Press and hold the grounding pad if that feels steadying.'
                 }),
                 Object.freeze({
-                    label: 'RULE',
-                    text: 'Do not let go until the visual display stabilizes completely.'
+                    label: 'PACE',
+                    text: 'Let go whenever you want. You do not have to finish.'
                 }),
                 Object.freeze({
-                    label: 'GOAL',
-                    text: 'Delivers high-contrast visual and audio anchors to interrupt severe sensory overload or acute dissociation immediately.'
+                    label: 'REMINDER',
+                    text: 'Stop or switch anytime. Support is also in the footer if you need it.'
                 })
             ])
         })
@@ -132,20 +132,12 @@
             `<h2 class="protocol-preflight-title protocol-onboarding-title" id="${titleId}">${escapeHtml(content.header)}</h2>` +
             `<ul class="protocol-preflight-steps protocol-onboarding-steps" id="${stepsId}">${stepsHtml}</ul>` +
             `<p class="protocol-onboarding-note" id="${noteId}">${escapeHtml(AUDIO_NOTE)}</p>` +
-            `<button type="button" class="protocol-preflight-start protocol-onboarding-start" id="${prefix}-onboarding-start">START PROTOCOL</button>` +
+            `<button type="button" class="protocol-preflight-start protocol-onboarding-start" id="${prefix}-onboarding-start">START WHEN READY</button>` +
             `</section>` +
             `</div>`
         );
     }
 
-    /**
-     * Mount the standardized onboarding overlay into a container.
-     * Canvas / session logic should stay paused until onStart fires.
-     *
-     * @param {HTMLElement} container
-     * @param {{ protocolKey: string, onStart: Function, idPrefix?: string, replace?: boolean }} options
-     * @returns {{ el: HTMLElement, dismiss: Function } | null}
-     */
     function mount(container, options) {
         if (!container || !options || !options.protocolKey || typeof options.onStart !== 'function') {
             return null;
@@ -177,7 +169,6 @@
         };
 
         function onOverlayActivate(event) {
-            /* Allow START button and anywhere on the overlay to engage. */
             event.preventDefault();
             dismiss();
         }

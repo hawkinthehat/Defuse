@@ -13,7 +13,7 @@
     let prcbCtx = null;
     let prcbResizeHandler = null;
 
-    const PROTOCOL_HEADER = 'tix̌ix̌dubut (tee-khuh-khuh-doo-but) — Emergency reset';
+    const PROTOCOL_HEADER = 'Stability practice';
 
     function setProtocolHeader() {
         const inst = document.getElementById('inst');
@@ -161,7 +161,13 @@
 
             prcbResetTimerId = setTimeout(() => {
                 prcbResetTimerId = 0;
-                if (typeof exitProtocol === 'function') exitProtocol();
+                if (typeof completeProtocolGently === 'function') {
+                    completeProtocolGently();
+                } else if (typeof requestStopProtocol === 'function') {
+                    requestStopProtocol();
+                } else if (typeof exitProtocol === 'function') {
+                    exitProtocol();
+                }
             }, TOTAL_RESET_HOLD_MS);
         }
 
@@ -172,6 +178,7 @@
             }
 
             const elapsed = now - tStart;
+            /* Progress is informational only — never mandatory to finish. */
             const charge = Math.min(1, elapsed / SESSION_MS);
             const pct = Math.round(charge * 100);
 
@@ -206,19 +213,19 @@
         stage.innerHTML = `
             <div class="prcb-warning-screen" id="prcb-warning-screen">
                 <div class="prcb-warning-panel" role="dialog" aria-labelledby="prcb-warning-heading" aria-modal="true">
-                    <p class="prcb-warning-kicker">tix̌ix̌dubut (tee-khuh-khuh-doo-but) · Emergency reset</p>
-                    <h2 class="prcb-warning-title" id="prcb-warning-heading">High-intensity visual override</h2>
+                    <p class="prcb-warning-kicker">Stability practice · optional</p>
+                    <h2 class="prcb-warning-title" id="prcb-warning-heading">High-contrast visuals</h2>
                     <p class="prcb-warning-text">
-                        This module uses <strong>competing high-contrast visual fields</strong> and rapid perceptual switching
-                        to interrupt a locked racing mind. It is <strong>not appropriate</strong> if you have photosensitive epilepsy,
+                        This optional practice uses <strong>strong visual contrast</strong>.
+                        It is <strong>not a good fit</strong> if you have photosensitive epilepsy,
                         a history of seizures, or migraines triggered by visual patterns.
                     </p>
                     <p class="prcb-warning-text">
-                        If you are unsure, choose <strong>Cancel</strong> and return to the dashboard. By continuing, you confirm you accept this sensory load.
+                        If you are unsure, choose <strong>Go back</strong>. You can stop anytime — nothing here is mandatory.
                     </p>
                     <div class="prcb-warning-actions">
-                        <button type="button" class="prcb-warn-btn prcb-warn-btn-cancel" id="prcb-warning-cancel">Cancel</button>
-                        <button type="button" class="prcb-warn-btn prcb-warn-btn-ok" id="prcb-warning-continue">I understand — begin</button>
+                        <button type="button" class="prcb-warn-btn prcb-warn-btn-cancel" id="prcb-warning-cancel">Go back</button>
+                        <button type="button" class="prcb-warn-btn prcb-warn-btn-ok" id="prcb-warning-continue">Start when ready</button>
                     </div>
                 </div>
             </div>

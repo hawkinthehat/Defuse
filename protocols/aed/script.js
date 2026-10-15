@@ -725,7 +725,7 @@
         if (typeof ensureEmergencyBypassFooter === 'function') ensureEmergencyBypassFooter();
 
         const inst = document.getElementById('inst');
-        if (inst) inst.textContent = 'ʔuʔəy̓ (oo-uh-ee) — Filter sensory noise';
+        if (inst) inst.textContent = 'Help me focus';
 
         if (!mountSpaStage({ paused: true })) {
             mountStandalone();

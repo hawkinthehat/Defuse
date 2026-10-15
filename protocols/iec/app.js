@@ -12,14 +12,7 @@
     let savedExitAriaHidden = null;
     let pushedHistoryLock = false;
 
-    if (typeof window !== 'undefined' && typeof window.exitProtocol === 'function' && !window.__iecExitProtocolGuarded) {
-        const previousExitProtocol = window.exitProtocol;
-        window.exitProtocol = function guardedExitProtocol(...args) {
-            if (window.__iecExposureLocked) return undefined;
-            return previousExitProtocol.apply(this, args);
-        };
-        window.__iecExitProtocolGuarded = true;
-    }
+    /* Exit is always voluntary — no locks, traps, or forced completion. */
 
     function setInst(text) {
         const inst = document.getElementById('inst');
@@ -37,85 +30,17 @@
         return document.querySelector('.exit-btn');
     }
 
-    function lockExitButton() {
-        const btn = exitButton();
-        if (!btn) return;
-        savedExitHidden = btn.classList.contains('hidden');
-        savedExitDisabled = !!btn.disabled;
-        savedExitAriaHidden = btn.getAttribute('aria-hidden');
-        btn.classList.add('iec-exit-locked');
-        btn.classList.add('hidden');
-        btn.disabled = true;
-        btn.setAttribute('aria-hidden', 'true');
-        btn.setAttribute('tabindex', '-1');
-    }
-
-    function unlockExitButton() {
-        const btn = exitButton();
-        if (!btn) return;
-        btn.classList.remove('iec-exit-locked');
-        if (!savedExitHidden) btn.classList.remove('hidden');
-        btn.disabled = savedExitDisabled;
-        if (savedExitAriaHidden === null) {
-            btn.removeAttribute('aria-hidden');
-        } else {
-            btn.setAttribute('aria-hidden', savedExitAriaHidden);
-        }
-        btn.removeAttribute('tabindex');
-    }
-
-    function blockBackNavigation() {
-        if (typeof window === 'undefined' || !window.history || pushedHistoryLock) return;
-        try {
-            window.history.pushState({ iecExposureLock: true }, '', window.location.href);
-            pushedHistoryLock = true;
-        } catch {
-            pushedHistoryLock = false;
-        }
-    }
-
-    function onPopState() {
-        if (!iecLocked || iecCompleted) return;
-        try {
-            window.history.pushState({ iecExposureLock: true }, '', window.location.href);
-        } catch {
-            /* ignore */
-        }
-        setInst(`IEC · EXPOSURE LOCK ACTIVE · ${formatClock(Math.max(0, EXPOSURE_MS - (performance.now() - iecStartedAt)))}`);
-    }
-
-    function onBeforeUnload(e) {
-        if (!iecLocked || iecCompleted) return;
-        e.preventDefault();
-        e.returnValue = '';
-    }
-
-    function onKeydown(e) {
-        if (!iecLocked || iecCompleted) return;
-        if (e.key === 'Backspace' && !e.target?.matches?.('textarea,input,[contenteditable="true"]')) {
-            e.preventDefault();
-        }
-    }
-
     function enableSecurityLock() {
-        iecLocked = true;
+        /* Intentionally no-op: youth may leave at any millisecond. */
+        iecLocked = false;
         iecCompleted = false;
-        window.__iecExposureLocked = true;
-        lockExitButton();
-        blockBackNavigation();
-        window.addEventListener('popstate', onPopState);
-        window.addEventListener('beforeunload', onBeforeUnload);
-        document.addEventListener('keydown', onKeydown, true);
+        window.__iecExposureLocked = false;
     }
 
     function disableSecurityLock() {
         iecLocked = false;
         window.__iecExposureLocked = false;
         pushedHistoryLock = false;
-        window.removeEventListener('popstate', onPopState);
-        window.removeEventListener('beforeunload', onBeforeUnload);
-        document.removeEventListener('keydown', onKeydown, true);
-        unlockExitButton();
     }
 
     function stopTimer() {
@@ -162,7 +87,7 @@
         iecRunning = false;
         stopTimer();
         disableSecurityLock();
-        setInst('IEC · EXPOSURE COMPLETE · EXIT ENABLED');
+        setInst('Quiet practice — stop anytime');
 
         const root = document.getElementById('iec-root');
         if (root) root.classList.add('iec-root--complete');
@@ -171,7 +96,10 @@
         const status = document.getElementById('iec-status');
         if (timer) timer.textContent = '00:00';
         if (fill) fill.style.width = '0%';
-        if (status) status.textContent = 'Exposure complete. EXIT is now available.';
+        if (status) status.textContent = 'You can stop anytime with STOP & BACK.';
+        if (typeof completeProtocolGently === 'function') {
+            completeProtocolGently();
+        }
     }
 
     function startExposure(text) {
@@ -184,7 +112,7 @@
                     <span class="iec-countdown-label">EXPOSURE CLOCK</span>
                     <strong class="iec-countdown" id="iec-countdown">01:30</strong>
                     <span class="iec-countdown-track" aria-hidden="true"><span class="iec-countdown-fill" id="iec-countdown-fill"></span></span>
-                    <span class="iec-status" id="iec-status">EXIT locked until timer reaches 00:00.</span>
+                    <span class="iec-status" id="iec-status">You can stop anytime — nothing here is mandatory.</span>
                 </div>
                 <h1 class="iec-projection-text" id="iec-projection-text"></h1>
             </div>
@@ -243,15 +171,15 @@
         stage.innerHTML = `
             <div class="iec-root iec-root--onboarding">
                 <section class="iec-card" role="dialog" aria-modal="false" aria-labelledby="iec-title">
-                    <p class="iec-kicker">IEC · Imaginal Exposure Canvas</p>
-                    <h1 class="iec-title" id="iec-title">Hold the image without escaping.</h1>
+                    <p class="iec-kicker">Quiet focus practice · optional</p>
+                    <h1 class="iec-title" id="iec-title">Stay with one thought only if it feels okay.</h1>
                     <ol class="iec-steps">
-                        <li>Type one short sentence that represents the persistent worry loop.</li>
-                        <li>Submit it to the canvas. The exact text will remain centered on screen.</li>
-                        <li>For 90 seconds, EXIT and back navigation are locked to support visual exposure.</li>
-                        <li>When the timer reaches 00:00, the EXIT button returns automatically.</li>
+                        <li>Type one short sentence if you want — or skip and go back.</li>
+                        <li>If you continue, the words can stay on screen while you breathe.</li>
+                        <li>A soft timer may count down, but you can leave at any moment.</li>
+                        <li>Use STOP &amp; BACK anytime. Nothing here is mandatory.</li>
                     </ol>
-                    <button type="button" class="iec-start-btn" id="iec-start-btn">[ START TASK ]</button>
+                    <button type="button" class="iec-start-btn" id="iec-start-btn">START WHEN READY</button>
                 </section>
             </div>
         `;

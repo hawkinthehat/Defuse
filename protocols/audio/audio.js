@@ -167,7 +167,7 @@
         if (!stage) return;
         stage.innerHTML = `
             <div class="audio-root audio-root--complete">
-                <p class="audio-complete-line">Theta entrainment complete. Neural frequency normalized to calm differential.</p>
+                <p class="audio-complete-line">Optional sound practice paused. You can stop anytime.</p>
                 <button type="button" class="audio-done-btn" id="audio-done">RETURN TO MAIN SCREEN</button>
             </div>
         `;
@@ -237,15 +237,15 @@
 
         stage.innerHTML = `
             <div class="audio-root">
-                <p class="audio-warning">Headphones optional — recommended for best results</p>
+                <p class="audio-warning">Optional sound — headphones only if you want them. Silence is always okay.</p>
                 <div class="audio-wave-wrap">
                     <canvas class="audio-wave-canvas" id="audio-wave-canvas" aria-hidden="true"></canvas>
                 </div>
-                <p class="audio-meta" id="audio-meta">L ${FREQ_L} Hz · R ${FREQ_R_START} Hz · ${formatTimeLeft(SESSION_MS)}</p>
+                <p class="audio-meta" id="audio-meta">Optional tone · stop anytime</p>
                 <p class="audio-beat" id="audio-beat" aria-live="polite">${BEAT_START.toFixed(1)} Hz</p>
-                <p class="audio-sub">Binaural differential shifting Beta (${BEAT_START} Hz) toward Theta (${BEAT_END} Hz)</p>
+                <p class="audio-sub">Soft optional tones. You can leave whenever you want.</p>
                 <div class="audio-progress" aria-hidden="true"><div class="audio-progress-fill" id="audio-progress-fill"></div></div>
-                <button type="button" class="audio-start-btn" id="audio-start-btn">BEGIN ENTRAINMENT</button>
+                <button type="button" class="audio-start-btn" id="audio-start-btn">START WHEN READY</button>
             </div>
         `;
 
