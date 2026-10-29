@@ -924,7 +924,6 @@ button.onboarding-enter-btn {
     padding: calc(env(safe-area-inset-top, 32px) + 3.5rem) 1.25rem calc(1.5rem + var(--emergency-footer-reserve));
     box-sizing: border-box;
     background: #000000;
-    cursor: pointer;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 }
@@ -939,7 +938,6 @@ button.onboarding-enter-btn {
     background: #0a0c10;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65);
     text-align: left;
-    cursor: pointer;
 }
 
 .protocol-preflight-title,
@@ -1628,6 +1626,15 @@ body:has(#universal-safety-control) .mif-exit {
     text-align: center;
 }
 
+.home-footer-legal.youth-safety-link-wrap {
+    margin: 0.15rem 0 0.25rem;
+}
+
+/* Legal link is home-only — hide while an exercise is open. */
+#emergency-bypass-footer:not(.home-footer) .home-footer-legal {
+    display: none;
+}
+
 .youth-safety-link {
     font-size: 0.78rem;
     font-weight: 600;
@@ -1640,6 +1647,15 @@ body:has(#universal-safety-control) .mif-exit {
 .youth-safety-link:focus-visible {
     color: #c9d1d9;
     outline: none;
+}
+
+#emergency-bypass-footer.home-footer .youth-safety-link {
+    color: rgba(230, 237, 243, 0.72);
+}
+
+#emergency-bypass-footer.home-footer .youth-safety-link:hover,
+#emergency-bypass-footer.home-footer .youth-safety-link:focus-visible {
+    color: #f0f6fc;
 }
 
 /* Highly visible STOP & BACK */

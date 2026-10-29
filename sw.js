@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzixw-trauma-informed-youth-v19.1.0';
+const CACHE_NAME = 'dzixw-trauma-informed-youth-v19.2.0';
 
 const PRECACHE_URLS = [
   '/',
