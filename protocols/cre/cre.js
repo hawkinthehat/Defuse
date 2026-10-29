@@ -1,254 +1,84 @@
 /**
- * CRE — Cognitive Re-Coder: intercept falling anxious thoughts, reframe or lose stability.
+ * CRE — Help Me Settle: gentle expanding/shrinking shape for paced breathing.
+ * No forced timer. Youth may stop at any millisecond.
  */
 (function () {
-    /* No mandatory timer — youth may leave at any millisecond. */
-    const STABILITY_DRAIN = 15;
-    const SPAWN_MS = 2600;
-    const FALL_PX_PER_SEC = 72;
-    const PROTOCOL_HEADER = 'Help me settle';
-
-    /** threat + neutral third-person reframe + two catastrophizing traps */
-    const SCRIPT_MATRIX = [
-        {
-            threat: "I can't handle this",
-            reframe: "The system has safely processed this specific intensity before.",
-            traps: [
-                "This will crush me and I won't recover.",
-                "I'm completely falling apart right now."
-            ]
-        },
-        {
-            threat: "Something terrible is about to happen",
-            reframe: "The mind is forecasting threat; no verified event is occurring.",
-            traps: [
-                "Disaster is imminent and I have no control.",
-                "I need to panic until I know I'm safe."
-            ]
-        },
-        {
-            threat: "Everyone is judging me",
-            reframe: "Observer attention is largely self-focused, not evaluative of me.",
-            traps: [
-                "They can see how broken I am.",
-                "I'll be humiliated if I stay visible."
-            ]
-        },
-        {
-            threat: "I always mess everything up",
-            reframe: "One episode does not define the full operational record.",
-            traps: [
-                "I've ruined everything permanently.",
-                "I should expect failure from myself."
-            ]
-        },
-        {
-            threat: "I can't stop thinking about this",
-            reframe: "The loop is a pattern the brain can redirect with a new frame.",
-            traps: [
-                "If I don't solve this mentally, I'm unsafe.",
-                "The thought will never loosen its grip."
-            ]
-        },
-        {
-            threat: "What if I lose control",
-            reframe: "Arousal is elevated; behavioral control remains online.",
-            traps: [
-                "I'm seconds away from breaking down.",
-                "I might do something I can't take back."
-            ]
-        },
-        {
-            threat: "I should have seen this coming",
-            reframe: "Hindsight bias is active; prior information was incomplete.",
-            traps: [
-                "This is entirely my fault for not preventing it.",
-                "I'm irresponsible for missing the signs."
-            ]
-        },
-        {
-            threat: "Nothing will ever get better",
-            reframe: "State-dependent thinking is narrowing the time horizon.",
-            traps: [
-                "The future is closed and hopeless.",
-                "Improvement is impossible for someone like me."
-            ]
-        },
-        {
-            threat: "I need certainty right now",
-            reframe: "Uncertainty is present; tolerance can be trained in this moment.",
-            traps: [
-                "Without certainty I cannot function at all.",
-                "Ambiguity means danger is guaranteed."
-            ]
-        },
-        {
-            threat: "My body feels wrong — something is wrong",
-            reframe: "Sensory alarm signals are loud; medical emergency is not established.",
-            traps: [
-                "This sensation means serious harm is happening.",
-                "I must escape or I will be harmed."
-            ]
-        },
-        {
-            threat: "I disappointed everyone",
-            reframe: "Self-criticism is amplified; external verdicts are not confirmed.",
-            traps: [
-                "I've failed as a person in their eyes.",
-                "Repair is impossible so I should withdraw."
-            ]
-        },
-        {
-            threat: "I can't trust my own mind",
-            reframe: "Intrusive content is noise, not a command or identity.",
-            traps: [
-                "My thoughts prove I'm dangerous or broken.",
-                "I have to obey every alarming idea."
-            ]
-        }
-    ];
+    const BREATH_CYCLE_MS = 8000; /* 4s in + 4s out */
+    const PROTOCOL_HEADER = 'Help Me Settle';
 
     let creRunning = false;
-    let creSpawnId = 0;
-    let creTimerId = 0;
     let creRafId = 0;
-    let creLastFrame = 0;
-    let stability = 100;
-    let thoughts = [];
-    let nextThoughtId = 1;
-    let choiceOpen = false;
-    let matrixQueue = [];
-    let sessionEnded = false;
-
-    function escapeHtml(str) {
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
-    }
-
-    function shuffle(arr) {
-        const a = arr.slice();
-        for (let i = a.length - 1; i > 0; i -= 1) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [a[i], a[j]] = [a[j], a[i]];
-        }
-        return a;
-    }
-
-    function setStabilityBarViewport(active) {
-        const vp = document.getElementById('viewport');
-        if (!vp) return;
-        vp.classList.toggle('protocol-has-stability-bar', Boolean(active));
-    }
-
-    function stopCRE() {
-        creRunning = false;
-        choiceOpen = false;
-        sessionEnded = false;
-        thoughts = [];
-        setStabilityBarViewport(false);
-        if (creSpawnId) {
-            clearInterval(creSpawnId);
-            creSpawnId = 0;
-        }
-        if (creTimerId) {
-            clearInterval(creTimerId);
-            creTimerId = 0;
-        }
-        if (creRafId) {
-            cancelAnimationFrame(creRafId);
-            creRafId = 0;
-        }
-    }
+    let creStartMs = 0;
+    let cueEl = null;
+    let shapeEl = null;
 
     function setProtocolHeader() {
         const inst = document.getElementById('inst');
         if (inst) inst.textContent = PROTOCOL_HEADER;
     }
 
-    function successHaptic() {
+    function softHaptic() {
         if (typeof navigator === 'undefined' || !navigator.vibrate) return;
         try {
-            navigator.vibrate(30);
+            navigator.vibrate(18);
         } catch {
             /* ignore */
         }
     }
 
-    function refillMatrixQueue() {
-        matrixQueue = shuffle(
-            SCRIPT_MATRIX.map((_, i) => i)
-        );
-    }
-
-    function nextPair() {
-        if (matrixQueue.length === 0) refillMatrixQueue();
-        const idx = matrixQueue.pop();
-        return SCRIPT_MATRIX[idx];
-    }
-
-    function updateStabilityUI() {
-        const fill = document.getElementById('cre-stability-fill');
-        const pct = document.getElementById('cre-stability-pct');
-        const clamped = Math.max(0, Math.min(100, stability));
-        if (fill) {
-            fill.style.width = `${clamped}%`;
-            fill.classList.toggle('cre-stability-fill--low', clamped <= 35);
+    function stopCRE() {
+        creRunning = false;
+        if (creRafId) {
+            cancelAnimationFrame(creRafId);
+            creRafId = 0;
         }
-        if (pct) pct.textContent = `${clamped}%`;
+        cueEl = null;
+        shapeEl = null;
     }
 
-    function drainStability() {
-        stability = Math.max(0, stability - STABILITY_DRAIN);
-        updateStabilityUI();
-        const wrap = document.querySelector('.cre-stability-wrap');
-        if (wrap) {
-            wrap.classList.remove('cre-stability-wrap--shake');
-            void wrap.offsetWidth;
-            wrap.classList.add('cre-stability-wrap--shake');
+    function setCue(text) {
+        if (cueEl) cueEl.textContent = text;
+    }
+
+    function tick(now) {
+        if (!creRunning || !shapeEl) {
+            creRafId = 0;
+            return;
         }
-        if (stability <= 0) {
-            /* Soft landing — no failure message, no penalty framing. */
-            endSessionGently();
-        }
+
+        const elapsed = (now - creStartMs) % BREATH_CYCLE_MS;
+        const half = BREATH_CYCLE_MS / 2;
+        const inhaling = elapsed < half;
+        const t = inhaling ? elapsed / half : (elapsed - half) / half;
+        /* Ease in-out so the shape expands/contracts smoothly. */
+        const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        const scale = inhaling ? 0.55 + eased * 0.7 : 1.25 - eased * 0.7;
+
+        shapeEl.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        setCue(inhaling ? 'Breathe in…' : 'Breathe out…');
+
+        creRafId = requestAnimationFrame(tick);
     }
 
-    function getFieldEl() {
-        return document.getElementById('cre-field');
-    }
-
-    function getFloorY(field) {
-        return field ? field.clientHeight - 8 : 400;
-    }
-
-    function renderShell() {
+    function startSession() {
         const stage = document.getElementById('protocol-stage');
         if (!stage) return;
+
         stage.innerHTML = `
-            <div class="cre-root" id="cre-root">
-                <div class="cre-stability-wrap stability-bar-container">
-                    <span class="cre-stability-label">Stability</span>
-                    <div class="cre-stability-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
-                        <div class="cre-stability-fill" id="cre-stability-fill"></div>
-                    </div>
-                    <span class="cre-stability-pct" id="cre-stability-pct">100%</span>
+            <div class="cre-root cre-root--breathe" id="cre-root">
+                <p class="cre-breathe-cue" id="cre-breathe-cue" role="status">Breathe in…</p>
+                <div class="cre-breathe-field" aria-hidden="true">
+                    <div class="cre-breathe-shape" id="cre-breathe-shape"></div>
                 </div>
-                <div class="cre-field" id="cre-field">
-                    <div class="cre-floor" aria-hidden="true"></div>
-                </div>
-                <div class="cre-choice-backdrop hidden" id="cre-choice-backdrop" aria-hidden="true">
-                    <div class="cre-choice-panel" role="dialog" aria-labelledby="cre-choice-prompt">
-                        <p class="cre-choice-prompt" id="cre-choice-prompt">Select re-code</p>
-                        <p class="cre-choice-threat" id="cre-choice-threat"></p>
-                        <ul class="cre-choice-list" id="cre-choice-list"></ul>
-                    </div>
-                </div>
+                <p class="cre-breathe-hint">Soft focus on the center. Stop whenever you feel ready.</p>
             </div>
         `;
-        setStabilityBarViewport(true);
-        updateStabilityUI();
+
+        cueEl = document.getElementById('cre-breathe-cue');
+        shapeEl = document.getElementById('cre-breathe-shape');
+        creRunning = true;
+        creStartMs = performance.now();
+        creRafId = requestAnimationFrame(tick);
     }
 
     function renderPreflight() {
@@ -259,15 +89,7 @@
         const root = document.getElementById('cre-preflight-root');
 
         const begin = () => {
-            if (typeof successHaptic === 'function') successHaptic();
-            else if (typeof navigator !== 'undefined' && navigator.vibrate) {
-                try {
-                    navigator.vibrate(30);
-                } catch {
-                    /* ignore */
-                }
-            }
-            creRunning = true;
+            softHaptic();
             startSession();
         };
 
@@ -282,8 +104,12 @@
                 <div class="cre-root cre-root--preflight">
                     <div class="protocol-preflight-overlay">
                         <section class="protocol-preflight-card" role="dialog" aria-labelledby="cre-preflight-title">
-                            <h2 class="protocol-preflight-title" id="cre-preflight-title">Help me settle</h2>
-                            <p class="protocol-onboarding-note">You can stop anytime. There is no score to protect.</p>
+                            <h2 class="protocol-preflight-title" id="cre-preflight-title">Help Me Settle</h2>
+                            <ul class="protocol-preflight-steps">
+                                <li><span class="protocol-preflight-step-label">WHAT TO DO:</span> Breathe in slowly as the shape expands; breathe out as it shrinks.</li>
+                                <li><span class="protocol-preflight-step-label">TIP:</span> Keep your eyes softly focused on the center. Audio is optional—turn it on or leave it silent.</li>
+                                <li><span class="protocol-preflight-step-label">CHOICE:</span> Stop or pause whenever you feel ready. There is no forced time limit.</li>
+                            </ul>
                             <button type="button" class="protocol-preflight-start" id="cre-preflight-start">START WHEN READY</button>
                         </section>
                     </div>
@@ -291,223 +117,6 @@
             `;
             document.getElementById('cre-preflight-start')?.addEventListener('click', begin);
         }
-    }
-
-    function spawnThought() {
-        if (!creRunning || choiceOpen) return;
-        const field = getFieldEl();
-        if (!field) return;
-
-        const pair = nextPair();
-        const id = nextThoughtId;
-        nextThoughtId += 1;
-
-        const el = document.createElement('button');
-        el.type = 'button';
-        el.className = 'cre-thought';
-        el.dataset.creId = String(id);
-        el.style.top = '-4px';
-        el.innerHTML = `<p class="cre-thought-text">${escapeHtml(pair.threat)}</p>`;
-        el.addEventListener('click', (e) => {
-            e.preventDefault();
-            onThoughtTap(id);
-        });
-
-        field.appendChild(el);
-
-        const thought = {
-            id,
-            threat: pair.threat,
-            reframe: pair.reframe,
-            traps: pair.traps.slice(),
-            y: -el.offsetHeight || -48,
-            frozen: false,
-            el,
-            removing: false
-        };
-        thoughts.push(thought);
-        positionThought(thought);
-    }
-
-    function positionThought(thought) {
-        if (!thought.el) return;
-        thought.el.style.top = `${thought.y}px`;
-    }
-
-    function closeChoiceMenu() {
-        choiceOpen = false;
-        const backdrop = document.getElementById('cre-choice-backdrop');
-        if (backdrop) {
-            backdrop.classList.add('hidden');
-            backdrop.setAttribute('aria-hidden', 'true');
-        }
-        thoughts.forEach((t) => {
-            if (t.frozen && t.el) {
-                t.frozen = false;
-                t.el.classList.remove('cre-thought--frozen');
-            }
-        });
-    }
-
-    function onThoughtTap(id) {
-        if (!creRunning || choiceOpen) return;
-        const thought = thoughts.find((t) => t.id === id);
-        if (!thought || thought.removing || thought.frozen) return;
-
-        choiceOpen = true;
-        thought.frozen = true;
-        if (thought.el) thought.el.classList.add('cre-thought--frozen');
-
-        const options = shuffle([
-            { kind: 'reframe', text: thought.reframe },
-            { kind: 'trap', text: thought.traps[0] },
-            { kind: 'trap', text: thought.traps[1] }
-        ]);
-
-        const backdrop = document.getElementById('cre-choice-backdrop');
-        const threatEl = document.getElementById('cre-choice-threat');
-        const list = document.getElementById('cre-choice-list');
-        if (!backdrop || !threatEl || !list) return;
-
-        threatEl.textContent = thought.threat;
-        list.innerHTML = options
-            .map(
-                (opt, i) => `
-            <li>
-                <button type="button" class="cre-choice-btn" data-cre-choice="${opt.kind}" data-cre-thought="${id}" data-cre-opt="${i}">
-                    ${escapeHtml(opt.text)}
-                </button>
-            </li>
-        `
-            )
-            .join('');
-
-        backdrop.classList.remove('hidden');
-        backdrop.setAttribute('aria-hidden', 'false');
-
-        list.querySelectorAll('.cre-choice-btn').forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const kind = btn.getAttribute('data-cre-choice');
-                const tid = Number(btn.getAttribute('data-cre-thought'));
-                onChoicePick(tid, kind, btn);
-            });
-        });
-    }
-
-    function removeThought(thought, className) {
-        if (thought.removing) return;
-        thought.removing = true;
-        if (thought.el) {
-            if (className) thought.el.classList.add(className);
-            const el = thought.el;
-            window.setTimeout(() => {
-                if (el.parentNode) el.parentNode.removeChild(el);
-            }, className === 'cre-thought--vaporize' ? 450 : 350);
-        }
-        thoughts = thoughts.filter((t) => t.id !== thought.id);
-    }
-
-    function onChoicePick(thoughtId, kind, btnEl) {
-        if (!creRunning) return;
-        const thought = thoughts.find((t) => t.id === thoughtId);
-        if (!thought) {
-            closeChoiceMenu();
-            return;
-        }
-
-        closeChoiceMenu();
-
-        if (kind === 'reframe') {
-            successHaptic();
-            removeThought(thought, 'cre-thought--vaporize');
-            return;
-        }
-
-        if (btnEl) {
-            btnEl.classList.add('cre-choice-btn--wrong');
-        }
-        drainStability();
-        removeThought(thought, 'cre-thought--miss');
-    }
-
-    function onThoughtMiss(thought) {
-        if (thought.removing || thought.frozen) return;
-        thought.removing = true;
-        drainStability();
-        removeThought(thought, 'cre-thought--miss');
-    }
-
-    function tick(now) {
-        if (!creRunning) {
-            creRafId = 0;
-            return;
-        }
-
-        const dt = creLastFrame ? Math.min(0.05, (now - creLastFrame) / 1000) : 0.016;
-        creLastFrame = now;
-
-        const field = getFieldEl();
-        const floorY = getFloorY(field);
-
-        thoughts.forEach((thought) => {
-            if (thought.removing || thought.frozen || choiceOpen) return;
-            const h = thought.el ? thought.el.offsetHeight : 48;
-            thought.y += FALL_PX_PER_SEC * dt;
-            positionThought(thought);
-            if (thought.y + h >= floorY) {
-                onThoughtMiss(thought);
-            }
-        });
-
-        creRafId = requestAnimationFrame(tick);
-    }
-
-    function endSessionGently() {
-        if (sessionEnded) return;
-        sessionEnded = true;
-        creRunning = false;
-        if (creSpawnId) {
-            clearInterval(creSpawnId);
-            creSpawnId = 0;
-        }
-        if (creTimerId) {
-            clearInterval(creTimerId);
-            creTimerId = 0;
-        }
-        if (creRafId) {
-            cancelAnimationFrame(creRafId);
-            creRafId = 0;
-        }
-        closeChoiceMenu();
-        setStabilityBarViewport(false);
-        if (typeof completeProtocolGently === 'function') {
-            completeProtocolGently();
-        } else if (typeof requestStopProtocol === 'function') {
-            requestStopProtocol();
-        } else if (typeof exitProtocol === 'function') {
-            exitProtocol();
-        }
-    }
-
-    function startSession() {
-        if (!creRunning) return;
-        stability = 100;
-        thoughts = [];
-        nextThoughtId = 1;
-        choiceOpen = false;
-        sessionEnded = false;
-        refillMatrixQueue();
-        creLastFrame = 0;
-
-        renderShell();
-
-        spawnThought();
-        creSpawnId = window.setInterval(() => {
-            if (creRunning && !choiceOpen) spawnThought();
-        }, SPAWN_MS);
-
-        creRafId = requestAnimationFrame(tick);
     }
 
     function launchCRE() {

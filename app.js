@@ -15,7 +15,6 @@ const TRIAGE_RETRAIN_LABELS = Object.freeze({
     mif: { term: 'I need a quiet moment', action: 'Choose a low-stimulation option' }
 });
 
-const PROTOCOL_INTRO_MS = 900;
 const GLOBAL_BINAURAL_CONFIG = {
     leftHz: 200,
     rightHz: 206,
@@ -49,21 +48,21 @@ const globalBinauralState = {
 const PROTOCOL_ENGAGE = {
     obd: { name: 'I need to move', rhythm: 'gentle tracking', retrain: 'Release some energy gently' },
     cre: { name: 'Help me settle', rhythm: 'guided reset', retrain: 'A short guided reset' },
-    mif: { name: 'Quiet moment', rhythm: 'soft touch', retrain: 'A low-stimulation option' },
+    mif: { name: 'I Need a Quiet Moment', rhythm: 'soft touch', retrain: 'A low-stimulation option' },
     aed: { name: 'Help me focus', rhythm: 'present focus', retrain: 'Ground in the present' },
     sam: { name: 'SAM', rhythm: 'attention', retrain: 'Attention practice' },
     iec: { name: 'IEC', rhythm: 'visual', retrain: 'Visual practice' },
-    prcb: { name: 'Stability practice', rhythm: 'high-contrast', retrain: 'Stability practice' }
+    prcb: { name: 'Emergency Reset', rhythm: 'hold-to-settle', retrain: 'Hold until the screen settles' }
 };
 
 const PROTOCOL_ROUTES = {
     cre: { name: 'Help me settle', path: 'protocols/cre/' },
     obd: { name: 'I need to move', path: 'protocols/obd/' },
-    mif: { name: 'Quiet moment', path: 'protocols/mif/' },
+    mif: { name: 'I Need a Quiet Moment', path: 'protocols/mif/' },
     aed: { name: 'Help me focus', path: 'protocols/aed/' },
     sam: { name: 'SAM', path: 'protocols/sam/' },
     iec: { name: 'IEC', path: 'protocols/iec/' },
-    prcb: { name: 'Stability', path: 'protocols/prcb/' }
+    prcb: { name: 'Emergency Reset', path: 'protocols/prcb/' }
 };
 
 /** Locked 4-button home triage — plain-language outcomes. */
@@ -76,7 +75,6 @@ const TRIAGE_BUTTON_IDS = Object.freeze({
     'protocol-aed': 'aed'
 });
 
-let protocolIntroTimeoutId = 0;
 let dashboardPrimaryInited = false;
 let checkInPending = false;
 
@@ -397,18 +395,6 @@ function selectionTapHaptic() {
     }
 }
 
-function cancelProtocolIntro() {
-    if (protocolIntroTimeoutId) {
-        clearTimeout(protocolIntroTimeoutId);
-        protocolIntroTimeoutId = 0;
-    }
-    const overlay = document.getElementById('protocol-intro-overlay');
-    if (overlay) {
-        overlay.classList.add('hidden');
-        overlay.setAttribute('aria-hidden', 'true');
-    }
-}
-
 function showProtocolPending(protocolKey) {
     const route = PROTOCOL_ROUTES[protocolKey];
     const name = route ? route.name : String(protocolKey || '').toUpperCase();
@@ -448,28 +434,9 @@ function runProtocol(protocolKey) {
     if (fn) fn();
 }
 
+/** @deprecated Kept for compatibility — protocols show their own instruction cards. */
 function launchWithIntro(protocolKey) {
-    cancelProtocolIntro();
-
-    const meta = PROTOCOL_ENGAGE[protocolKey];
-    const overlay = document.getElementById('protocol-intro-overlay');
-    const body = document.getElementById('protocol-intro-body');
-    if (!meta || !overlay || !body) {
-        runProtocol(protocolKey);
-        return;
-    }
-
-    body.textContent = `${meta.name}. ${meta.retrain}. You can stop anytime.`;
-    overlay.classList.remove('hidden');
-    overlay.setAttribute('aria-hidden', 'false');
-
-    protocolIntroTimeoutId = window.setTimeout(() => {
-        protocolIntroTimeoutId = 0;
-        overlay.classList.add('hidden');
-        overlay.setAttribute('aria-hidden', 'true');
-        runProtocol(protocolKey);
-    }, PROTOCOL_INTRO_MS);
-    ensureEmergencyBypassFooter();
+    runProtocol(protocolKey);
 }
 
 function loadProtocol(symptom) {
@@ -586,7 +553,6 @@ function hideCheckInCard() {
 
 function finishExitToHome() {
     hideCheckInCard();
-    cancelProtocolIntro();
     stopAllProtocols();
     muteGlobalBinauralEngine();
     onboardingAudioEnabled = false;

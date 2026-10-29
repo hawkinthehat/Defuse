@@ -700,7 +700,8 @@
         const canvas = document.getElementById('aed-canvas');
         if (!canvas) return false;
         const page = document.getElementById('aed-page') || document.body;
-        return bindEngine(page);
+        /* Pause until the youth instruction card is dismissed. */
+        return bindEngine(page, { paused: true });
     }
 
     function mountSpaStage(options) {
@@ -745,6 +746,7 @@
 
     window.launchAED = launchAED;
     window.stopAED = stopAED;
+    window.engageAEDSession = engageAEDSession;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {

@@ -45,17 +45,6 @@
             </div>
             <p class="youth-choice-foot">You can stop or switch at any time.</p>
         </section>
-
-        <p class="youth-safety-link-wrap">
-            <a href="legal.html" class="youth-safety-link">Safety Info &amp; Crisis Support</a>
-        </p>
-    </div>
-
-    <div id="protocol-intro-overlay" class="protocol-intro-overlay hidden" aria-hidden="true">
-        <div class="protocol-intro-card">
-            <p id="protocol-intro-body" class="protocol-intro-body" role="status"></p>
-            <p class="protocol-intro-foot">Starting when you're ready&hellip;</p>
-        </div>
     </div>
 
     <div id="viewport" class="hidden" aria-hidden="true">
@@ -80,17 +69,20 @@
     <div id="checkin-overlay" class="checkin-overlay hidden" aria-hidden="true">
         <section class="checkin-card" role="dialog" aria-modal="true" aria-labelledby="checkin-title">
             <h2 id="checkin-title" class="checkin-title">Did that help?</h2>
-            <p class="checkin-sub">No wrong answers. This stays with you — nothing is saved.</p>
+            <p class="checkin-sub">Optional — nothing is saved or shared.</p>
             <div class="checkin-choices">
                 <button type="button" class="checkin-choice" data-checkin="better">Feeling a bit better</button>
-                <button type="button" class="checkin-choice" data-checkin="switch">Want to try something else</button>
-                <button type="button" class="checkin-choice" data-checkin="break">I need a break for now</button>
+                <button type="button" class="checkin-choice" data-checkin="switch">Try something else</button>
+                <button type="button" class="checkin-choice" data-checkin="break">I need a break</button>
             </div>
         </section>
     </div>
 
-    <footer id="emergency-bypass-footer" class="emergency-exit-bar emergency-exit-bar--global home-footer" aria-label="Crisis support — always available">
-        <p class="crisis-footer-text">Need support? Call or text 988 (Lifeline) or 911. This app cannot send emergency help.</p>
+    <footer id="emergency-bypass-footer" class="emergency-exit-bar emergency-exit-bar--global home-footer" aria-label="Crisis support and legal info">
+        <p class="crisis-footer-text">Need immediate support? Call or text 988 or 911. This app cannot send emergency help.</p>
+        <p class="youth-safety-link-wrap home-footer-legal">
+            <a href="legal.html" class="youth-safety-link">Safety Info &amp; Legal Terms</a>
+        </p>
         <button type="button" class="emergency-exit-link" data-emergency-dial data-emergency-bypass>Call or text 988 / 911</button>
     </footer>
 

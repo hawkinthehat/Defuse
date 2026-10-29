@@ -1,94 +1,91 @@
 /**
- * Gentle protocol onboarding — plain language, voluntary start, audio optional.
- * Shared across AED, OBD, MIF, CRE, and PRCB.
+ * Youth-friendly step-by-step instruction cards before every exercise.
+ * Shared across CRE, OBD, MIF, AED, and PRCB.
  */
 (function (global) {
-    const AUDIO_NOTE =
-        'Sound is optional and starts off. Use the Sound toggle if you want it — silence is always okay.';
-
     const PROTOCOL_ONBOARDING = Object.freeze({
-        aed: Object.freeze({
-            header: 'Help me focus',
+        cre: Object.freeze({
+            header: 'Help Me Settle',
             steps: Object.freeze([
                 Object.freeze({
-                    label: 'TRY',
-                    text: 'Tap the calm glowing ovals when they appear.'
+                    label: 'WHAT TO DO',
+                    text: 'Breathe in slowly as the shape expands; breathe out as it shrinks.'
                 }),
                 Object.freeze({
-                    label: 'SKIP',
-                    text: 'You can ignore the busy shapes. Let them drift by.'
+                    label: 'TIP',
+                    text: 'Keep your eyes softly focused on the center. Audio is optional—turn it on or leave it silent.'
                 }),
                 Object.freeze({
-                    label: 'REMINDER',
-                    text: 'Stop or switch anytime. There is no score to protect.'
+                    label: 'CHOICE',
+                    text: 'Stop or pause whenever you feel ready. There is no forced time limit.'
                 })
             ])
         }),
         obd: Object.freeze({
-            header: 'I need to move',
+            header: 'I Need to Move',
             steps: Object.freeze([
                 Object.freeze({
-                    label: 'TRY',
-                    text: 'Hold the pad and gently follow the paddle along the loop with your eyes.'
+                    label: 'WHAT TO DO',
+                    text: 'Keep your eyes on the moving cedar paddle as it traces the smooth loop.'
                 }),
                 Object.freeze({
-                    label: 'PACE',
-                    text: 'Move at a pace that feels okay. You can pause by lifting your finger.'
+                    label: 'WHAT TO IGNORE',
+                    text: 'Let the shifting background waves pass in your side vision without staring at them.'
                 }),
                 Object.freeze({
-                    label: 'REMINDER',
-                    text: 'Stop or switch anytime. Nothing here is mandatory.'
+                    label: 'WHY',
+                    text: 'Smooth visual tracking helps quiet racing thoughts and bring your focus back to center.'
                 })
             ])
         }),
         mif: Object.freeze({
-            header: 'A quiet moment',
+            header: 'I Need a Quiet Moment',
             steps: Object.freeze([
                 Object.freeze({
-                    label: 'TRY',
-                    text: 'If it feels right, slowly trace the glowing path with one finger.'
+                    label: 'WHAT TO DO',
+                    text: 'Press your finger gently on the glowing path and trace along the line.'
                 }),
                 Object.freeze({
-                    label: 'PACE',
-                    text: 'You can pause, lift, or start again whenever you want.'
+                    label: 'IF YOU SLIP',
+                    text: 'If your finger leaves the line, simply place it back on the path and keep moving smoothly.'
                 }),
                 Object.freeze({
-                    label: 'REMINDER',
-                    text: 'This is a low-stimulation option. Leave the moment you need to.'
+                    label: 'AUDIO',
+                    text: 'Sound is turned off by default. Tap the speaker icon if you want gentle touch feedback.'
                 })
             ])
         }),
-        cre: Object.freeze({
-            header: 'Help me settle',
+        aed: Object.freeze({
+            header: 'Help Me Focus',
             steps: Object.freeze([
                 Object.freeze({
-                    label: 'TRY',
-                    text: 'When a thought floats down, tap it if you want a gentler reframe.'
+                    label: 'WHAT TO DO',
+                    text: 'Tap ONLY the stable, glowing ovoid shapes as they float across the screen.'
                 }),
                 Object.freeze({
-                    label: 'CHOICE',
-                    text: 'Pick the option that feels truest — or skip. You cannot fail this.'
+                    label: 'WHAT TO AVOID',
+                    text: 'Do NOT tap the chaotic shapes (trigons, crescents, or quintons). Let them float past.'
                 }),
                 Object.freeze({
-                    label: 'REMINDER',
-                    text: 'Stop or switch anytime. Your pace is the right pace.'
+                    label: 'WHY',
+                    text: 'Focusing strictly on the ovoids trains your brain to filter out chaotic sensory noise.'
                 })
             ])
         }),
         prcb: Object.freeze({
-            header: 'Stability practice',
+            header: 'Emergency Reset',
             steps: Object.freeze([
                 Object.freeze({
-                    label: 'TRY',
-                    text: 'Press and hold the grounding pad if that feels steadying.'
+                    label: 'WHAT TO DO',
+                    text: 'Press and hold the central pad firmly with your thumb or palm.'
                 }),
                 Object.freeze({
-                    label: 'PACE',
-                    text: 'Let go whenever you want. You do not have to finish.'
+                    label: 'WHAT TO EXPECT',
+                    text: 'Hold until the screen visual relaxes and stabilizes.'
                 }),
                 Object.freeze({
-                    label: 'REMINDER',
-                    text: 'Stop or switch anytime. Support is also in the footer if you need it.'
+                    label: 'SAFETY',
+                    text: 'You can release your hold or exit at any millisecond.'
                 })
             ])
         })
@@ -114,7 +111,6 @@
         const prefix = idPrefix || protocolKey;
         const titleId = `${prefix}-onboarding-title`;
         const stepsId = `${prefix}-onboarding-steps`;
-        const noteId = `${prefix}-onboarding-note`;
 
         const stepsHtml = content.steps
             .map(
@@ -128,10 +124,9 @@
 
         return (
             `<div class="protocol-preflight-overlay protocol-onboarding-overlay" data-protocol-onboarding="${escapeHtml(protocolKey)}" role="presentation">` +
-            `<section class="protocol-preflight-card protocol-onboarding-card" role="dialog" aria-modal="true" aria-labelledby="${titleId}" aria-describedby="${stepsId} ${noteId}">` +
+            `<section class="protocol-preflight-card protocol-onboarding-card" role="dialog" aria-modal="true" aria-labelledby="${titleId}" aria-describedby="${stepsId}">` +
             `<h2 class="protocol-preflight-title protocol-onboarding-title" id="${titleId}">${escapeHtml(content.header)}</h2>` +
             `<ul class="protocol-preflight-steps protocol-onboarding-steps" id="${stepsId}">${stepsHtml}</ul>` +
-            `<p class="protocol-onboarding-note" id="${noteId}">${escapeHtml(AUDIO_NOTE)}</p>` +
             `<button type="button" class="protocol-preflight-start protocol-onboarding-start" id="${prefix}-onboarding-start">START WHEN READY</button>` +
             `</section>` +
             `</div>`
@@ -169,12 +164,17 @@
         };
 
         function onOverlayActivate(event) {
+            /* Only the start button (or Enter/Space on focused start) begins the exercise. */
+            const startBtn = event.target.closest('.protocol-onboarding-start');
+            if (!startBtn) return;
             event.preventDefault();
             dismiss();
         }
 
         function onKeyActivate(event) {
             if (event.key === 'Enter' || event.key === ' ') {
+                const startBtn = event.target.closest('.protocol-onboarding-start');
+                if (!startBtn) return;
                 event.preventDefault();
                 dismiss();
             }
@@ -192,7 +192,6 @@
     }
 
     global.ProtocolOnboarding = {
-        AUDIO_NOTE,
         PROTOCOL_ONBOARDING,
         getContent,
         buildMarkup,

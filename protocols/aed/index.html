@@ -96,29 +96,15 @@
             transition: filter 0.4s linear;
         }
 
-        #instruction-overlay {
+        .aed-onboarding-host {
             position: fixed;
             inset: 0;
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
-            padding: 0 max(1.5rem, env(safe-area-inset-left, 0px)) 0 max(1.5rem, env(safe-area-inset-right, 0px));
-            background: transparent !important;
-            font-size: clamp(1.5rem, 5vw, 2.25rem);
-            font-weight: 600;
-            line-height: 1.35;
-            letter-spacing: 0.03em;
-            text-align: center;
-            color: #ffffff;
+            z-index: 12500;
             pointer-events: none;
-            opacity: 1;
-            transition: opacity 500ms ease;
         }
 
-        #instruction-overlay.is-fading {
-            opacity: 0;
+        .aed-onboarding-host .protocol-onboarding-overlay {
+            pointer-events: auto;
         }
 
         #aed-canvas {
@@ -152,27 +138,28 @@
             <canvas id="aed-canvas" aria-hidden="true"></canvas>
         </main>
 
-        <div id="instruction-overlay" role="status" aria-live="polite">Focus on the glowing ovals when you are ready.</div>
+        <div id="aed-onboarding-host" class="aed-onboarding-host"></div>
 
         <div id="checkin-overlay" class="checkin-overlay hidden" aria-hidden="true">
             <section class="checkin-card" role="dialog" aria-modal="true" aria-labelledby="checkin-title">
                 <h2 id="checkin-title" class="checkin-title">Did that help?</h2>
-                <p class="checkin-sub">No wrong answers. This stays with you — nothing is saved.</p>
+                <p class="checkin-sub">Optional — nothing is saved or shared.</p>
                 <div class="checkin-choices">
                     <button type="button" class="checkin-choice" data-checkin="better">Feeling a bit better</button>
-                    <button type="button" class="checkin-choice" data-checkin="switch">Want to try something else</button>
-                    <button type="button" class="checkin-choice" data-checkin="break">I need a break for now</button>
+                    <button type="button" class="checkin-choice" data-checkin="switch">Try something else</button>
+                    <button type="button" class="checkin-choice" data-checkin="break">I need a break</button>
                 </div>
             </section>
         </div>
 
         <footer class="emergency-exit-bar emergency-exit-bar--global" aria-label="Crisis support — always available">
-            <p class="crisis-footer-text">Need support? Call or text 988 (Lifeline) or 911. This app cannot send emergency help.</p>
+            <p class="crisis-footer-text">Need immediate support? Call or text 988 or 911. This app cannot send emergency help.</p>
             <button type="button" class="emergency-exit-link" data-emergency-dial>Call or text 988 / 911</button>
         </footer>
     </div>
 
     <script src="../../safety-control.js"></script>
+    <script src="../onboarding/protocol-onboarding.js"></script>
     <script src="script.js"></script>
     <script>
         (function () {
@@ -209,6 +196,19 @@
                 );
                 window.location.href = 'tel:' + (choice ? '988' : '911');
             });
+
+            var host = document.getElementById('aed-onboarding-host');
+            if (host && window.ProtocolOnboarding && typeof window.ProtocolOnboarding.mount === 'function') {
+                window.ProtocolOnboarding.mount(host, {
+                    protocolKey: 'aed',
+                    onStart: function () {
+                        if (typeof window.engageAEDSession === 'function') {
+                            window.engageAEDSession();
+                        }
+                    },
+                    replace: true
+                });
+            }
         })();
     </script>
 </body>

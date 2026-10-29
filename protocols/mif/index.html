@@ -119,6 +119,17 @@
             -webkit-user-select: none;
             user-select: none;
         }
+
+        .mif-onboarding-host {
+            position: fixed;
+            inset: 0;
+            z-index: 12500;
+            pointer-events: none;
+        }
+
+        .mif-onboarding-host .protocol-onboarding-overlay {
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body>
@@ -130,31 +141,34 @@
             <span class="gameplay-theta-toggle-state" aria-hidden="true">OFF</span>
         </button>
         <p class="mif-inst protocol-header" id="mif-inst" role="status">Quiet moment</p>
-        <p class="mif-status" id="mif-status" role="status">Slide slowly along the path if that feels right</p>
+        <p class="mif-status" id="mif-status" role="status">Read instructions — then start</p>
 
         <main class="mif-shell" id="mif-shell" aria-label="Quiet touch tracing canvas">
             <canvas id="mif-canvas" aria-hidden="true"></canvas>
         </main>
 
+        <div id="mif-onboarding-host" class="mif-onboarding-host"></div>
+
         <div id="checkin-overlay" class="checkin-overlay hidden" aria-hidden="true">
             <section class="checkin-card" role="dialog" aria-modal="true" aria-labelledby="checkin-title">
                 <h2 id="checkin-title" class="checkin-title">Did that help?</h2>
-                <p class="checkin-sub">No wrong answers. This stays with you — nothing is saved.</p>
+                <p class="checkin-sub">Optional — nothing is saved or shared.</p>
                 <div class="checkin-choices">
                     <button type="button" class="checkin-choice" data-checkin="better">Feeling a bit better</button>
-                    <button type="button" class="checkin-choice" data-checkin="switch">Want to try something else</button>
-                    <button type="button" class="checkin-choice" data-checkin="break">I need a break for now</button>
+                    <button type="button" class="checkin-choice" data-checkin="switch">Try something else</button>
+                    <button type="button" class="checkin-choice" data-checkin="break">I need a break</button>
                 </div>
             </section>
         </div>
 
         <footer class="emergency-exit-bar emergency-exit-bar--global" aria-label="Crisis support — always available">
-            <p class="crisis-footer-text">Need support? Call or text 988 (Lifeline) or 911. This app cannot send emergency help.</p>
+            <p class="crisis-footer-text">Need immediate support? Call or text 988 or 911. This app cannot send emergency help.</p>
             <button type="button" class="emergency-exit-link" data-emergency-dial>Call or text 988 / 911</button>
         </footer>
     </div>
 
     <script src="../../safety-control.js"></script>
+    <script src="../onboarding/protocol-onboarding.js"></script>
     <script src="script.js"></script>
     <script>
         (function () {
@@ -191,6 +205,19 @@
                 );
                 window.location.href = 'tel:' + (choice ? '988' : '911');
             });
+
+            var host = document.getElementById('mif-onboarding-host');
+            if (host && window.ProtocolOnboarding && typeof window.ProtocolOnboarding.mount === 'function') {
+                window.ProtocolOnboarding.mount(host, {
+                    protocolKey: 'mif',
+                    onStart: function () {
+                        if (typeof window.engageMIFSession === 'function') {
+                            window.engageMIFSession();
+                        }
+                    },
+                    replace: true
+                });
+            }
         })();
     </script>
 </body>

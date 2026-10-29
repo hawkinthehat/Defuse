@@ -5,7 +5,7 @@
  */
 (function () {
     const MAX_DPR = 2;
-    const PROTOCOL_HEADER = 'Quiet moment';
+    const PROTOCOL_HEADER = 'I Need a Quiet Moment';
     const PATH_SAMPLES = 160;
     const PATH_TOLERANCE = 38;
     const RESTING_BPM = 65;
@@ -658,7 +658,8 @@
         const canvas = document.getElementById('mif-canvas');
         if (!canvas) return false;
         const page = document.getElementById('mif-page') || document.body;
-        return bindEngine(page);
+        /* Pause until the youth instruction card is dismissed. */
+        return bindEngine(page, { paused: true });
     }
 
     function mountSpaStage(options) {
@@ -707,6 +708,7 @@
 
     window.launchMIF = launchMIF;
     window.stopMIF = stopMIF;
+    window.engageMIFSession = engageMIFSession;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {

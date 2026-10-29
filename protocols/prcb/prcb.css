@@ -121,7 +121,7 @@
 .prcb-charge-ui {
     position: absolute;
     left: 50%;
-    bottom: calc(clamp(1.25rem, 6vh, 2.5rem) + var(--emergency-footer-reserve, 92px));
+    bottom: calc(7.5rem + var(--emergency-footer-reserve, 92px));
     transform: translateX(-50%);
     width: min(88vw, 22rem);
     padding: 1rem 1.1rem;
@@ -130,6 +130,42 @@
     border: 1px solid rgba(248, 113, 113, 0.35);
     z-index: 3;
     box-sizing: border-box;
+}
+
+.prcb-hold-wrap {
+    position: absolute;
+    left: 50%;
+    bottom: calc(1.1rem + var(--emergency-footer-reserve, 92px));
+    transform: translateX(-50%);
+    z-index: 4;
+    width: min(88vw, 16rem);
+}
+
+.prcb-hold-pad {
+    width: 100%;
+    min-height: 4.25rem;
+    padding: 1rem 1.15rem;
+    border-radius: 999px;
+    border: 2px solid rgba(248, 113, 113, 0.65);
+    background: rgba(69, 10, 10, 0.88);
+    color: #fecaca;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(0.78rem, 2.8vw, 0.92rem);
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    touch-action: none;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+}
+
+.prcb-hold-pad.is-holding {
+    border-color: #f87171;
+    background: rgba(127, 29, 29, 0.95);
+    color: #fff;
+    transform: scale(0.98);
 }
 
 .prcb-charge-ui.hidden {
